@@ -11,7 +11,16 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body class="loading-state">
+<!-- ===== LOADING OVERLAY ===== -->
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="loader-content">
+    <div class="logo-icon animate-bounce">🎓</div>
+    <h2 class="loading-title">Iniciando BecaMax</h2>
+    <p class="loading-text">Conectando con el servidor seguro...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
 
 <!-- ===== HEADER ===== -->
 <header class="header">

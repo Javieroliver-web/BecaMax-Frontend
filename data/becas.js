@@ -4,7 +4,7 @@
 //  En Fase 2 este array se sustituirá por llamadas a la BDNS API.
 // ============================================================
 
-const BECAS = [
+const BECAS_ESTATICAS = [
   {
     id: 1,
     nombre: 'Beca 6000',

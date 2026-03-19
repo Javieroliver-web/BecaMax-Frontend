@@ -3,6 +3,7 @@
 // ============================================================
 
 // ---- Estado global -----------------------------------------
+let BECAS = []; // Se cargará desde el backend
 let filtrosActivos = {
   busqueda: '',
   tipo: '',
@@ -13,6 +14,57 @@ let filtrosActivos = {
   plazo: '',
 };
 let ordenActual = 'deadline';
+
+// URL del backend (ajustar tras el despliegue o usar variable de entorno)
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:3000/api' 
+  : 'https://becamax-backend.vercel.app/api'; // Cambiar por tu URL real de Vercel
+
+async function cargarBecas() {
+  try {
+    const response = await fetch(`${API_URL}/becas`);
+    const result = await response.json();
+    BECAS = result.data || [];
+    actualizarStats();
+    renderGrid();
+  } catch (error) {
+    console.error('Error al cargar becas:', error);
+    showToast('Error al conectar con el servidor', 'error');
+    if (typeof BECAS_ESTATICAS !== 'undefined') {
+        BECAS = BECAS_ESTATICAS;
+        actualizarStats();
+        renderGrid();
+    }
+  }
+}
+
+async function esperarBackend() {
+  const statusText = document.querySelector('.loading-text');
+  let conectado = false;
+  let intentos = 0;
+
+  while (!conectado) {
+    try {
+      const response = await fetch(`${API_URL}/ping`);
+      if (response.ok) {
+        conectado = true;
+      }
+    } catch (e) {
+      intentos++;
+      if (intentos > 5) {
+        statusText.textContent = "El servidor está tardando más de lo esperado. Iniciando modo offline...";
+        // Opcionalmente podrías romper el bucle aquí para cargar modo offline
+        break; 
+      }
+      console.log("Esperando al servidor...");
+    }
+    if (!conectado) await new Promise(r => setTimeout(r, 2000));
+  }
+
+  // Finalizar carga
+  document.body.classList.remove('loading-state');
+  await cargarBecas();
+}
 
 // ---- Utilidades de fecha -----------------------------------
 function diasRestantes(deadline) {
@@ -229,8 +281,7 @@ async function confirmarAlerta() {
 
 // ---- Event listeners ---------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-  actualizarStats();
-  renderGrid();
+  esperarBackend();
 
   // Búsqueda
   const searchInput = document.getElementById('searchInput');
