@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Perfil · BecasAndalucía</title>
+  <meta name="description" content="Configura tu perfil para recibir recomendaciones automáticas de becas.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard-page">
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎓</div>
+      <span class="logo-text">BecasAndalucía</span>
+    </a>
+    <div class="header-actions user-menu">
+      <span class="user-name" id="headerUserName"></span>
+      <a href="dashboard.html" class="btn btn-ghost btn-sm">🔔 Mis alertas</a>
+      <button class="btn btn-secondary btn-sm" onclick="handleSignOut()">Cerrar sesión</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="dashboard-hero" style="padding-bottom:20px">
+  <div class="dashboard-hero-inner" style="text-align:center">
+    <h1 style="font-size:1.8rem;margin-bottom:8px">Tu Perfil ⚙️</h1>
+    <p style="color:var(--text-secondary);max-width:540px;margin:0 auto">
+      Cuéntanos qué estudias para que podamos recomendarte becas a tu medida automáticamente en tu panel.
+    </p>
+  </div>
+</section>
+
+<!-- ===== PERFIL FORM ===== -->
+<div class="main-layout" style="display:block; max-width:600px; margin:0 auto; padding-top:20px">
+  <div class="auth-card" style="max-width:100%">
+    
+    <form id="formPerfil" onsubmit="guardarPerfil(event)">
+      
+      <div class="form-group">
+        <label for="perfTipo">¿Qué estás estudiando (o quieres estudiar)?</label>
+        <select class="form-input" id="perfTipo" required>
+          <option value="">Selecciona tu nivel...</option>
+          <option value="universitaria">Estudios Universitarios (Grado)</option>
+          <option value="bachillerato">Bachillerato</option>
+          <option value="fp">Formación Profesional (Grado Medio / Superior)</option>
+          <option value="master">Máster / Posgrado / Doctorado</option>
+          <option value="idiomas">Idiomas</option>
+          <option value="investigacion">Investigación</option>
+          <option value="artistica">Enseñanzas Artísticas / Diseño</option>
+          <option value="primaria">Primaria / ESO</option>
+          <option value="formacion">Formación para el empleo (Ninis)</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-top:20px">
+        <label for="perfRegion">¿Dónde resides actualmente?</label>
+        <select class="form-input" id="perfRegion" required>
+          <option value="Andalucía">Andalucía</option>
+          <option value="Nacional">Otra parte de España / Nacional</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-top:20px">
+        <label for="perfArea">Área principal de estudios</label>
+        <select class="form-input" id="perfArea">
+          <option value="Cualquier área">Cualquier área / General</option>
+          <option value="Ciencia y Tecnología">Ciencias puras, Ingeniería, Tecnología, Salud</option>
+          <option value="Arte y Diseño">Artes, Diseño, Conservatorio</option>
+          <option value="Educación">Educación, Letras, Humanidades</option>
+          <option value="Formación Profesional">Ciclos de FP genéricos</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" id="btnGuardar" style="margin-top:24px">
+        Guardar configuración
+      </button>
+
+      <div style="text-align:center; padding-top:16px;">
+        <a href="dashboard.html" style="font-size:0.85rem; color:var(--text-secondary)">Descartar cambios y volver al panel</a>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <p>BecasAndalucía · <a href="index.html">Volver al buscador</a> · <a href="incidencias.html">Reportar incidencia</a></p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="auth.js"></script>
+<script src="perfil.js"></script>
+
+</body>
+</html>

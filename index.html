@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BecasAndalucía – Encuentra tu beca sin perderte nada</title>
+  <meta name="description" content="Descubre todas las becas disponibles en Andalucía con filtros, alertas de plazo y notificaciones por email. No te pierdas ninguna oportunidad.">
+  <meta property="og:title" content="BecasAndalucía – Tu gestor de becas">
+  <meta property="og:description" content="Filtra, guarda alertas y recibe por email las becas que encajan contigo.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎓</div>
+      <span class="logo-text">BecasAndalucía</span>
+    </a>
+    <nav class="header-actions" id="headerActions">
+      <a href="auth.html" class="btn btn-secondary btn-sm" id="btnLogin">Iniciar sesión</a>
+      <a href="auth.html?tab=registro" class="btn btn-primary btn-sm" id="btnRegister">Registrarse gratis</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <h1 class="hero-title">No te pierdas ninguna <span class="text-gradient">beca</span></h1>
+  <p class="hero-subtitle">Filtra las becas disponibles en Andalucía, guarda tus búsquedas y recibe alertas por email antes de que acabe el plazo.</p>
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Busca por nombre, entidad o etiqueta…" autocomplete="off">
+    <button class="search-clear" id="searchClear" title="Limpiar">✕</button>
+  </div>
+  <div class="hero-stats" id="heroStats">
+    <div class="stat"><div class="stat-value" id="statTotal">–</div><div class="stat-label">Becas disponibles</div></div>
+    <div class="stat"><div class="stat-value" id="statUrgente">–</div><div class="stat-label">Plazo urgente</div></div>
+    <div class="stat"><div class="stat-value" id="statMaxImporte">–</div><div class="stat-label">Mayor importe</div></div>
+  </div>
+</section>
+
+<!-- ===== AD SLOT (top) ===== -->
+<!-- ADSENSE: descomentar cuando la cuenta esté aprobada
+<div style="max-width:var(--max-width);margin:0 auto;padding:0 24px">
+  <ins class="adsbygoogle ad-slot" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+-->
+<div style="max-width:var(--max-width);margin:0 auto;padding:0 24px">
+  <div class="ad-slot">Espacio publicitario · Google AdSense (pendiente de activar)</div>
+</div>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<main class="main-layout">
+
+  <!-- SIDEBAR FILTROS -->
+  <aside class="filters">
+    <div class="filter-header">
+      <span class="filter-title">Filtros</span>
+      <button class="filter-reset" id="btnResetFiltros">Limpiar</button>
+    </div>
+
+    <div class="filter-group">
+      <label for="filtroTipo">Tipo de beca</label>
+      <select class="filter-select" id="filtroTipo">
+        <option value="">Todos los tipos</option>
+        <option value="universitaria">Universitaria</option>
+        <option value="bachillerato">Bachillerato</option>
+        <option value="fp">Formación Profesional</option>
+        <option value="master">Máster / Posgrado</option>
+        <option value="idiomas">Idiomas</option>
+        <option value="investigacion">Investigación</option>
+        <option value="movilidad">Movilidad / Erasmus</option>
+        <option value="artistica">Enseñanzas Artísticas</option>
+        <option value="formacion">Formación / Inserción</option>
+        <option value="primaria">Primaria / ESO</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="filtroRegion">Ámbito</label>
+      <select class="filter-select" id="filtroRegion">
+        <option value="">Todos</option>
+        <option value="Andalucía">Solo Andalucía</option>
+        <option value="Nacional">Nacional</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="filtroArea">Área de estudios</label>
+      <select class="filter-select" id="filtroArea">
+        <option value="">Cualquier área</option>
+        <option value="Cualquier área">General</option>
+        <option value="Idiomas">Idiomas</option>
+        <option value="Ciencia y Tecnología">Ciencia y Tecnología</option>
+        <option value="Arte y Diseño">Arte y Diseño</option>
+        <option value="Educación">Educación</option>
+        <option value="Formación Profesional">Formación Profesional</option>
+      </select>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-group">
+      <label>Importe (€)</label>
+      <div class="filter-importe">
+        <input type="number" class="filter-number" id="filtroImporteMin" placeholder="Mín." min="0">
+        <input type="number" class="filter-number" id="filtroImporteMax" placeholder="Máx." min="0">
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label for="filtroPlazo">Estado del plazo</label>
+      <select class="filter-select" id="filtroPlazo">
+        <option value="">Todos</option>
+        <option value="urgente">🔴 Urgente (≤7 días)</option>
+        <option value="proximo">🟡 Próximo (≤30 días)</option>
+        <option value="disponible">🟢 Disponible (+30 días)</option>
+        <option value="abiertas">Solo abiertas</option>
+      </select>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <button class="guardar-alerta-btn" id="btnGuardarAlerta">
+      🔔 Guardar alerta con estos filtros
+    </button>
+  </aside>
+
+  <!-- RESULTADOS -->
+  <section class="results-area">
+    <div class="results-header">
+      <p class="results-count"><strong id="countText">0</strong> becas encontradas</p>
+      <div class="sort-wrap">
+        Ordenar:
+        <select class="sort-select" id="sortSelect">
+          <option value="deadline">Plazo más próximo</option>
+          <option value="importe_desc">Mayor importe</option>
+          <option value="importe_asc">Menor importe</option>
+          <option value="nombre">Nombre A-Z</option>
+        </select>
+      </div>
+    </div>
+    <div class="becas-grid" id="becasGrid">
+      <!-- Cards inyectadas por app.js -->
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== MODAL GUARDAR ALERTA ===== -->
+<div class="modal-overlay" id="modalAlerta">
+  <div class="modal">
+    <h2 class="modal-title">🔔 Guardar alerta</h2>
+    <p class="modal-subtitle">Te avisaremos por email cuando haya becas nuevas que encajen con estos filtros.</p>
+    <div class="form-group">
+      <label for="alertaNombre">Nombre de la alerta</label>
+      <input type="text" class="form-input" id="alertaNombre" placeholder="Ej. Becas universitarias Sevilla" maxlength="60">
+    </div>
+    <div class="form-group">
+      <label>Filtros activos</label>
+      <div id="alertaFiltrosResumen" style="font-size:.83rem;color:var(--text-secondary);background:var(--bg-tertiary);padding:12px;border-radius:10px;line-height:1.7"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btnCerrarModal">Cancelar</button>
+      <button class="btn btn-primary" id="btnConfirmarAlerta">Guardar alerta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <p>BecasAndalucía · Información orientativa. Verifica siempre las convocatorias en la fuente oficial.</p>
+  <p style="margin-top:6px"><a href="auth.html">Acceder</a> · <a href="dashboard.html">Mi panel</a> · <a href="incidencias.html">Reportar incidencia</a> · Datos: <a href="https://www.juntadeandalucia.es" target="_blank" rel="noopener">Junta de Andalucía</a> · <a href="https://www.becaseducacion.gob.es" target="_blank" rel="noopener">MEC</a></p>
+</footer>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="data/becas.js"></script>
+<script src="auth.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

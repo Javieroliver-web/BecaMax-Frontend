@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Incidencias · BecasAndalucía</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .admin-nav { display:flex; gap:10px; margin-bottom: 20px; justify-content: center;}
+    .admin-table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 8px; overflow: hidden; font-size:0.9rem;}
+    .admin-table th, .admin-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+    .admin-table th { background: rgba(255,255,255,0.03); color: var(--text-secondary); font-weight: 500;}
+  </style>
+</head>
+<body class="dashboard-page" style="display:none;" id="adminBody">
+
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎓</div><span class="logo-text">BecasAndalucía Admin</span>
+    </a>
+    <div class="header-actions">
+      <a href="dashboard.html" class="btn btn-ghost btn-sm">Volver al sitio</a>
+      <button class="btn btn-secondary btn-sm" onclick="handleSignOut()">Salir</button>
+    </div>
+  </div>
+</header>
+
+<section class="dashboard-hero" style="padding: 20px 0;">
+  <div class="dashboard-hero-inner">
+    <h1 style="text-align:center; font-size: 1.8rem; margin-bottom:15px">Centro de Incidencias</h1>
+    <nav class="admin-nav">
+      <a href="admin-dashboard.html" class="btn btn-ghost btn-sm">Resumen Global</a>
+      <a href="admin-usuarios.html" class="btn btn-ghost btn-sm">👥 Usuarios</a>
+      <a href="admin-incidencias.html" class="btn btn-primary btn-sm">💬 Incidencias</a>
+    </nav>
+  </div>
+</section>
+
+<div class="main-layout" style="display:block; max-width:1000px; margin:0 auto; padding-top:10px">
+  <div style="overflow-x:auto;">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Tipo</th>
+          <th>Descripción</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="incidenciasTableBody">
+        <tr><td colspan="5" style="text-align:center; color:var(--text-muted)">Cargando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="auth.js"></script>
+<script src="admin.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const isAdmin = await requireAdmin();
+    if (!isAdmin) return;
+
+    cargarIncidencias();
+  });
+
+  async function cargarIncidencias() {
+    const { data: incidencias, error } = await supabaseClient.from('incidencias').select('*').order('created_at', { ascending: false });
+    const tbody = document.getElementById('incidenciasTableBody');
+    if (error) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red">Error cargando incidencias</td></tr>`;
+      return;
+    }
+    
+    if(!incidencias.length) {
+       tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">No hay incidencias registradas.</td></tr>`;
+       return;
+    }
+
+    tbody.innerHTML = incidencias.map(i => {
+      const fecha = new Date(i.created_at).toLocaleDateString();
+      const estadoBadge = i.estado === 'pendiente' 
+        ? `<span class="badge" style="background:var(--warning-color);color:#000">Pendiente</span>` 
+        : `<span class="badge" style="background:var(--success-color);color:#000">Resuelta</span>`;
+      return `
+      <tr>
+        <td style="white-space:nowrap">${fecha}</td>
+        <td><strong>${i.tipo}</strong></td>
+        <td style="max-width:300px; white-space:normal; line-height:1.4">${i.descripcion}</td>
+        <td>${estadoBadge}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm" style="padding:4px 8px; font-size:0.8rem" onclick="toggleEstado('${i.id}', '${i.estado}')">
+            ${i.estado === 'pendiente' ? 'Marcar Resuelta' : 'Reabrir'}
+          </button>
+        </td>
+      </tr>
+      `;
+    }).join('');
+  }
+
+  async function toggleEstado(id, currentState) {
+    const newState = currentState === 'pendiente' ? 'resuelta' : 'pendiente';
+    const { error } = await supabaseClient.from('incidencias').update({ estado: newState }).eq('id', id);
+    if (!error) {
+      showToast('Incidencia actualizada', 'success');
+      cargarIncidencias();
+    } else {
+      showToast('Error al actualizar', 'error');
+    }
+  }
+</script>
+</body>
+</html>

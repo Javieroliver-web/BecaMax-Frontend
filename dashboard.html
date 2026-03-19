@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Alertas · BecasAndalucía</title>
+  <meta name="description" content="Gestiona tus alertas personalizadas de becas. Activa, desactiva o elimina tus búsquedas guardadas.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard-page">
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎓</div>
+      <span class="logo-text">BecasAndalucía</span>
+    </a>
+    <div class="header-actions user-menu">
+      <span class="user-name" id="headerUserName"></span>
+      <a href="index.html" class="btn btn-ghost btn-sm">🔍 Buscar becas</a>
+      <button class="btn btn-secondary btn-sm" onclick="handleSignOut()">Cerrar sesión</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== DASHBOARD HERO ===== -->
+<section class="dashboard-hero">
+  <div class="dashboard-hero-inner">
+    <h1>Mis alertas <span class="text-gradient">🔔</span></h1>
+    <p>Aquí están tus búsquedas guardadas. Te avisamos por email cuando aparezcan becas nuevas que encajen.</p>
+  </div>
+</section>
+
+<!-- ===== DASHBOARD CONTENT ===== -->
+<div class="dashboard-content">
+
+  <!-- Alertas guardadas -->
+  <div class="dashboard-section">
+    <div class="section-header">
+      <h2 class="section-title">Alertas activas</h2>
+      <span class="section-count" id="alertasCount">0 alertas</span>
+    </div>
+    <div id="alertasList">
+      <!-- Inyectado por dashboard.js -->
+    </div>
+  </div>
+
+  <!-- Beca según Perfil de Usuario -->
+  <div class="dashboard-section">
+    <div class="section-header">
+      <h2 class="section-title">Recomendadas para tu perfil <span style="font-size:.8rem;color:var(--text-muted);font-weight:normal">(<a href="perfil.html" style="color:var(--primary-light)">Editar perfil</a>)</span></h2>
+    </div>
+    <div class="becas-grid" id="becasPerfil">
+      <!-- Inyectado por dashboard.js -->
+    </div>
+  </div>
+
+  <!-- Becas recomendadas según filtros guardados -->
+  <div class="dashboard-section">
+    <div class="section-header">
+      <h2 class="section-title">Coinciden con tus alertas activas</h2>
+    </div>
+    <div class="becas-grid" id="becasRecomendadas">
+      <!-- Inyectado por dashboard.js -->
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL EDITAR NOMBRE ALERTA -->
+<div class="modal-overlay" id="modalEditarAlerta">
+  <div class="modal">
+    <h2 class="modal-title">✏️ Renombrar alerta</h2>
+    <div class="form-group" style="margin-top:16px">
+      <label for="editAlertaNombre">Nuevo nombre</label>
+      <input type="text" class="form-input" id="editAlertaNombre" maxlength="60">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btnCerrarEditModal">Cancelar</button>
+      <button class="btn btn-primary" id="btnGuardarEditAlerta">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p>BecasAndalucía · <a href="index.html">Volver al buscador</a> · <a href="incidencias.html">Reportar incidencia</a></p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="data/becas.js"></script>
+<script src="auth.js"></script>
+<script src="dashboard.js"></script>
+
+</body>
+</html>

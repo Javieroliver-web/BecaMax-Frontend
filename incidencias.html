@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soporte e Incidencias · BecasAndalucía</title>
+  <meta name="description" content="Reporta un problema, error o envíanos una sugerencia sobre BecasAndalucía.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard-page">
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎓</div>
+      <span class="logo-text">BecasAndalucía</span>
+    </a>
+    <div class="header-actions user-menu" id="headerActions">
+      <a href="auth.html" class="btn btn-secondary btn-sm">Acceder / Registro</a>
+    </div>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="dashboard-hero" style="padding-bottom:20px">
+  <div class="dashboard-hero-inner" style="text-align:center">
+    <h1 style="font-size:1.8rem;margin-bottom:8px">Soporte e Incidencias 💬</h1>
+    <p style="color:var(--text-secondary);max-width:540px;margin:0 auto">
+      Ayúdanos a mejorar. Si encuentras un error o tienes datos más actualizados sobre una beca, háznoslo saber.
+    </p>
+  </div>
+</section>
+
+<!-- ===== INCIDENCIAS FORM ===== -->
+<div class="main-layout" style="display:block; max-width:600px; margin:0 auto; padding-top:20px">
+  <div class="auth-card" style="max-width:100%">
+    
+    <div id="incidenciaSuccess" style="display:none; text-align:center; padding:30px 10px">
+      <div class="empty-icon" style="font-size:3.5rem; margin-bottom:16px; opacity:1">🙌</div>
+      <h2 style="font-size:1.4rem; margin-bottom:10px">¡Mensaje enviado!</h2>
+      <p style="color:var(--text-secondary); margin-bottom:24px">Gracias por ayudarnos a mejorar BecasAndalucía. Analizaremos tu reporte lo antes posible.</p>
+      <button class="btn btn-primary" onclick="window.location.reload()">Enviar otro reporte</button>
+      <a href="index.html" class="btn btn-ghost" style="display:block; margin-top:10px">Volver al inicio</a>
+    </div>
+
+    <form id="formIncidencia" onsubmit="enviarIncidencia(event)">
+      <div class="form-group">
+        <label for="incTipo">Tipo de mensaje</label>
+        <select class="filter-select" id="incTipo" required style="width:100%">
+          <option value="" disabled selected>Selecciona una opción...</option>
+          <option value="datos_erroneos">⚠️ Datos de una beca incorrectos / obsoletos</option>
+          <option value="bug">🐛 Error en la web (no funciona algo)</option>
+          <option value="sugerencia">💡 Sugerencia de mejora</option>
+          <option value="otra_beca">➕ Falta una beca importante</option>
+          <option value="otro">Otro motivo</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-top:20px">
+        <label for="incDesc">Descripción detallada</label>
+        <textarea id="incDesc" class="form-input" rows="5" placeholder="Explica el problema o tu sugerencia con el mayor detalle posible..." required style="resize:vertical"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" id="btnEnviar" style="margin-top:10px">
+        Enviar mensaje
+      </button>
+    </form>
+
+  </div>
+</div>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <p>BecasAndalucía · <a href="index.html">Volver al buscador</a></p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="auth.js"></script>
+<script src="incidencias.js"></script>
+
+</body>
+</html>
