@@ -11,7 +11,7 @@ async function requireAdmin() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   
   if (!session) {
-    window.location.href = 'auth.html';
+    window.location.href = '/pages/auth.html';
     return false;
   }
 
@@ -24,7 +24,7 @@ async function requireAdmin() {
 
   if (error || !perfil || perfil.rol !== 'admin') {
     // Si no es admin, fuera
-    window.location.href = 'index.html';
+    window.location.href = '/index.html';
     return false;
   }
 

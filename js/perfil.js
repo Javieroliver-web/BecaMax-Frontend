@@ -61,7 +61,7 @@ async function guardarPerfil(e) {
     showToast('✅ Perfil guardado. Tus recomendaciones se han actualizado.', 'success');
     // Tras 1 seg de lectura del toast, enviamos al dashboard
     setTimeout(() => {
-      window.location.href = 'dashboard.html';
+      window.location.href = '/pages/dashboard.html';
     }, 1200);
   }
 }

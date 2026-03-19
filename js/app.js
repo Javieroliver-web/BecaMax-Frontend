@@ -212,7 +212,7 @@ function abrirModalAlerta() {
 async function confirmarAlerta() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) {
-    window.location.href = 'auth.html?returnUrl=' + encodeURIComponent(window.location.href);
+    window.location.href = '/pages/auth.html?returnUrl=' + encodeURIComponent(window.location.href);
     return;
   }
 

@@ -96,14 +96,14 @@ async function handleForgotPassword(e) {
 // ---- Sign out -----------------------------------------------
 async function handleSignOut() {
   await supabaseClient.auth.signOut();
-  window.location.href = 'index.html';
+  window.location.href = '/index.html';
 }
 
 // ---- Session guard: redirige si no está logueado -----------
 async function requireAuth() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) {
-    window.location.href = 'auth.html?returnUrl=' + encodeURIComponent(window.location.pathname);
+    window.location.href = '/pages/auth.html?returnUrl=' + encodeURIComponent(window.location.pathname);
   }
   return session;
 }

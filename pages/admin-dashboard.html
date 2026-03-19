@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Admin · BecasAndalucía</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../css/styles.css">
   <style>
     .admin-nav { display:flex; gap:10px; margin-bottom: 20px; justify-content: center;}
     .stat-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; text-align: center;}
@@ -17,7 +17,7 @@
 
 <header class="header">
   <div class="header-inner">
-    <a href="index.html" class="logo">
+    <a href="../index.html" class="logo">
       <div class="logo-icon">🎓</div><span class="logo-text">BecasAndalucía Admin</span>
     </a>
     <div class="header-actions">
@@ -56,9 +56,9 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase.js"></script>
-<script src="auth.js"></script>
-<script src="admin.js"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/admin.js"></script>
 <script>
   // Carga local de stats
   document.addEventListener('DOMContentLoaded', async () => {

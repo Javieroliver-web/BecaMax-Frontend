@@ -1,0 +1,35 @@
+# Dependencias de Node.js (Especialmente para la carpeta backend)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Archivos de entorno y credenciales (Claves de Supabase)
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Archivos ocultos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos generados autómaticamente por editores de código
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Builds o carpetas de salida (futuras expansiones del frontend si usamos bundlers)
+dist/
+build/
+.output/
+.nuxt/
+.vercel/
+
+# Logs generales
+*.log
