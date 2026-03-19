@@ -3,6 +3,25 @@
 --  https://app.supabase.com → tu proyecto → SQL Editor
 -- ============================================================
 
+-- ============================================================
+-- Tabla de perfiles de usuario (Debe ir primero por dependencias)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS perfiles (
+  user_id      UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  tipo_estudio TEXT,
+  region       TEXT,
+  area         TEXT,
+  rol          TEXT NOT NULL DEFAULT 'user',
+  updated_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE perfiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "user_perfil_all" ON perfiles
+  FOR ALL
+  USING (auth.uid() = user_id OR (SELECT rol FROM perfiles WHERE user_id = auth.uid()) = 'admin')
+  WITH CHECK (auth.uid() = user_id OR (SELECT rol FROM perfiles WHERE user_id = auth.uid()) = 'admin');
+
 -- Tabla principal de filtros guardados por usuario
 CREATE TABLE IF NOT EXISTS filtros_guardados (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -50,24 +69,6 @@ CREATE POLICY "Usuarios ven sus propias incidencias o admin ve todas" ON inciden
   FOR ALL
   USING (auth.uid() = user_id  OR (SELECT rol FROM perfiles WHERE user_id = auth.uid()) = 'admin');
 
--- ============================================================
--- Tabla de perfiles de usuario
--- ============================================================
-CREATE TABLE IF NOT EXISTS perfiles (
-  user_id      UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  tipo_estudio TEXT,
-  region       TEXT,
-  area         TEXT,
-  rol          TEXT NOT NULL DEFAULT 'user',
-  updated_at   TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE perfiles ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "user_perfil_all" ON perfiles
-  FOR ALL
-  USING (auth.uid() = user_id OR (SELECT rol FROM perfiles WHERE user_id = auth.uid()) = 'admin')
-  WITH CHECK (auth.uid() = user_id OR (SELECT rol FROM perfiles WHERE user_id = auth.uid()) = 'admin');
 
 -- ============================================================
 -- Trigger para crear perfil por defecto al registrarse
