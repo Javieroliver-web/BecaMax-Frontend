@@ -55,8 +55,8 @@ body.light-mode {
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'Inter',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
-h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.2}
+body{font-family:'Inter',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased;transition:background-color 0.5s cubic-bezier(0.4,0,0.2,1), color 0.5s cubic-bezier(0.4,0,0.2,1)}
+h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.2;transition:color 0.5s ease}
 a{color:inherit;text-decoration:none}
 input,select,textarea,button{font-family:inherit}
 
@@ -69,7 +69,7 @@ input,select,textarea,button{font-family:inherit}
 .text-gradient{background:var(--gradient-text);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 
 /* ============================================ HEADER ============================================ */
-.header{position:sticky;top:0;z-index:100;height:var(--header-height);background:var(--header-bg);backdrop-filter:blur(14px);border-bottom:1px solid var(--glass-border)}
+.header{position:sticky;top:0;z-index:100;height:var(--header-height);background:var(--header-bg);backdrop-filter:blur(14px);border-bottom:1px solid var(--glass-border);transition:background-color 0.5s cubic-bezier(0.4,0,0.2,1), border-color 0.5s cubic-bezier(0.4,0,0.2,1)}
 .header-inner{max-width:var(--max-width);margin:0 auto;padding:0 24px;height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.2rem;letter-spacing:-.5px}
 .logo-icon{width:36px;height:36px;background:var(--gradient);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
@@ -114,14 +114,14 @@ input,select,textarea,button{font-family:inherit}
 .main-layout{max-width:var(--max-width);margin:0 auto;padding:0 24px 60px;display:grid;grid-template-columns:var(--sidebar-width) 1fr;gap:28px;align-items:start}
 
 /* ============================================ FILTER SIDEBAR ============================================ */
-.filters{position:sticky;top:calc(var(--header-height) + 20px);background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--border-radius-lg);padding:20px}
+.filters{position:sticky;top:calc(var(--header-height) + 20px);background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--border-radius-lg);padding:20px;transition:background-color 0.5s cubic-bezier(0.4,0,0.2,1), border-color 0.5s cubic-bezier(0.4,0,0.2,1)}
 .filter-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
 .filter-title{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary)}
 .filter-reset{font-size:.78rem;color:var(--primary-light);cursor:pointer;background:none;border:none;font-weight:600;padding:0;transition:var(--transition)}
 .filter-reset:hover{color:var(--primary)}
 .filter-group{margin-bottom:18px}
 .filter-group label{display:block;font-size:.78rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:.3px}
-.filter-select,.filter-number{width:100%;padding:10px 14px;background:var(--bg-tertiary);border:1px solid var(--glass-border);border-radius:var(--border-radius);color:var(--text-primary);font-size:.875rem;outline:none;transition:var(--transition);cursor:pointer;appearance:none}
+.filter-select,.filter-number{width:100%;padding:10px 14px;background:var(--bg-tertiary);border:1px solid var(--glass-border);border-radius:var(--border-radius);color:var(--text-primary);font-size:.875rem;outline:none;transition:var(--transition), background-color 0.5s ease, color 0.5s ease;cursor:pointer;appearance:none}
 .filter-select:focus,.filter-number:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(99,102,241,.1)}
 .filter-select option{background:var(--bg-secondary)}
 .filter-number::placeholder{color:var(--text-muted)}

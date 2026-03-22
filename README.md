@@ -1,4 +1,4 @@
-# BecasAndalucía 🎓
+# BecaMax 🎓
 
 Gestor de becas con filtros, alertas de plazo y notificaciones por email. Orientado inicialmente a Andalucía, escalable a nivel nacional.
 
