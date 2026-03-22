@@ -8,6 +8,7 @@
   --glass-bg: rgba(255,255,255,0.04);
   --glass-border: rgba(255,255,255,0.08);
   --glass-hover: rgba(255,255,255,0.07);
+  --header-bg: rgba(7,7,15,0.88);
   --primary: #6366f1;
   --primary-dark: #4f46e5;
   --primary-light: #818cf8;
@@ -31,6 +32,27 @@
   --max-width: 1280px;
   --sidebar-width: 260px;
 }
+
+body.light-mode {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --glass-bg: rgba(255,255,255,0.8);
+  --glass-border: rgba(0,0,0,0.08);
+  --glass-hover: rgba(255,255,255,0.9);
+  --header-bg: rgba(248,250,252,0.88);
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+  --primary-light: #6366f1;
+  --secondary: #7c3aed;
+  --gradient: linear-gradient(135deg,#4f46e5,#7c3aed);
+  --gradient-text: linear-gradient(135deg,#4f46e5,#7c3aed);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.06);
+  --shadow-hover: 0 8px 30px rgba(79,70,229,0.15);
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Inter',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -47,7 +69,7 @@ input,select,textarea,button{font-family:inherit}
 .text-gradient{background:var(--gradient-text);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 
 /* ============================================ HEADER ============================================ */
-.header{position:sticky;top:0;z-index:100;height:var(--header-height);background:rgba(7,7,15,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--glass-border)}
+.header{position:sticky;top:0;z-index:100;height:var(--header-height);background:var(--header-bg);backdrop-filter:blur(14px);border-bottom:1px solid var(--glass-border)}
 .header-inner{max-width:var(--max-width);margin:0 auto;padding:0 24px;height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.2rem;letter-spacing:-.5px}
 .logo-icon{width:36px;height:36px;background:var(--gradient);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}

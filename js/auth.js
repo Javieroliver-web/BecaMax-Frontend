@@ -2,6 +2,13 @@
 //  AUTH.JS – Supabase Auth logic (shared across all pages)
 // ============================================================
 
+// --- Sincronización Inmediata de Tema (evita parpadeo) ---
+const localTheme = localStorage.getItem('theme') || 'dark';
+if (localTheme === 'light' && document.body) {
+  document.body.classList.add('light-mode');
+}
+
+
 // ---- Helpers ------------------------------------------------
 function showToast(msg, type = 'info') {
   const c = document.getElementById('toastContainer');
@@ -140,6 +147,55 @@ function tradError(msg) {
   if (msg.includes('Password should'))            return 'La contraseña debe tener al menos 6 caracteres.';
   return msg;
 }
+
+// ---- Theme Logic & DB Sync -----------------------------------
+async function initTheme() {
+  const localTheme = localStorage.getItem('theme') || 'dark';
+  
+  // Inyectar botón en la cabecera si existe
+  const headerInner = document.querySelector('.header-inner');
+  if (headerInner && !document.getElementById('themeToggle')) {
+    const btn = document.createElement('button');
+    btn.id = 'themeToggle';
+    btn.className = 'btn btn-ghost btn-sm';
+    btn.style.marginRight = 'auto'; 
+    btn.style.marginLeft = '20px';
+    btn.innerHTML = localTheme === 'light' ? '🌙' : '🌞';
+    btn.title = 'Cambiar tema';
+    
+    // Insertar antes de actions o al final
+    const actions = document.getElementById('headerActions');
+    if (actions) headerInner.insertBefore(btn, actions);
+    else headerInner.appendChild(btn);
+
+    // Evento click
+    btn.addEventListener('click', async () => {
+      const isLight = document.body.classList.toggle('light-mode');
+      const newTheme = isLight ? 'light' : 'dark';
+      btn.innerHTML = isLight ? '🌙' : '🌞';
+      localStorage.setItem('theme', newTheme);
+
+      // Sincronizar si está logueado
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        await supabaseClient.from('perfiles').update({ tema: newTheme }).eq('user_id', session.user.id);
+      }
+    });
+
+    // Sincronizar carga inicial con BD
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+      const { data: perfil } = await supabaseClient.from('perfiles').select('tema').eq('user_id', session.user.id).single();
+      if (perfil && perfil.tema && perfil.tema !== localStorage.getItem('theme')) {
+        localStorage.setItem('theme', perfil.tema);
+        document.body.classList.toggle('light-mode', perfil.tema === 'light');
+        btn.innerHTML = perfil.tema === 'light' ? '🌙' : '🌞';
+      }
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initTheme);
 
 // ---- Init on every page ------------------------------------
 updateHeaderAuth();
