@@ -18,7 +18,7 @@ let ordenActual = 'deadline';
 // URL del backend (ajustar tras el despliegue o usar variable de entorno)
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:3000/api' 
-  : 'https://becamax-backend.vercel.app/api'; // Cambiar por tu URL real de Vercel
+  : 'https://beca-max-backend.vercel.app/api'; // Cambiar por tu URL real de Vercel
 
 async function cargarBecas() {
   try {
