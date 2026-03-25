@@ -414,3 +414,5 @@ body:not(.loading-state) .loading-overlay {
 .adblock-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(16,185,129,.4)}
 @media(max-width:480px){.adblock-modal{padding:28px 20px}}
 
+
+.logo-img { display: block; }
