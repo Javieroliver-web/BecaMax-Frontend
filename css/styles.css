@@ -391,6 +391,15 @@ body:not(.loading-state) .loading-overlay {
   visibility: hidden;
 }
 
+/* ============================================ AVISO LEGAL BANNER ============================================ */
+#legal-banner{position:fixed;bottom:0;left:0;right:0;z-index:800;background:var(--bg-secondary);border-top:1px solid var(--glass-border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 -4px 24px rgba(0,0,0,.3);transform:translateY(0);transition:transform .35s cubic-bezier(0.4,0,0.2,1)}
+#legal-banner.hidden{transform:translateY(110%)}
+.legal-banner-text{font-size:.8rem;color:var(--text-secondary);line-height:1.5;flex:1}
+.legal-banner-text strong{color:var(--text-primary)}
+.legal-banner-close{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;color:var(--text-secondary);padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:var(--transition);flex-shrink:0}
+.legal-banner-close:hover{border-color:var(--primary);color:var(--primary-light)}
+@media(max-width:640px){#legal-banner{flex-direction:column;align-items:flex-start;gap:10px}.legal-banner-close{width:100%;text-align:center}}
+
 /* ============================================ ANTI-ADBLOCK ============================================ */
 #adblock-overlay{position:fixed;inset:0;z-index:9999;background:rgba(7,7,15,.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeInUp .35s ease}
 #adblock-overlay.adblock-hiding{animation:none;opacity:0;transition:opacity .35s ease}

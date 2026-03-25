@@ -205,8 +205,34 @@
   <p>BecasMax · Información orientativa. Verifica siempre las convocatorias en la fuente oficial.</p>
   <p style="margin-top:6px"><a href="pages/auth.html">Acceder</a> · <a href="pages/dashboard.html">Mi panel</a> · <a href="pages/incidencias.html">Reportar incidencia</a> · Datos: <a href="https://www.juntadeandalucia.es" target="_blank" rel="noopener">Junta de Andalucía</a> · <a href="https://www.becaseducacion.gob.es" target="_blank" rel="noopener">MEC</a></p>
   <p style="margin-top:10px; font-size: 0.8em; opacity: 0.5;">© 2026 Francisco Javier Párraga Oliver · Todos los derechos reservados</p>
-  <p style="margin-top:4px; font-size: 0.8em; opacity: 0.6;">Versión 1.1.0.2</p>
+  <p style="margin-top:4px; font-size: 0.8em; opacity: 0.6;">Versión 1.1.0.3</p>
 </footer>
+
+<!-- ===== AVISO LEGAL BANNER ===== -->
+<div id="legal-banner" role="note" aria-live="polite">
+  <p class="legal-banner-text">
+    ⚠️ <strong>Aviso:</strong> BecaMax es un proyecto <strong>independiente</strong> creado por un joven programador con fines informativos.
+    La información sobre becas se obtiene de fuentes oficiales, pero esta web <strong>no está vinculada ni avalada oficialmente
+    por la Junta de Andalucía</strong>, el Ministerio de Educación ni ningún organismo público.
+    Verifica siempre los datos en la convocatoria oficial antes de solicitarlas.
+  </p>
+  <button class="legal-banner-close" id="legalBannerClose" aria-label="Cerrar aviso">Entendido ✓</button>
+</div>
+<script>
+(function(){
+  var banner = document.getElementById('legal-banner');
+  var btn    = document.getElementById('legalBannerClose');
+  if (!banner) return;
+  if (localStorage.getItem('becamax_legal_ok') === '1') {
+    banner.style.display = 'none';
+    return;
+  }
+  btn.addEventListener('click', function(){
+    banner.classList.add('hidden');
+    localStorage.setItem('becamax_legal_ok', '1');
+  });
+})();
+</script>
 
 <!-- ===== SCRIPTS ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
