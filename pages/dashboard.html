@@ -22,6 +22,14 @@
       <a href="../index.html" class="btn btn-ghost btn-sm">🔍 Buscar becas</a>
       <button class="btn btn-secondary btn-sm" onclick="handleSignOut()">Cerrar sesión</button>
     </div>
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <a href="../index.html" class="btn btn-ghost btn-full">🔍 Buscar becas</a>
+    <a href="perfil.html" class="btn btn-secondary btn-full">⚙️ Mi perfil</a>
+    <button class="btn btn-danger btn-full" onclick="handleSignOut()">Cerrar sesión</button>
   </div>
 </header>
 
@@ -98,5 +106,20 @@
 <script src="../js/auth.js"></script>
 <script src="../js/dashboard.js"></script>
 
+<!-- ===== MOBILE NAV JS ===== -->
+<script>
+(function(){
+  var hBtn = document.getElementById('hamburgerBtn');
+  var mMenu = document.getElementById('mobileMenu');
+  if(hBtn && mMenu){
+    hBtn.addEventListener('click', function(){
+      var open = hBtn.classList.toggle('open');
+      hBtn.setAttribute('aria-expanded', open);
+      mMenu.classList.toggle('open', open);
+      mMenu.setAttribute('aria-hidden', !open);
+    });
+  }
+})();
+</script>
 </body>
 </html>

@@ -33,12 +33,21 @@
       <a href="pages/auth.html" class="btn btn-secondary btn-sm" id="btnLogin">Iniciar sesión</a>
       <a href="pages/auth.html?tab=registro" class="btn btn-primary btn-sm" id="btnRegister">Registrarse gratis</a>
     </nav>
+    <!-- Hamburguesa (solo móvil) -->
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <!-- Menú móvil desplegable -->
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <a href="pages/auth.html" class="btn btn-secondary btn-full" id="mobileLogin">Iniciar sesión</a>
+    <a href="pages/auth.html?tab=registro" class="btn btn-primary btn-full" id="mobileRegister">Registrarse gratis</a>
   </div>
 </header>
 
 <!-- ===== HERO ===== -->
 <section class="hero">
-  <h1>WEB AÚN EN DESARROLLO</h1>
+  <div class="dev-banner">🚧 Web en desarrollo — algunos datos son de muestra</div>
   <h1 class="hero-title">No te pierdas ninguna <span class="text-gradient">beca</span></h1>
   <p class="hero-subtitle">Filtra las becas disponibles en Andalucía, guarda tus búsquedas y recibe alertas por email antes de que acabe el plazo.</p>
   <div class="search-bar">
@@ -68,78 +77,84 @@
 <main class="main-layout">
 
   <!-- SIDEBAR FILTROS -->
-  <aside class="filters">
-    <div class="filter-header">
-      <span class="filter-title">Filtros</span>
-      <button class="filter-reset" id="btnResetFiltros">Limpiar</button>
-    </div>
-
-    <div class="filter-group">
-      <label for="filtroTipo">Tipo de beca</label>
-      <select class="filter-select" id="filtroTipo">
-        <option value="">Todos los tipos</option>
-        <option value="universitaria">Universitaria</option>
-        <option value="bachillerato">Bachillerato</option>
-        <option value="fp">Formación Profesional</option>
-        <option value="master">Máster / Posgrado</option>
-        <option value="idiomas">Idiomas</option>
-        <option value="investigacion">Investigación</option>
-        <option value="movilidad">Movilidad / Erasmus</option>
-        <option value="artistica">Enseñanzas Artísticas</option>
-        <option value="formacion">Formación / Inserción</option>
-        <option value="primaria">Primaria / ESO</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <label for="filtroRegion">Ámbito</label>
-      <select class="filter-select" id="filtroRegion">
-        <option value="">Todos</option>
-        <option value="Andalucía">Solo Andalucía</option>
-        <option value="Nacional">Nacional</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <label for="filtroArea">Área de estudios</label>
-      <select class="filter-select" id="filtroArea">
-        <option value="">Cualquier área</option>
-        <option value="Cualquier área">General</option>
-        <option value="Idiomas">Idiomas</option>
-        <option value="Ciencia y Tecnología">Ciencia y Tecnología</option>
-        <option value="Arte y Diseño">Arte y Diseño</option>
-        <option value="Educación">Educación</option>
-        <option value="Formación Profesional">Formación Profesional</option>
-      </select>
-    </div>
-
-    <div class="filter-divider"></div>
-
-    <div class="filter-group">
-      <label>Importe (€)</label>
-      <div class="filter-importe">
-        <input type="number" class="filter-number" id="filtroImporteMin" placeholder="Mín." min="0">
-        <input type="number" class="filter-number" id="filtroImporteMax" placeholder="Máx." min="0">
-      </div>
-    </div>
-
-    <div class="filter-group">
-      <label for="filtroPlazo">Estado del plazo</label>
-      <select class="filter-select" id="filtroPlazo">
-        <option value="">Todos</option>
-        <option value="urgente">🔴 Urgente (≤7 días)</option>
-        <option value="proximo">🟡 Próximo (≤30 días)</option>
-        <option value="disponible">🟢 Disponible (+30 días)</option>
-        <option value="abiertas">Solo abiertas</option>
-      </select>
-    </div>
-
-    <div class="filter-divider"></div>
-
-    <button class="guardar-alerta-btn" id="btnGuardarAlerta">
-      🔔 Guardar alerta con estos filtros
+  <aside class="filters" id="filtersPanel">
+    <button class="filters-toggle" id="filtersToggle" aria-expanded="false">
+      <span></span>
     </button>
+    <div class="filters-inner">
+      <div class="filter-header">
+        <span class="filter-title">Filtros</span>
+        <button class="filter-reset" id="btnResetFiltros">Limpiar</button>
+      </div>
+
+      <div class="filter-group">
+        <label for="filtroTipo">Tipo de beca</label>
+        <select class="filter-select" id="filtroTipo">
+          <option value="">Todos los tipos</option>
+          <option value="universitaria">Universitaria</option>
+          <option value="bachillerato">Bachillerato</option>
+          <option value="fp">Formación Profesional</option>
+          <option value="master">Máster / Posgrado</option>
+          <option value="idiomas">Idiomas</option>
+          <option value="investigacion">Investigación</option>
+          <option value="movilidad">Movilidad / Erasmus</option>
+          <option value="artistica">Enseñanzas Artísticas</option>
+          <option value="formacion">Formación / Inserción</option>
+          <option value="primaria">Primaria / ESO</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filtroRegion">Ámbito</label>
+        <select class="filter-select" id="filtroRegion">
+          <option value="">Todos</option>
+          <option value="Andalucía">Solo Andalucía</option>
+          <option value="Nacional">Nacional</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filtroArea">Área de estudios</label>
+        <select class="filter-select" id="filtroArea">
+          <option value="">Cualquier área</option>
+          <option value="Cualquier área">General</option>
+          <option value="Idiomas">Idiomas</option>
+          <option value="Ciencia y Tecnología">Ciencia y Tecnología</option>
+          <option value="Arte y Diseño">Arte y Diseño</option>
+          <option value="Educación">Educación</option>
+          <option value="Formación Profesional">Formación Profesional</option>
+        </select>
+      </div>
+
+      <div class="filter-divider"></div>
+
+      <div class="filter-group">
+        <label>Importe (€)</label>
+        <div class="filter-importe">
+          <input type="number" class="filter-number" id="filtroImporteMin" placeholder="Mín." min="0">
+          <input type="number" class="filter-number" id="filtroImporteMax" placeholder="Máx." min="0">
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label for="filtroPlazo">Estado del plazo</label>
+        <select class="filter-select" id="filtroPlazo">
+          <option value="">Todos</option>
+          <option value="urgente">🔴 Urgente (≤7 días)</option>
+          <option value="proximo">🟡 Próximo (≤30 días)</option>
+          <option value="disponible">🟢 Disponible (+30 días)</option>
+          <option value="abiertas">Solo abiertas</option>
+        </select>
+      </div>
+
+      <div class="filter-divider"></div>
+
+      <button class="guardar-alerta-btn" id="btnGuardarAlerta">
+        🔔 Guardar alerta con estos filtros
+      </button>
+    </div><!-- /filters-inner -->
   </aside>
+
 
   <!-- RESULTADOS -->
   <section class="results-area">
@@ -189,7 +204,7 @@
 <footer class="footer">
   <p>BecasMax · Información orientativa. Verifica siempre las convocatorias en la fuente oficial.</p>
   <p style="margin-top:6px"><a href="pages/auth.html">Acceder</a> · <a href="pages/dashboard.html">Mi panel</a> · <a href="pages/incidencias.html">Reportar incidencia</a> · Datos: <a href="https://www.juntadeandalucia.es" target="_blank" rel="noopener">Junta de Andalucía</a> · <a href="https://www.becaseducacion.gob.es" target="_blank" rel="noopener">MEC</a></p>
-  <p style="margin-top:8px; font-size: 0.8em; opacity: 0.6;">Versión 1.0.0.3</p>
+  <p style="margin-top:8px; font-size: 0.8em; opacity: 0.6;">Versión 1.0.0.4</p>
 </footer>
 
 <!-- ===== SCRIPTS ===== -->
@@ -199,5 +214,30 @@
 <script src="js/auth.js"></script>
 <script src="js/app.js"></script>
 
+<!-- ===== MOBILE NAV JS ===== -->
+<script>
+(function(){
+  /* Hamburguesa */
+  var hBtn = document.getElementById('hamburgerBtn');
+  var mMenu = document.getElementById('mobileMenu');
+  if(hBtn && mMenu){
+    hBtn.addEventListener('click', function(){
+      var open = hBtn.classList.toggle('open');
+      hBtn.setAttribute('aria-expanded', open);
+      mMenu.classList.toggle('open', open);
+      mMenu.setAttribute('aria-hidden', !open);
+    });
+  }
+  /* Toggle filtros */
+  var fToggle = document.getElementById('filtersToggle');
+  var fPanel = document.getElementById('filtersPanel');
+  if(fToggle && fPanel){
+    fToggle.addEventListener('click', function(){
+      var open = fPanel.classList.toggle('open');
+      fToggle.setAttribute('aria-expanded', open);
+    });
+  }
+})();
+</script>
 </body>
 </html>
