@@ -69,19 +69,16 @@
       '    <div class="adblock-step"><span class="adblock-step-num">3</span> Recarga la página</div>',
       '  </div>',
       '  <button class="adblock-btn" onclick="window.location.reload()">✅ Ya lo desactivé — Recargar</button>',
-      '  <button class="adblock-btn-ghost" id="adblockClose">Continuar de todas formas</button>',
       '</div>',
     ].join('');
 
     document.body.appendChild(overlay);
 
-    // Botón "Continuar de todas formas" → cierra el overlay
-    document.getElementById('adblockClose').addEventListener('click', function () {
-      overlay.classList.add('adblock-hiding');
-      setTimeout(function () {
-        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-      }, 350);
-    });
+    // Bloquear cierre con Escape y scroll del fondo
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') e.preventDefault();
+    }, true);
   }
 
   // Esperar 300 ms para que los bloqueadores hayan actuado
