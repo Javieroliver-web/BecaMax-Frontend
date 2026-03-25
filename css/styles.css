@@ -390,3 +390,20 @@ body:not(.loading-state) .loading-overlay {
   pointer-events: none;
   visibility: hidden;
 }
+
+/* ============================================ ANTI-ADBLOCK ============================================ */
+#adblock-overlay{position:fixed;inset:0;z-index:9999;background:rgba(7,7,15,.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeInUp .35s ease}
+#adblock-overlay.adblock-hiding{animation:none;opacity:0;transition:opacity .35s ease}
+.adblock-modal{background:var(--bg-secondary);border:1px solid rgba(239,68,68,.2);border-radius:var(--border-radius-xl);padding:40px 36px;max-width:480px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.adblock-icon{font-size:3rem;margin-bottom:16px}
+.adblock-title{font-size:1.3rem;font-weight:800;margin-bottom:12px;color:var(--text-primary)}
+.adblock-text{font-size:.9rem;color:var(--text-secondary);line-height:1.6;margin-bottom:24px}
+.adblock-steps{background:var(--bg-tertiary);border-radius:var(--border-radius);padding:16px;margin-bottom:24px;text-align:left;display:flex;flex-direction:column;gap:10px}
+.adblock-step{display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--text-secondary)}
+.adblock-step-num{background:var(--gradient);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
+.adblock-btn{width:100%;padding:14px;background:var(--gradient);border:none;border-radius:var(--border-radius);color:#fff;font-weight:700;font-size:.95rem;cursor:pointer;transition:var(--transition);margin-bottom:10px}
+.adblock-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(16,185,129,.4)}
+.adblock-btn-ghost{background:none;border:none;color:var(--text-muted);font-size:.8rem;cursor:pointer;padding:6px;transition:var(--transition)}
+.adblock-btn-ghost:hover{color:var(--text-secondary)}
+@media(max-width:480px){.adblock-modal{padding:28px 20px}}
+
