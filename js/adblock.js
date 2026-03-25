@@ -14,9 +14,8 @@
     'width:1px',
     'height:1px',
     'position:absolute',
-    'top:-999px',
-    'left:-999px',
-    'opacity:0',
+    'top:-9999px',
+    'left:-9999px',
     'pointer-events:none',
   ].join(';');
   document.body ? document.body.appendChild(bait) : document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(bait); });
@@ -26,26 +25,25 @@
     var detected = false;
 
     if (!bait || !document.body.contains(bait)) {
-      detected = true; // el nodo fue eliminado por el bloqueador
+      // El nodo fue eliminado del DOM por el bloqueador
+      detected = true;
     } else {
       var style = window.getComputedStyle(bait);
       if (
         style.display === 'none' ||
         style.visibility === 'hidden' ||
-        style.opacity === '0' ||
-        bait.offsetHeight === 0 ||
-        bait.offsetWidth === 0
+        parseInt(style.maxHeight) === 0
       ) {
         detected = true;
       }
     }
 
+    // Limpiar el cebo
+    if (bait && bait.parentNode) bait.parentNode.removeChild(bait);
+
     if (detected) {
       showAdBlockWarning();
     }
-
-    // Limpiar el cebo
-    if (bait && bait.parentNode) bait.parentNode.removeChild(bait);
   }
 
   // --- Mostrar overlay de aviso ---
