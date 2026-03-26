@@ -332,4 +332,49 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('modalAlerta').addEventListener('click', e => {
     if (e.target === e.currentTarget) e.currentTarget.classList.remove('active');
   });
+
+  checkUserSession();
 });
+
+async function checkUserSession() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
+    // Usuario logueado: Ajustar botones
+    const btnLogin = document.getElementById('btnLogin');
+    const btnRegister = document.getElementById('btnRegister');
+    const btnDashboard = document.getElementById('btnDashboard');
+    const mobileLogin = document.getElementById('mobileLogin');
+    const mobileRegister = document.getElementById('mobileRegister');
+    const mobileDashboard = document.getElementById('mobileDashboard');
+
+    if (btnLogin) btnLogin.style.display = 'none';
+    if (btnRegister) btnRegister.style.display = 'none';
+    if (btnDashboard) btnDashboard.style.display = 'inline-block';
+    
+    if (mobileLogin) mobileLogin.style.display = 'none';
+    if (mobileRegister) mobileRegister.style.display = 'none';
+    if (mobileDashboard) mobileDashboard.style.display = 'block';
+
+    // Verificar Rol Admin
+    console.log("🔍 [ADMIN CHECK] Verificando rol para:", session.user.email);
+    const { data: perfil, error } = await supabaseClient
+      .from('perfiles')
+      .select('rol')
+      .eq('user_id', session.user.id)
+      .single();
+
+    if (error) {
+      console.warn("⚠️ [ADMIN CHECK] Error al leer perfil:", error.message);
+    }
+
+    if (perfil && perfil.rol === 'admin') {
+      console.log("✅ [ADMIN CHECK] Role detectado: ADMINISTRADOR");
+      const adminLink = document.getElementById('adminLink');
+      const adminLinkMobile = document.getElementById('adminLinkMobile');
+      if (adminLink) adminLink.style.display = 'inline-block';
+      if (adminLinkMobile) adminLinkMobile.style.display = 'block';
+    } else {
+      console.log("ℹ️ [ADMIN CHECK] Role detectado: usuario normal");
+    }
+  }
+}

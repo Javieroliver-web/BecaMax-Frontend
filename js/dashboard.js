@@ -350,18 +350,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderNotificaciones();
 
   // 🛡️ Detección de Rol Administrador
-  const { data: perfil } = await supabaseClient
+  console.log("🔍 [ADMIN CHECK] Usuario actual:", session.user.email);
+  const { data: perfil, error } = await supabaseClient
     .from('perfiles')
     .select('rol')
     .eq('user_id', session.user.id)
     .single();
 
+  if (error) {
+    console.warn("⚠️ [ADMIN CHECK] Fallo al leer perfil:", error.message);
+  } else {
+    console.log("ℹ️ [ADMIN CHECK] Perfil encontrado:", perfil);
+  }
+
   if (perfil && perfil.rol === 'admin') {
+    console.log("✅ [ADMIN CHECK] Acceso ADMIN concedido");
     const adminLink = document.getElementById('adminLink');
     const adminLinkMobile = document.getElementById('adminLinkMobile');
     if (adminLink) adminLink.style.display = 'inline-block';
     if (adminLinkMobile) adminLinkMobile.style.display = 'block';
     showToast('🛡️ Modo Administrador activado', 'success');
+  } else {
+    console.log("❌ [ADMIN CHECK] No se ha detectado rol admin");
   }
 
   // Eventos Notificaciones
