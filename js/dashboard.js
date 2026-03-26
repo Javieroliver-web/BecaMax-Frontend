@@ -3,6 +3,11 @@
 // ============================================================
 
 let alertaSeleccionadaId = null;
+let NOTIFICACIONES = [
+  { id: 1, icono: '🎓', titulo: 'Nueva beca disponible', texto: 'Se ha publicado la Beca 6000 para el curso 2025/26. ¡Cierra en 15 días!', fecha: 'Hace 2 horas', leida: false },
+  { id: 2, icono: '⚠️', titulo: 'Plazo próximo a cerrar', texto: 'Tu alerta "Becas Máster" tiene 2 becas que cierran en menos de 48h.', fecha: 'Hace 5 horas', leida: false },
+  { id: 3, icono: '✅', titulo: 'Perfil actualizado', texto: 'Tu perfil ha sido verificado correctamente. Ya puedes ver recomendaciones.', fecha: 'Ayer', leida: true }
+];
 
 // ---- Etiquetas legibles de filtros -------------------------
 function resumenFiltros(filtros) {
@@ -280,9 +285,55 @@ function renderCard(b, delay = 0) {
     </div>
     <div class="countdown-bar"><div class="countdown-fill ${u}" style="width:${pct}%"></div></div>
     <div class="card-actions">
+      <a href="beca-detalle.html?id=${b.id}" class="btn btn-secondary btn-sm">🔍 Detalles</a>
       <a href="${b.url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Ver beca ↗</a>
     </div>
   </article>`;
+}
+
+// ---- Notificaciones -----------------------------------------
+function renderNotificaciones() {
+  const lista = document.getElementById('notificationsList');
+  const badge = document.getElementById('notifBadge');
+  const sinLeer = NOTIFICACIONES.filter(n => !n.leida).length;
+
+  if (sinLeer > 0) {
+    badge.textContent = sinLeer;
+    badge.classList.add('active');
+  } else {
+    badge.classList.remove('active');
+  }
+
+  if (NOTIFICACIONES.length === 0) {
+    lista.innerHTML = `<p style="text-align:center;color:var(--text-muted);padding:40px 0;">No tienes notificaciones.</p>`;
+    return;
+  }
+
+  lista.innerHTML = NOTIFICACIONES.map(n => `
+    <div class="notification-item ${n.leida ? '' : 'unread'}" onclick="marcarNotificacionLeida(${n.id})">
+      <div class="notif-icon">${n.icono}</div>
+      <div class="notif-content">
+        <div class="notif-title">${n.titulo} ${n.leida ? '' : '🔵'}</div>
+        <div class="notif-text">${n.texto}</div>
+        <div class="notif-time">${n.fecha}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function marcarNotificacionLeida(id) {
+  const notif = NOTIFICACIONES.find(n => n.id === id);
+  if (notif) {
+    notif.leida = true;
+    renderNotificaciones();
+    showToast('Marcada como leída', 'info');
+  }
+}
+
+function marcarTodasLeidas() {
+  NOTIFICACIONES.forEach(n => n.leida = true);
+  renderNotificaciones();
+  showToast('✅ Todas las notificaciones leídas', 'success');
 }
 
 // ---- Init ---------------------------------------------------
@@ -296,6 +347,36 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await cargarAlertas();
   await cargarBecasPerfil();
+  renderNotificaciones();
+
+  // 🛡️ Detección de Rol Administrador
+  const { data: perfil } = await supabaseClient
+    .from('perfiles')
+    .select('rol')
+    .eq('user_id', session.user.id)
+    .single();
+
+  if (perfil && perfil.rol === 'admin') {
+    const adminLink = document.getElementById('adminLink');
+    const adminLinkMobile = document.getElementById('adminLinkMobile');
+    if (adminLink) adminLink.style.display = 'inline-block';
+    if (adminLinkMobile) adminLinkMobile.style.display = 'block';
+    showToast('🛡️ Modo Administrador activado', 'success');
+  }
+
+  // Eventos Notificaciones
+  document.getElementById('btnNotifications').addEventListener('click', () => {
+    document.getElementById('modalNotificaciones').classList.add('active');
+  });
+  document.getElementById('btnCerrarNotifModal').addEventListener('click', () => {
+    document.getElementById('modalNotificaciones').classList.remove('active');
+  });
+  document.getElementById('btnMarcarTodoLeido').addEventListener('click', marcarTodasLeidas);
+  
+  // Cerrar modal al clickar fuera
+  document.getElementById('modalNotificaciones').addEventListener('click', e => {
+    if (e.target === e.currentTarget) e.currentTarget.classList.remove('active');
+  });
 
   document.getElementById('btnGuardarEditAlerta').addEventListener('click', guardarEditAlerta);
   document.getElementById('btnCerrarEditModal').addEventListener('click', () => {

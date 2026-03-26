@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -31,6 +31,8 @@
       <span class="logo-text">BecaMax</span>
     </a>
     <nav class="header-actions" id="headerActions">
+      <a href="pages/admin-usuarios.html" class="btn btn-warning btn-sm" id="adminLink" style="display:none;">🛡️ Admin</a>
+      <a href="pages/dashboard.html" class="btn btn-secondary btn-sm" id="btnDashboard" style="display:none;">Mi panel</a>
       <a href="pages/auth.html" class="btn btn-secondary btn-sm" id="btnLogin">Iniciar sesión</a>
       <a href="pages/auth.html?tab=registro" class="btn btn-primary btn-sm" id="btnRegister">Registrarse gratis</a>
     </nav>
@@ -41,6 +43,8 @@
   </div>
   <!-- Menú móvil desplegable -->
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <a href="pages/admin-usuarios.html" class="btn btn-warning btn-full" id="adminLinkMobile" style="display:none;">🛡️ Panel Admin</a>
+    <a href="pages/dashboard.html" class="btn btn-secondary btn-full" id="mobileDashboard" style="display:none;">Mi panel</a>
     <a href="pages/auth.html" class="btn btn-secondary btn-full" id="mobileLogin">Iniciar sesión</a>
     <a href="pages/auth.html?tab=registro" class="btn btn-primary btn-full" id="mobileRegister">Registrarse gratis</a>
   </div>

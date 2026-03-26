@@ -3,107 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Usuarios · BecaMax</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <title>Gestión de Usuarios · BecaMax Admin</title>
+  <link rel="icon" type="image/png" href="../img/logo.png">
   <link rel="stylesheet" href="../css/styles.css">
-  <style>
-    .admin-nav { display:flex; gap:10px; margin-bottom: 20px; justify-content: center;}
-    .admin-table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 8px; overflow: hidden; font-size:0.9rem;}
-    .admin-table th, .admin-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
-    .admin-table th { background: rgba(255,255,255,0.03); color: var(--text-secondary); font-weight: 500;}
-  </style>
 </head>
-<body class="dashboard-page" style="display:none;" id="adminBody">
+<body class="dashboard-page">
 
-<header class="header">
-  <div class="header-inner">
-    <a href="../index.html" class="logo">
-      <div class="logo-icon">🎓</div><span class="logo-text">BecasMax Admin</span>
-    </a>
-    <div class="header-actions">
-      <a href="dashboard.html" class="btn btn-ghost btn-sm">Volver al sitio</a>
-      <button class="btn btn-secondary btn-sm" onclick="handleSignOut()">Salir</button>
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo">
+        <img src="../img/logo.png" alt="BX" class="logo-img" style="height:32px;width:32px;border-radius:6px;object-fit:cover;">
+        <span class="logo-text">BecaMax Admin</span>
+      </a>
+      <div class="header-actions">
+        <a href="dashboard.html" class="btn btn-ghost btn-sm">⬅️ Volver al Dashboard</a>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
 
-<section class="dashboard-hero" style="padding: 20px 0;">
-  <div class="dashboard-hero-inner">
-    <h1 style="text-align:center; font-size: 1.8rem; margin-bottom:15px">Gestión de Usuarios</h1>
-    <nav class="admin-nav">
-      <a href="admin-dashboard.html" class="btn btn-ghost btn-sm">Resumen Global</a>
-      <a href="admin-usuarios.html" class="btn btn-primary btn-sm">👥 Usuarios</a>
-      <a href="admin-incidencias.html" class="btn btn-ghost btn-sm">💬 Incidencias</a>
-    </nav>
-  </div>
-</section>
+  <main class="dashboard-content" style="padding-top:100px;">
+    <div class="dashboard-section">
+      <div class="section-header">
+        <h2 class="section-title">🛡️ Panel de Administración</h2>
+        <span class="section-count" id="userCount">0 usuarios</span>
+      </div>
+      
+      <div class="glass-card" style="padding:0; overflow:hidden;">
+        <table class="admin-table" id="usersTable">
+          <thead>
+            <tr>
+              <th>ID Usuario</th>
+              <th>Estudio</th>
+              <th>Región</th>
+              <th>Área</th>
+              <th>Rol</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="usersList">
+            <!-- Cargado por JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
 
-<div class="main-layout" style="display:block; max-width:900px; margin:0 auto; padding-top:10px">
-  <div style="overflow-x:auto;">
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>ID Usuario</th>
-          <th>Nivel Estudios</th>
-          <th>Región</th>
-          <th>Rol</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="usersTableBody">
-        <tr><td colspan="5" style="text-align:center; color:var(--text-muted)">Cargando...</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+  <footer class="footer">
+    <p>BecaMax Admin · 2026</p>
+  </footer>
 
-<div class="toast-container" id="toastContainer"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const session = await requireAuth();
+      if (!session) return;
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../js/supabase.js"></script>
-<script src="../js/auth.js"></script>
-<script src="../js/admin.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', async () => {
-    const isAdmin = await requireAdmin();
-    if (!isAdmin) return;
+      // Verificar que realmente es admin
+      const { data: perfil } = await supabaseClient
+        .from('perfiles')
+        .select('rol')
+        .eq('user_id', session.user.id)
+        .single();
 
-    cargarUsuarios();
-  });
+      if (!perfil || perfil.rol !== 'admin') {
+        alert('Acceso denegado. No tienes permisos de administrador.');
+        window.location.href = 'dashboard.html';
+        return;
+      }
 
-  async function cargarUsuarios() {
-    const { data: users, error } = await supabaseClient.from('perfiles').select('*').order('updated_at', { ascending: false });
-    const tbody = document.getElementById('usersTableBody');
-    if (error) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red">Error cargando usuarios</td></tr>`;
-      return;
-    }
-    
-    tbody.innerHTML = users.map(u => `
-      <tr>
-        <td style="font-family:monospace; font-size:0.8rem">${u.user_id.split('-')[0]}...</td>
-        <td>${u.tipo_estudio || '-'}</td>
-        <td>${u.region || '-'}</td>
-        <td><span class="badge" style="background:${u.rol==='admin'?'var(--primary)':'rgba(255,255,255,0.1)'}">${u.rol}</span></td>
-        <td>
-          <button class="btn btn-ghost btn-sm" style="padding:4px 8px; font-size:0.8rem" onclick="toggleRole('${u.user_id}', '${u.rol}')">
-            Set ${u.rol === 'admin' ? 'User' : 'Admin'}
-          </button>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  async function toggleRole(userId, currentRole) {
-    const newRole = currentRole === 'admin' ? 'user' : 'admin';
-    const { error } = await supabaseClient.from('perfiles').update({ rol: newRole }).eq('user_id', userId);
-    if (!error) {
-      showToast('Rol actualizado a ' + newRole, 'success');
       cargarUsuarios();
-    } else {
-      showToast('Error al actualizar rol', 'error');
+    });
+
+    async function cargarUsuarios() {
+      const { data, error } = await supabaseClient
+        .from('perfiles')
+        .select('*')
+        .order('updated_at', { ascending: false });
+
+      if (error) {
+        console.error('Error cargando usuarios:', error);
+        return;
+      }
+
+      document.getElementById('userCount').textContent = `${data.length} usuarios`;
+      const list = document.getElementById('usersList');
+      list.innerHTML = data.map(u => `
+        <tr>
+          <td title="${u.user_id}">${u.user_id.substring(0,8)}...</td>
+          <td>${u.tipo_estudio || '—'}</td>
+          <td>${u.region || '—'}</td>
+          <td>${u.area || '—'}</td>
+          <td><span class="badge ${u.rol === 'admin' ? 'badge-urgente' : 'badge-tipo'}">${u.rol.toUpperCase()}</span></td>
+          <td>
+            <button class="btn btn-ghost btn-sm" onclick="alert('Funcionalidad en desarrollo')">⚙️</button>
+          </td>
+        </tr>
+      `).join('');
     }
-  }
-</script>
+  </script>
+
+  <style>
+    .admin-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .admin-table th, .admin-table td { padding: 16px; border-bottom: 1px solid var(--glass-border); }
+    .admin-table th { background: rgba(255,255,255,0.05); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+    .admin-table tr:hover { background: rgba(255,255,255,0.02); }
+    .badge-urgente { background: #ef4444; color: white; }
+  </style>
 </body>
 </html>

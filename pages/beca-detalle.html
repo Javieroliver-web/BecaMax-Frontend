@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalles de Beca · BecaMax</title>
+  <link rel="icon" type="image/png" href="../img/logo.png">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="loading-state">
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo">
+        <img src="../img/logo.png" alt="BX" class="logo-img" style="height:32px;width:32px;border-radius:6px;object-fit:cover;">
+        <span class="logo-text">BecaMax</span>
+      </a>
+      <nav class="header-actions" id="headerActions">
+        <a href="../index.html" class="btn btn-ghost btn-sm">🔍 Buscar</a>
+        <a href="dashboard.html" class="btn btn-secondary btn-sm">Mi panel</a>
+      </nav>
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <!-- Menú móvil desplegable -->
+    <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+      <a href="../index.html" class="btn btn-ghost btn-full">🔍 Buscar becas</a>
+      <a href="dashboard.html" class="btn btn-secondary btn-full">Mi panel</a>
+    </div>
+  </header>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="detail-layout" id="detailContainer" style="display:none;">
+    
+    <!-- Columna Principal -->
+    <div class="detail-main">
+      <div id="btnBack" style="margin-bottom:20px; cursor:pointer; color:var(--text-muted); font-size:.9rem; display:flex; align-items:center; gap:8px;">
+        ⬅️ Volver al listado
+      </div>
+      <header class="detail-header">
+        <div id="detailBadges" class="card-badges" style="margin-bottom:12px;"></div>
+        <h1 class="detail-title" id="becaNombre">Cargando beca...</h1>
+        <p class="detail-entidad" id="becaEntidad"></p>
+      </header>
+
+      <div class="detail-section">
+        <h2 class="detail-section-title">📋 Descripción</h2>
+        <p class="detail-content" id="becaDesc"></p>
+      </div>
+
+      <div class="detail-section">
+        <h2 class="detail-section-title">✅ Requisitos</h2>
+        <ul class="req-list" id="becaReqs"></ul>
+      </div>
+
+      <div class="detail-section">
+        <h2 class="detail-section-title">🏷️ Etiquetas</h2>
+        <div id="becaEtiquetas" class="alerta-tags"></div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="detail-sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-item">
+          <div class="sidebar-label">Importe Máximo</div>
+          <div class="sidebar-value amount" id="becaImporte"></div>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-label">Cierre de Plazo</div>
+          <div class="sidebar-value" id="becaPlazo"></div>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-label">Ámbito</div>
+          <div class="sidebar-value" id="becaRegion"></div>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-label">Área</div>
+          <div class="sidebar-value" id="becaArea"></div>
+        </div>
+        <a href="#" id="btnApply" target="_blank" rel="noopener" class="btn btn-primary btn-full" style="margin-top:10px;">
+          Ir a la web oficial ↗
+        </a>
+      </div>
+
+      <div class="sidebar-card" style="background:rgba(16,185,129,0.05); border-color:rgba(16,185,129,0.2);">
+        <h3 style="font-size:.9rem; margin-bottom:10px;">¿Te interesa esta beca?</h3>
+        <p style="font-size:.8rem; color:var(--text-secondary); margin-bottom:15px;">Guarda una alerta para que te avisemos antes de que cierre el plazo.</p>
+        <a href="dashboard.html" class="btn btn-secondary btn-full btn-sm">🔔 Crear alerta</a>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- State Error -->
+  <div id="errorState" style="display:none; text-align:center; padding:100px 24px;">
+    <div style="font-size:4rem; margin-bottom:20px;">🚫</div>
+    <h2 style="margin-bottom:10px;">Beca no encontrada</h2>
+    <p style="color:var(--text-muted); margin-bottom:24px;">Parece que el enlace es incorrecto o la beca ya no está disponible.</p>
+    <a href="../index.html" class="btn btn-primary">Volver al buscador</a>
+  </div>
+
+  <footer class="footer">
+    <p>BecaMax · Información oficial · 2026</p>
+  </footer>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="../data/becas.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const id = parseInt(params.get('id'));
+
+      // Intentar encontrar la beca en BECAS_ESTATICAS (se cargará mejor en Fase 2)
+      const beca = typeof BECAS_ESTATICAS !== 'undefined' ? BECAS_ESTATICAS.find(b => b.id === id) : null;
+
+      if (!beca) {
+        document.body.classList.remove('loading-state');
+        document.getElementById('errorState').style.display = 'block';
+        return;
+      }
+
+      // Rellenar datos
+      document.title = `${beca.nombre} · BecaMax`;
+      document.getElementById('becaNombre').textContent = beca.nombre;
+      document.getElementById('becaEntidad').textContent = beca.entidad;
+      document.getElementById('becaDesc').textContent = beca.descripcion;
+      document.getElementById('becaRegion').textContent = beca.region;
+      document.getElementById('becaArea').textContent = beca.area;
+      document.getElementById('btnApply').href = beca.url;
+
+      // Importe
+      const imp = beca.importe;
+      document.getElementById('becaImporte').textContent = imp.min === imp.max 
+        ? `${imp.min.toLocaleString('es-ES')} €` 
+        : `${imp.max.toLocaleString('es-ES')} €`;
+
+      // Plazo
+      const deadline = new Date(beca.deadline);
+      document.getElementById('becaPlazo').textContent = deadline.toLocaleDateString('es-ES', { 
+        day: '2-digit', month: 'long', year: 'numeric' 
+      });
+
+      // Requisitos
+      const reqList = document.getElementById('becaReqs');
+      beca.requisitos.forEach(r => {
+        const li = document.createElement('li');
+        li.className = 'req-item';
+        li.innerHTML = `<span class="req-icon">✅</span> <span class="detail-content">${r}</span>`;
+        reqList.appendChild(li);
+      });
+
+      // Etiquetas
+      const tagContainer = document.getElementById('becaEtiquetas');
+      beca.etiquetas.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'alerta-tag';
+        span.textContent = t;
+        tagContainer.appendChild(span);
+      });
+
+      // Badges (Badge tipo)
+      const badgeCont = document.getElementById('detailBadges');
+      const bTipo = document.createElement('span');
+      bTipo.className = 'badge badge-tipo';
+      bTipo.textContent = beca.tipo.toUpperCase();
+      badgeCont.appendChild(bTipo);
+
+      // UI
+      document.body.classList.remove('loading-state');
+      document.getElementById('detailContainer').style.display = 'grid';
+
+      document.getElementById('btnBack').addEventListener('click', () => {
+        window.history.back() || (window.location.href = '../index.html');
+      });
+
+      // Mobile Menu JS
+      const hBtn = document.getElementById('hamburgerBtn');
+      const mMenu = document.getElementById('mobileMenu');
+      if(hBtn && mMenu){
+        hBtn.addEventListener('click', () => {
+          const open = hBtn.classList.toggle('open');
+          mMenu.classList.toggle('open', open);
+        });
+      }
+    });
+  </script>
+</body>
+</html>

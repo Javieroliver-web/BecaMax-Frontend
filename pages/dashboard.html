@@ -20,6 +20,10 @@
     </a>
     <div class="header-actions user-menu">
       <span class="user-name" id="headerUserName"></span>
+      <button class="btn btn-ghost btn-sm btn-notifications" id="btnNotifications" title="Notificaciones">
+        🔔<span class="badge-count" id="notifBadge">0</span>
+      </button>
+      <a href="admin-usuarios.html" class="btn btn-warning btn-sm" id="adminLink" style="display:none;">🛡️ Admin Panel</a>
       <a href="../index.html" class="btn btn-ghost btn-sm">🔍 Buscar becas</a>
       <button class="btn btn-secondary btn-sm" onclick="handleSignOut()">Cerrar sesión</button>
     </div>
@@ -28,6 +32,7 @@
     </button>
   </div>
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <a href="admin-usuarios.html" class="btn btn-warning btn-full" id="adminLinkMobile" style="display:none;">🛡️ Panel Admin</a>
     <a href="../index.html" class="btn btn-ghost btn-full">🔍 Buscar becas</a>
     <a href="perfil.html" class="btn btn-secondary btn-full">⚙️ Mi perfil</a>
     <button class="btn btn-danger btn-full" onclick="handleSignOut()">Cerrar sesión</button>
@@ -80,6 +85,22 @@
 
 <!-- TOAST -->
 <div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL NOTIFICACIONES -->
+<div class="modal-overlay" id="modalNotificaciones">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <h2 class="modal-title">🔔 Notificaciones</h2>
+      <button class="btn-text" id="btnMarcarTodoLeido">Marcar todo como leído</button>
+    </div>
+    <div class="notifications-list" id="notificationsList">
+      <!-- Se inyectarán dinámicamente -->
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-full" id="btnCerrarNotifModal">Cerrar</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL EDITAR NOMBRE ALERTA -->
 <div class="modal-overlay" id="modalEditarAlerta">

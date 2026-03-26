@@ -183,8 +183,8 @@ function renderCard(b, delay = 0) {
       <div class="countdown-fill ${u}" style="width:${pct}%"></div>
     </div>
     <div class="card-actions">
+      <a href="pages/beca-detalle.html?id=${b.id}" class="btn btn-secondary btn-sm">🔍 Detalles</a>
       <a href="${b.url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Ver beca ↗</a>
-      <button class="btn btn-secondary btn-sm" onclick="verRequisitos(${b.id})" title="Requisitos">📋 Requisitos</button>
     </div>
   </article>`;
 }
