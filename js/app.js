@@ -38,33 +38,7 @@ async function cargarBecas() {
   }
 }
 
-async function esperarBackend() {
-  const statusText = document.querySelector('.loading-text');
-  let conectado = false;
-  let intentos = 0;
-
-  while (!conectado) {
-    try {
-      const response = await fetch(`${API_URL}/ping`);
-      if (response.ok) {
-        conectado = true;
-      }
-    } catch (e) {
-      intentos++;
-      if (intentos > 5) {
-        statusText.textContent = "El servidor está tardando más de lo esperado. Iniciando modo offline...";
-        // Opcionalmente podrías romper el bucle aquí para cargar modo offline
-        break; 
-      }
-      console.log("Esperando al servidor...");
-    }
-    if (!conectado) await new Promise(r => setTimeout(r, 2000));
-  }
-
-  // Finalizar carga
-  document.body.classList.remove('loading-state');
-  await cargarBecas();
-}
+// Eliminado esperarBackend() porque la pantalla de carga se quitó
 
 // ---- Utilidades de fecha -----------------------------------
 function diasRestantes(deadline) {
@@ -281,7 +255,7 @@ async function confirmarAlerta() {
 
 // ---- Event listeners ---------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-  esperarBackend();
+  cargarBecas();
 
   // Búsqueda
   const searchInput = document.getElementById('searchInput');
