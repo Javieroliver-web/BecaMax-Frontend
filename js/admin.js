@@ -148,15 +148,10 @@ async function eliminarUsuarioDefinitivo(userId) {
   showToast('Iniciando borrado...', 'info');
   
   try {
-    // 1. Backend API Call (que tiene la Service Key de Supabase)
-    // Suponiendo que el backend corre en el dominio principal en producción, o localhost en dev
-    // Asumimos que la URL de API es Vercel o local según el entorno (para fines de la prueba usamos ruta relativa si el backend proxy funciona o env vars)
-    // Dejamos configurada una ruta típica asumiendo que el Frontend y Backend comparten origen o configuraremos CORS.
     const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
       ? 'http://localhost:3000' 
-      : 'https://beca-max-backend.vercel.app'; // <--- Cambiar por url Vercel del backend
+      : 'https://beca-max-backend.vercel.app';
       
-    // Pasamos el JWT del admin en la cabecera para que el backend valide que quien solicita esto es un admin
     const { data: { session } } = await supabaseClient.auth.getSession();
     const token = session?.access_token;
 
@@ -180,3 +175,63 @@ async function eliminarUsuarioDefinitivo(userId) {
     showToast(`Fallo crítico al borrar: ${error.message}`, 'error');
   }
 }
+
+// ------------------------------------------------------------
+//  GESTIÓN DE NOTICIAS
+// ------------------------------------------------------------
+
+async function publicarNoticia() {
+  const content = document.getElementById('newsContent').value.trim();
+  const expiration = document.getElementById('newsExpiration').value;
+  const btn = document.getElementById('btnPostNews');
+
+  if (!content) {
+    showToast('El mensaje no puede estar vacío', 'warning');
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    btn.textContent = '⏱️ Publicando...';
+
+    const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+      ? 'http://localhost:3000' 
+      : 'https://beca-max-backend.vercel.app';
+      
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const token = session?.access_token;
+
+    const res = await fetch(`${backendUrl}/api/admin/news`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ content, expiration })
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(result.message || 'Error al publicar noticia');
+    }
+
+    showToast('✅ Noticia publicada exitosamente', 'success');
+    document.getElementById('newsContent').value = '';
+    
+  } catch (error) {
+    console.error('Error post noticia:', error);
+    showToast(error.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🚀 Publicar Noticia Ahora';
+  }
+}
+
+// Inicialización de eventos para noticias
+document.addEventListener('DOMContentLoaded', () => {
+    const btnNews = document.getElementById('btnPostNews');
+    if (btnNews) {
+        btnNews.addEventListener('click', publicarNoticia);
+    }
+});

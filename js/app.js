@@ -38,6 +38,42 @@ async function cargarBecas() {
   }
 }
 
+async function fetchNews() {
+  try {
+    const panel = document.getElementById('newsPanel');
+    if (!panel) return;
+
+    // Consultamos la noticia activa (expiración nula o futura)
+    const { data: news, error } = await supabaseClient
+      .from('noticias')
+      .select('*')
+      .or('expires_at.is.null,expires_at.gt.now()')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (!news) {
+      panel.style.display = 'none';
+      return;
+    }
+
+    const dateStr = new Date(news.created_at).toLocaleDateString();
+    panel.innerHTML = `
+      <div class="news-panel-header">
+        <span>📢 mensaje del admin</span>
+      </div>
+      <div class="news-panel-content">${news.content}</div>
+      <span class="news-panel-date">Publicado el ${dateStr}</span>
+    `;
+    panel.style.display = 'block';
+
+  } catch (err) {
+    console.error('Error al cargar noticias:', err);
+  }
+}
+
 // Eliminado esperarBackend() porque la pantalla de carga se quitó
 
 // ---- Utilidades de fecha -----------------------------------
@@ -256,6 +292,7 @@ async function confirmarAlerta() {
 // ---- Event listeners ---------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   cargarBecas();
+  fetchNews();
 
   // Búsqueda
   const searchInput = document.getElementById('searchInput');
