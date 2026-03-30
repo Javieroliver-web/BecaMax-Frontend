@@ -45,11 +45,30 @@
 </section>
 
 <!-- ===== PERFIL FORM ===== -->
-<div class="main-layout" style="display:block; max-width:600px; margin:0 auto; padding-top:20px">
-  <div class="auth-card" style="max-width:100%">
-    
-    <form id="formPerfil" onsubmit="guardarPerfil(event)">
-      
+<div class="main-layout" style="display:block; max-width:600px; margin:0 auto; padding-top:20px; padding-bottom: 60px;">
+  
+  <!-- Sección: Datos Personales -->
+  <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
+    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);">Datos Personales</h2>
+    <form id="formPersonales" onsubmit="guardarDatosPersonales(event)">
+      <div class="form-group">
+        <label for="perfNombre">Nombre completo</label>
+        <input type="text" class="form-input" id="perfNombre" placeholder="Tu nombre...">
+      </div>
+      <div class="form-group" style="margin-top:16px;">
+        <label for="perfEmail">Correo electrónico</label>
+        <input type="email" class="form-input" id="perfEmail" disabled style="background: var(--bg-tertiary); cursor: not-allowed; opacity: 0.8;" title="El correo electrónico no se puede modificar">
+      </div>
+      <button type="submit" class="btn btn-secondary btn-full" id="btnGuardarPersonales" style="margin-top:20px">
+        Guardar Datos
+      </button>
+    </form>
+  </div>
+
+  <!-- Sección: Perfil Académico -->
+  <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
+    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);">Perfil Académico</h2>
+    <form id="formAcademico" onsubmit="guardarPerfilAcademico(event)">
       <div class="form-group">
         <label for="perfTipo">¿Qué estás estudiando (o quieres estudiar)?</label>
         <select class="form-input" id="perfTipo" required>
@@ -65,16 +84,14 @@
           <option value="formacion">Formación para el empleo (Ninis)</option>
         </select>
       </div>
-
-      <div class="form-group" style="margin-top:20px">
+      <div class="form-group" style="margin-top:16px;">
         <label for="perfRegion">¿Dónde resides actualmente?</label>
         <select class="form-input" id="perfRegion" required>
           <option value="Andalucía">Andalucía</option>
           <option value="Nacional">Otra parte de España / Nacional</option>
         </select>
       </div>
-
-      <div class="form-group" style="margin-top:20px">
+      <div class="form-group" style="margin-top:16px;">
         <label for="perfArea">Área principal de estudios</label>
         <select class="form-input" id="perfArea">
           <option value="Cualquier área">Cualquier área / General</option>
@@ -84,17 +101,34 @@
           <option value="Formación Profesional">Ciclos de FP genéricos</option>
         </select>
       </div>
-
-      <button type="submit" class="btn btn-primary btn-full" id="btnGuardar" style="margin-top:24px">
-        Guardar configuración
+      <button type="submit" class="btn btn-primary btn-full" id="btnGuardarAcademico" style="margin-top:20px">
+        Guardar Perfil Académico
       </button>
-
-      <div style="text-align:center; padding-top:16px;">
-        <a href="dashboard.html" style="font-size:0.85rem; color:var(--text-secondary)">Descartar cambios y volver al panel</a>
-      </div>
     </form>
-
   </div>
+
+  <!-- Sección: Seguridad -->
+  <div class="auth-card" style="max-width:100%;">
+    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);">Seguridad</h2>
+    <form id="formSeguridad" onsubmit="actualizarContrasena(event)">
+      <div class="form-group">
+        <label for="perfPassword">Nueva Contraseña</label>
+        <input type="password" class="form-input" id="perfPassword" placeholder="Mínimo 6 caracteres" required minlength="6">
+      </div>
+      <div class="form-group" style="margin-top:16px">
+        <label for="perfPasswordConfirm">Confirmar Nueva Contraseña</label>
+        <input type="password" class="form-input" id="perfPasswordConfirm" placeholder="Repite la nueva contraseña" required minlength="6">
+      </div>
+      <button type="submit" class="btn btn-warning btn-full" id="btnGuardarSeguridad" style="margin-top:20px">
+        Actualizar Contraseña
+      </button>
+    </form>
+  </div>
+
+  <div style="text-align:center; padding-top:24px;">
+    <a href="dashboard.html" style="font-size:0.95rem; color:var(--text-secondary); text-decoration: underline;">Volver al panel principal</a>
+  </div>
+
 </div>
 
 <!-- ===== TOAST CONTAINER ===== -->

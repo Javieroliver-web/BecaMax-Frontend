@@ -74,7 +74,7 @@ async function handleLogin(e) {
   btn.disabled = true;
   btn.textContent = 'Entrando…';
 
-  const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
 
   btn.disabled = false;
   btn.textContent = 'Iniciar sesión';
@@ -83,6 +83,20 @@ async function handleLogin(e) {
     errEl.textContent = tradError(error.message);
     errEl.classList.add('visible');
   } else {
+    // Verificación de Bloqueo
+    const { data: perfil } = await supabaseClient
+      .from('perfiles')
+      .select('estado')
+      .eq('user_id', data.session.user.id)
+      .single();
+
+    if (perfil && perfil.estado === 'bloqueado') {
+      await supabaseClient.auth.signOut();
+      errEl.textContent = '⛔ Cuenta suspendida por la administración.';
+      errEl.classList.add('visible');
+      return;
+    }
+
     // Redirigir al returnUrl o al dashboard
     const params = new URLSearchParams(window.location.search);
     const ret = params.get('returnUrl') || 'dashboard.html';
@@ -111,7 +125,23 @@ async function requireAuth() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) {
     window.location.href = '/pages/auth.html?returnUrl=' + encodeURIComponent(window.location.pathname);
+    return null;
   }
+
+  // Verificación de Bloqueo Global
+  const { data: perfil } = await supabaseClient
+    .from('perfiles')
+    .select('estado')
+    .eq('user_id', session.user.id)
+    .single();
+
+  if (perfil && perfil.estado === 'bloqueado') {
+    await supabaseClient.auth.signOut();
+    alert('Acceso Denegado: Su cuenta ha sido bloqueada.');
+    window.location.href = '/index.html';
+    return null;
+  }
+
   return session;
 }
 

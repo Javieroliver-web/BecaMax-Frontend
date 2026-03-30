@@ -1,19 +1,27 @@
 // ============================================================
-//  PERFIL.JS – Carga y guardado de perfil de usuario
+//  PERFIL.JS – Carga y guardado de perfil de usuario (Múltiples secciones)
 // ============================================================
 
 async function cargarPerfil() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) return;
 
+  // 1. Cargar metadatos de usuario (Datos Personales)
+  const user = session.user;
+  document.getElementById('perfEmail').value = user.email || '';
+  if (user.user_metadata && user.user_metadata.full_name) {
+    document.getElementById('perfNombre').value = user.user_metadata.full_name;
+  }
+
+  // 2. Cargar perfil académico (base de datos pública)
   const { data, error } = await supabaseClient
     .from('perfiles')
     .select('*')
-    .eq('user_id', session.user.id)
+    .eq('user_id', user.id)
     .single();
 
-  if (error && error.code !== 'PGRST116') { // PGRST116 = No rows returned (is fine for new users)
-    console.error('Error al cargar perfil:', error);
+  if (error && error.code !== 'PGRST116') { // PGRST116 = No rows returned
+    console.error('Error al cargar perfil académico:', error);
     return;
   }
 
@@ -24,13 +32,40 @@ async function cargarPerfil() {
   }
 }
 
-async function guardarPerfil(e) {
+async function guardarDatosPersonales(e) {
+  e.preventDefault();
+  
+  const nombre = document.getElementById('perfNombre').value;
+  const btn = document.getElementById('btnGuardarPersonales');
+
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+
+  const { data, error } = await supabaseClient.auth.updateUser({
+    data: { full_name: nombre }
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Guardar Datos';
+
+  if (error) {
+    console.error('Error al actualizar datos personales:', error);
+    showToast('Error al actualizar nombre.', 'error');
+  } else {
+    showToast('✅ Datos personales actualizados correctamente.', 'success');
+    // Actualizar nombre en el header si existe
+    const headerName = document.getElementById('headerUserName');
+    if (headerName) headerName.textContent = nombre;
+  }
+}
+
+async function guardarPerfilAcademico(e) {
   e.preventDefault();
   
   const tipo = document.getElementById('perfTipo').value;
   const region = document.getElementById('perfRegion').value;
   const area = document.getElementById('perfArea').value;
-  const btn = document.getElementById('btnGuardar');
+  const btn = document.getElementById('btnGuardarAcademico');
 
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) {
@@ -41,7 +76,7 @@ async function guardarPerfil(e) {
   btn.disabled = true;
   btn.textContent = 'Guardando...';
 
-  // Usamos upsert para crear o actualizar el perfil
+  // Usamos upsert para crear o actualizar el perfil en la base de datos
   const { error } = await supabaseClient
     .from('perfiles')
     .upsert([{ 
@@ -52,17 +87,50 @@ async function guardarPerfil(e) {
     }], { onConflict: 'user_id' });
 
   btn.disabled = false;
-  btn.textContent = 'Guardar configuración';
+  btn.textContent = 'Guardar Perfil Académico';
 
   if (error) {
-    console.error('Error al guardar:', error);
-    showToast('Error al guardar el perfil.', 'error');
+    console.error('Error al guardar perfil académico:', error);
+    showToast('Error al actualizar perfil.', 'error');
   } else {
-    showToast('✅ Perfil guardado. Tus recomendaciones se han actualizado.', 'success');
-    // Tras 1 seg de lectura del toast, enviamos al dashboard
-    setTimeout(() => {
-      window.location.href = '/pages/dashboard.html';
-    }, 1200);
+    showToast('🎓 Perfil académico guardado. Tus recomendaciones se han actualizado.', 'success');
+  }
+}
+
+async function actualizarContrasena(e) {
+  e.preventDefault();
+  
+  const password = document.getElementById('perfPassword').value;
+  const passwordConfirm = document.getElementById('perfPasswordConfirm').value;
+  const btn = document.getElementById('btnGuardarSeguridad');
+
+  if (password !== passwordConfirm) {
+    showToast('Las contraseñas no coinciden.', 'error');
+    return;
+  }
+
+  if (password.length < 6) {
+    showToast('La contraseña debe tener al menos 6 caracteres.', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Actualizando...';
+
+  const { data, error } = await supabaseClient.auth.updateUser({
+    password: password
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Actualizar Contraseña';
+
+  if (error) {
+    console.error('Error al cambiar contraseña:', error);
+    showToast('Error al cambiar la contraseña. ' + error.message, 'error');
+  } else {
+    showToast('🔒 Contraseña actualizada correctamente.', 'success');
+    document.getElementById('perfPassword').value = '';
+    document.getElementById('perfPasswordConfirm').value = '';
   }
 }
 
