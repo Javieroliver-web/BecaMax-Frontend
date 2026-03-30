@@ -175,7 +175,7 @@ async function updateHeaderAuth() {
         const p = isRoot ? 'pages/' : '';
 
         const adminLinks = perfil?.rol === 'admin' ? `
-          <a href="${p}admin-monitorizacion.html" class="dropdown-link">🛡️ Monitorización</a>
+          <a href="${p}admin-monitorizacion.html" class="dropdown-link">Monitorización</a>
         ` : '';
 
         const misAlertasBtn = `
@@ -240,16 +240,31 @@ async function updateHeaderAuth() {
       }
     }
 
-    // Gestionar Menú Móvil viejo
-    const mobileLogin = document.getElementById('mobileLogin');
-    const mobileRegister = document.getElementById('mobileRegister');
-    const mobileDashboard = document.getElementById('mobileDashboard');
-    const adminLinkMobile = document.getElementById('adminLinkMobile');
+    // Gestionar Menú Móvil
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenu) {
+      const isRoot = window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '';
+      const p = isRoot ? 'pages/' : '';
+      const avatarFallback = nombre.charAt(0).toUpperCase();
+      const avatarImgLarge = perfil?.avatar_url 
+        ? `<img src="${perfil.avatar_url}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);">` 
+        : `<div style="width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:bold;">${avatarFallback}</div>`;
 
-    if (mobileLogin) mobileLogin.style.display = 'none';
-    if (mobileRegister) mobileRegister.style.display = 'none';
-    if (mobileDashboard) mobileDashboard.style.display = 'block';
-    if (perfil && perfil.rol === 'admin' && adminLinkMobile) adminLinkMobile.style.display = 'block';
+      mobileMenu.innerHTML = `
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--glass-border);">
+           ${avatarImgLarge}
+           <div style="text-align:left;">
+             <div style="font-weight:bold; font-size:1.1rem; color:var(--text-primary);">${nombre}</div>
+             <div style="font-size:0.8rem; text-transform:uppercase; color:var(--primary-light); font-weight:600;">${perfil?.rol === 'admin' ? 'Administrador' : 'Estudiante'}</div>
+           </div>
+        </div>
+        <a href="${p}dashboard.html" class="btn btn-secondary btn-full" style="margin-bottom:10px; justify-content:center;">🔔 Mis alertas</a>
+        <a href="${p}perfil.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">👤 Mi Perfil</a>
+        <a href="${p}configuracion.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">⚙️ Configuración</a>
+        ${perfil?.rol === 'admin' ? `<a href="${p}admin-monitorizacion.html" class="btn btn-warning btn-full" style="margin-bottom:10px; justify-content:center;">🛡️ Monitorización</a>` : ''}
+        <button onclick="handleSignOut()" class="btn btn-danger btn-full" style="margin-top:10px; width:100%;">🚪 Cerrar sesión</button>
+      `;
+    }
   }
 }
 
@@ -280,6 +295,12 @@ function tradError(msg) {
 // ---- Theme Logic & DB Sync -----------------------------------
 async function initTheme() {
   const localTheme = localStorage.getItem('theme') || 'dark';
+  
+  if (localTheme === 'light') {
+    document.body.classList.add('light-mode');
+  } else {
+    document.body.classList.remove('light-mode');
+  }
   
   // Inyectar botón en la cabecera si existe
   const headerInner = document.querySelector('.header-inner');

@@ -26,24 +26,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   // APARIENCIA E INICIALIZACIÓN
   // ==========================================
   function cargarPreferencias() {
-    // Revisar local storage para el tema
-    const useLightMode = localStorage.getItem('becamax_lightMode') === 'true';
+    // Revisar local storage para el tema unificado
+    const useLightMode = localStorage.getItem('theme') === 'light';
     const toggle = document.getElementById('toggleTheme');
     
     if (useLightMode) {
       document.body.classList.add('light-mode');
       if (toggle) toggle.checked = true;
+    } else {
+      document.body.classList.remove('light-mode');
+      if (toggle) toggle.checked = false;
     }
   }
   
   function alternarTema() {
     const toggle = document.getElementById('toggleTheme');
+    // Actualizar también el botón del header de auth.js si está visible
+    const headerToggle = document.getElementById('themeToggle');
+
     if (toggle.checked) {
       document.body.classList.add('light-mode');
-      localStorage.setItem('becamax_lightMode', 'true');
+      localStorage.setItem('theme', 'light');
+      if(headerToggle) headerToggle.innerHTML = '🌙';
     } else {
       document.body.classList.remove('light-mode');
-      localStorage.setItem('becamax_lightMode', 'false');
+      localStorage.setItem('theme', 'dark');
+      if(headerToggle) headerToggle.innerHTML = '🌞';
     }
   }
   
