@@ -204,27 +204,31 @@ async function updateHeaderAuth() {
               <div class="dropdown-role">${perfil?.rol === 'admin' ? 'Administrador' : 'Estudiante'}</div>
               <hr class="dropdown-divider">
               <div class="dropdown-links">
-                <a href="${p}perfil.html" class="dropdown-link">👤 Mi Perfil</a>
-                <a href="${p}configuracion.html" class="dropdown-link">⚙️ Configuración</a>
+                <a href="${p}perfil.html" class="dropdown-link">Mi Perfil</a>
+                <a href="${p}configuracion.html" class="dropdown-link">Configuración</a>
                 ${adminLinks}
                 <hr class="dropdown-divider">
-                <button onclick="handleSignOut()" class="dropdown-link" style="color:var(--danger); background:none; border:none; width:100%; text-align:left; cursor:pointer;">🚪 Cerrar sesión</button>
+                <button onclick="handleSignOut()" class="dropdown-link" style="color:var(--danger); background:none; border:none; width:100%; text-align:left; cursor:pointer;">Cerrar sesión</button>
               </div>
             </div>
           </div>
         `;
         
-        // Esconder botones login/registro de forma segura
-        const btnLogin = document.getElementById('btnLogin');
-        const btnRegister = document.getElementById('btnRegister');
-        if(btnLogin) btnLogin.style.display = 'none';
-        if(btnRegister) btnRegister.style.display = 'none';
-        
-        // Borrar todos los botones viejos aislados regados por el HTML
-        const viejosIds = ['btnDashboard', 'btnPerfil', 'btnConfiguracion', 'btnLogout', 'adminLink', 'headerUserName', 'btnNotifications'];
-        viejosIds.forEach(id => {
-          const el = document.getElementById(id);
-          if(el) el.remove();
+        // Esconder botones viejos que ahora están en el Dropdown
+        Array.from(headerActions.querySelectorAll('a, button, span')).forEach(el => {
+          const t = el.textContent.trim().toLowerCase();
+          if (
+            t.includes('cerrar sesión') || 
+            t.includes('salir') || 
+            t.includes('iniciar sesión') || 
+            t.includes('registrarse') || 
+            t.includes('perfil') || 
+            (t.includes('mis alertas') && el.tagName === 'A') || 
+            (t.includes('monitorización') && el.tagName === 'A') ||
+            el.id === 'headerUserName'
+          ) {
+            el.remove();
+          }
         });
 
         const wrapper = document.createElement('div');
@@ -289,9 +293,12 @@ async function initTheme() {
     btn.title = 'Cambiar tema';
     
     // Insertar antes de actions o al final
-    const actions = document.getElementById('headerActions');
-    if (actions) headerInner.insertBefore(btn, actions);
-    else headerInner.appendChild(btn);
+    const actions = document.querySelector('.header-actions');
+    if (actions) {
+      headerInner.insertBefore(btn, actions);
+    } else {
+      headerInner.appendChild(btn);
+    }
 
     // Evento click
     btn.addEventListener('click', async () => {
@@ -299,24 +306,7 @@ async function initTheme() {
       const newTheme = isLight ? 'light' : 'dark';
       btn.innerHTML = isLight ? '🌙' : '🌞';
       localStorage.setItem('theme', newTheme);
-
-      // Sincronizar si está logueado
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
-        await supabaseClient.from('perfiles').update({ tema: newTheme }).eq('user_id', session.user.id);
-      }
     });
-
-    // Sincronizar carga inicial con BD
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (session) {
-      const { data: perfil } = await supabaseClient.from('perfiles').select('tema').eq('user_id', session.user.id).single();
-      if (perfil && perfil.tema && perfil.tema !== localStorage.getItem('theme')) {
-        localStorage.setItem('theme', perfil.tema);
-        document.body.classList.toggle('light-mode', perfil.tema === 'light');
-        btn.innerHTML = perfil.tema === 'light' ? '🌙' : '🌞';
-      }
-    }
   }
 }
 
