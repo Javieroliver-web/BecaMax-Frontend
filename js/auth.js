@@ -162,52 +162,107 @@ async function updateHeaderAuth() {
 
   if (session) {
     const nombre = session.user.user_metadata?.full_name || session.user.user_metadata?.nombre || session.user.email.split('@')[0];
-    
-    // Fetch profile data for role and avatar
     const { data: perfil } = await supabaseClient.from('perfiles').select('rol, avatar_url').eq('user_id', session.user.id).single();
 
-    // Rellenar nombre de usuario (en dashboard.html, perfil.html e index.html si está)
-    const nameEls = document.querySelectorAll('#headerUserName');
-    nameEls.forEach(el => {
-      if (perfil && perfil.avatar_url) {
-        el.innerHTML = `<img src="${perfil.avatar_url}" class="header-avatar-img" title="Tu perfil" style="margin-right:4px;"> ${nombre}`;
-      } else {
-        el.textContent = nombre;
-      }
-      el.style.display = '';
-    });
+    const headerActions = document.querySelector('.header-actions');
+    if (headerActions) {
+      // Si el dropdown no existe, lo inyectamos
+      let dropdown = document.getElementById('userDropdownMenuDiv');
+      if (!dropdown) {
+        
+        // Detectar si estamos en el subdirectorio pages o en la raiĺz
+        const isRoot = window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '';
+        const p = isRoot ? 'pages/' : '';
 
-    // En index.html (y otros sitos) habilitar botones y ocultar login
-    const btnLogin = document.getElementById('btnLogin');
-    const btnRegister = document.getElementById('btnRegister');
-    const btnDashboard = document.getElementById('btnDashboard');
-    const btnPerfil = document.getElementById('btnPerfil');
-    const btnConfiguracion = document.getElementById('btnConfiguracion');
-    const btnLogout = document.getElementById('btnLogout');
-    
+        const adminLinks = perfil?.rol === 'admin' ? `
+          <a href="${p}admin-monitorizacion.html" class="dropdown-link">🛡️ Monitorización</a>
+        ` : '';
+
+        const misAlertasBtn = `
+          <a href="${p}dashboard.html" class="btn btn-ghost btn-sm" style="margin-right:8px;">🔔 Mis alertas</a>
+        `;
+
+        const avatarFallback = nombre.charAt(0).toUpperCase();
+        const avatarImg = perfil?.avatar_url 
+          ? `<img src="${perfil.avatar_url}" class="dropdown-avatar-small">` 
+          : `<div class="dropdown-avatar-small-placeholder">${avatarFallback}</div>`;
+
+        const avatarImgLarge = perfil?.avatar_url 
+          ? `<img src="${perfil.avatar_url}" class="dropdown-avatar-large">` 
+          : `<div class="dropdown-avatar-large-placeholder">${avatarFallback}</div>`;
+
+        const html = `
+          ${misAlertasBtn}
+          <div class="user-dropdown-container">
+            <button class="user-dropdown-btn" onclick="toggleUserDropdown(event)">
+              <span class="user-name user-name-dropdown">${nombre}</span>
+              ${avatarImg}
+            </button>
+            <div class="user-dropdown-menu" id="userDropdownContent">
+              ${avatarImgLarge}
+              <div class="dropdown-name">${nombre}</div>
+              <div class="dropdown-role">${perfil?.rol === 'admin' ? 'Administrador' : 'Estudiante'}</div>
+              <hr class="dropdown-divider">
+              <div class="dropdown-links">
+                <a href="${p}perfil.html" class="dropdown-link">👤 Mi Perfil</a>
+                <a href="${p}configuracion.html" class="dropdown-link">⚙️ Configuración</a>
+                ${adminLinks}
+                <hr class="dropdown-divider">
+                <button onclick="handleSignOut()" class="dropdown-link" style="color:var(--danger); background:none; border:none; width:100%; text-align:left; cursor:pointer;">🚪 Cerrar sesión</button>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Esconder botones login/registro de forma segura
+        const btnLogin = document.getElementById('btnLogin');
+        const btnRegister = document.getElementById('btnRegister');
+        if(btnLogin) btnLogin.style.display = 'none';
+        if(btnRegister) btnRegister.style.display = 'none';
+        
+        // Borrar todos los botones viejos aislados regados por el HTML
+        const viejosIds = ['btnDashboard', 'btnPerfil', 'btnConfiguracion', 'btnLogout', 'adminLink', 'headerUserName', 'btnNotifications'];
+        viejosIds.forEach(id => {
+          const el = document.getElementById(id);
+          if(el) el.remove();
+        });
+
+        const wrapper = document.createElement('div');
+        wrapper.id = 'userDropdownMenuDiv';
+        wrapper.style.display = 'flex';
+        wrapper.style.alignItems = 'center';
+        wrapper.innerHTML = html;
+        headerActions.appendChild(wrapper);
+      }
+    }
+
+    // Gestionar Menú Móvil viejo
     const mobileLogin = document.getElementById('mobileLogin');
     const mobileRegister = document.getElementById('mobileRegister');
     const mobileDashboard = document.getElementById('mobileDashboard');
-
-    if (btnLogin) btnLogin.style.display = 'none';
-    if (btnRegister) btnRegister.style.display = 'none';
-    if (btnDashboard) btnDashboard.style.display = 'inline-block';
-    if (btnPerfil) btnPerfil.style.display = 'inline-block';
-    if (btnConfiguracion) btnConfiguracion.style.display = 'inline-block';
-    if (btnLogout) btnLogout.style.display = 'inline-block';
+    const adminLinkMobile = document.getElementById('adminLinkMobile');
 
     if (mobileLogin) mobileLogin.style.display = 'none';
     if (mobileRegister) mobileRegister.style.display = 'none';
     if (mobileDashboard) mobileDashboard.style.display = 'block';
-
-    if (perfil && perfil.rol === 'admin') {
-      const adminLink = document.getElementById('adminLink');
-      const adminLinkMobile = document.getElementById('adminLinkMobile');
-      if (adminLink) adminLink.style.display = 'inline-block';
-      if (adminLinkMobile) adminLinkMobile.style.display = 'block';
-    }
+    if (perfil && perfil.rol === 'admin' && adminLinkMobile) adminLinkMobile.style.display = 'block';
   }
 }
+
+// Eventos Globales de Dropdown
+window.toggleUserDropdown = function(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('userDropdownContent');
+  if(menu) menu.classList.toggle('active');
+}
+
+window.addEventListener('click', function(e) {
+  const menu = document.getElementById('userDropdownContent');
+  if(menu && menu.classList.contains('active')) {
+    menu.classList.remove('active');
+  }
+});
+
 
 // ---- Error translation --------------------------------------
 function tradError(msg) {
