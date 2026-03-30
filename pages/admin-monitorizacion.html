@@ -159,6 +159,7 @@
     <div class="admin-tabs">
       <button class="admin-tab active" id="tabUsuariosBtn" onclick="toggleTab('usuarios')">👥 Usuarios Registrados</button>
       <button class="admin-tab" id="tabLogsBtn" onclick="toggleTab('logs')">📜 Logs del Sistema</button>
+      <button class="admin-tab" id="tabNoticiasBtn" onclick="toggleTab('noticias')">📢 Gestionar Noticias</button>
     </div>
 
     <!-- Panel Usuarios -->
@@ -203,6 +204,31 @@
       </div>
     </div>
 
+    <!-- Panel Noticias -->
+    <div class="admin-panel" id="panelNoticias" style="padding: 30px;">
+      <h2 style="font-size: 1.4rem; margin-bottom: 20px;">📢 Publicar Noticia Global</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Este mensaje aparecerá en la página principal para todos los usuarios. Al publicar uno nuevo, el anterior se eliminará automáticamente.</p>
+      
+      <div class="form-group">
+        <label for="newsContent">Mensaje de la noticia</label>
+        <textarea id="newsContent" rows="5" class="form-input" placeholder="Escribe aquí el mensaje... (Max 250 caracteres)" maxlength="250" style="resize: none;"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="newsExpiration">Expiración del mensaje</label>
+        <select id="newsExpiration" class="form-input">
+          <option value="24h">24 Horas (1 día)</option>
+          <option value="7d">7 Días (1 semana)</option>
+          <option value="1m">1 Mes</option>
+          <option value="none">Sin expiración (permanente)</option>
+        </select>
+      </div>
+
+      <div style="text-align: right; margin-top: 20px;">
+        <button id="btnPostNews" class="btn btn-primary">🚀 Publicar Noticia Ahora</button>
+      </div>
+    </div>
+
   </main>
 
   <!-- Elimina usuario Confirm Modal (simple alert for demo, replaced in JS later if needed) -->
@@ -222,15 +248,20 @@
     function toggleTab(tabId) {
       document.getElementById('panelUsuarios').classList.remove('active');
       document.getElementById('panelLogs').classList.remove('active');
+      document.getElementById('panelNoticias').classList.remove('active');
       document.getElementById('tabUsuariosBtn').classList.remove('active');
       document.getElementById('tabLogsBtn').classList.remove('active');
+      document.getElementById('tabNoticiasBtn').classList.remove('active');
 
       if (tabId === 'usuarios') {
         document.getElementById('panelUsuarios').classList.add('active');
         document.getElementById('tabUsuariosBtn').classList.add('active');
-      } else {
+      } else if (tabId === 'logs') {
         document.getElementById('panelLogs').classList.add('active');
         document.getElementById('tabLogsBtn').classList.add('active');
+      } else {
+        document.getElementById('panelNoticias').classList.add('active');
+        document.getElementById('tabNoticiasBtn').classList.add('active');
       }
     }
 
