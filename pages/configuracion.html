@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es" class="dark-mode">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BecaMax | Configuración</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <link rel="stylesheet" href="../css/styles.css">
+
+  <script src="../js/logger.js"></script>
+  <script defer src="../js/config.js"></script>
+  <script defer src="../js/auth.js"></script>
+  <script defer src="../js/configuracion.js"></script>
+</head>
+<body class="loading-state">
+
+<!-- ===== LOADING OVERLAY ===== -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader-content">
+    <div class="spinner"></div>
+    <div class="loading-title">⚙️ Cargando Configuración...</div>
+  </div>
+</div>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="header-inner">
+    <a href="../index.html" class="logo">
+      <div class="logo-icon">BX</div>
+      <span class="logo-text">Beca<span class="text-gradient">Max</span></span>
+    </a>
+    <div class="header-actions">
+      <div class="user-menu" id="userMenu">
+        <span class="user-name" id="headerUserName" style="display:none;"></span>
+        <a href="admin-monitorizacion.html" class="btn btn-danger btn-sm" id="adminLink" style="display:none;" title="Panel de Administración">Monitorización</a>
+        <a href="dashboard.html" class="btn btn-ghost btn-sm" id="btnDashboard" style="display:none;">Mis alertas</a>
+        <a href="perfil.html" class="btn btn-ghost btn-sm" id="btnPerfil" style="display:none;" title="Ajustes de Perfil">Perfil</a>
+        <a href="configuracion.html" class="btn btn-ghost btn-sm" id="btnConfiguracion" style="display:none;" title="Configuración de la cuenta">⚙️ Configuración</a>
+        <button class="btn btn-secondary btn-sm" id="btnLogout" style="display:none;" onclick="handleLogout()">Salir</button>
+      </div>
+    </div>
+    
+    <!-- Hamburguesa Móvil -->
+    <div class="hamburger-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="dashboard.html" class="btn btn-ghost btn-full" id="mobileDashboard" style="display:none; text-align:left;">Panel</a>
+    <a href="perfil.html" class="btn btn-ghost btn-full" style="text-align:left;">Perfil</a>
+    <a href="configuracion.html" class="btn btn-ghost btn-full" style="text-align:left;">Configuración</a>
+    <a href="admin-monitorizacion.html" class="btn btn-danger btn-full" id="adminLinkMobile" style="display:none; text-align:left;">Monitorización</a>
+    <button class="btn btn-secondary btn-full" style="text-align:left;" onclick="handleLogout()">Cerrar sesión</button>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="dashboard-hero">
+  <div class="dashboard-hero-inner">
+    <h1 style="font-size: 2.2rem; margin-bottom: 6px;">⚙️ <span class="text-gradient">Configuración</span></h1>
+    <p style="font-size: 1.05rem; opacity: 0.85;">Accesibilidad, seguridad y preferencias técnicas.</p>
+  </div>
+</section>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<div class="main-layout" style="display:block; max-width:600px; margin:0 auto; padding-top:30px; padding-bottom: 60px;">
+  
+  <!-- Sección: Accesibilidad y Visuales -->
+  <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
+    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);">🎨 Apariencia</h2>
+    
+    <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-tertiary); padding:16px; border-radius:var(--border-radius); border:1px solid var(--glass-border);">
+      <div>
+        <h3 style="font-size:1rem; margin-bottom:4px;">Modo Claro</h3>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Cambia el diseño oscuro fluido por uno brillante minimalista.</p>
+      </div>
+      <label class="toggle" title="Activar Modo Claro">
+        <input type="checkbox" id="toggleTheme" onchange="alternarTema()">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Sección: Notificaciones -->
+  <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
+    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);">🔔 Notificaciones</h2>
+    
+    <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-tertiary); padding:16px; border-radius:var(--border-radius); border:1px solid var(--glass-border); margin-bottom:12px;">
+      <div>
+        <h3 style="font-size:1rem; margin-bottom:4px;">Emails Promocionales</h3>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Recibir recomendaciones y recordatorios sobre BecaMax.</p>
+      </div>
+      <label class="toggle" title="Aceptar correos promocionales">
+        <input type="checkbox" id="toggleCorreos" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <!-- Frecuencia de Alertas de Becas -->
+    <div class="form-group" style="margin-top:20px;">
+      <label style="font-size:0.9rem; margin-bottom:8px;">Frecuencia del escáner profundo de alertas</label>
+      <select class="form-input" id="confFrecuencia">
+        <option value="diario">Todos los días</option>
+        <option value="semanal" selected>Una vez a la semana (Lunes)</option>
+        <option value="nunca">Pausar alertas temporamente</option>
+      </select>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;">Las alertas semanales son recomendadas para evitar saturar tu bandeja de entrada.</p>
+    </div>
+  </div>
+
+  <!-- Sección: Seguridad -->
+  <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
+    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);">🔑 Seguridad</h2>
+    <form id="formSeguridad" onsubmit="actualizarContrasena(event)">
+      <div class="form-group">
+        <label for="confPassword">Nueva Contraseña</label>
+        <input type="password" class="form-input" id="confPassword" placeholder="Mínimo 6 caracteres" required minlength="6">
+      </div>
+      <div class="form-group" style="margin-top:16px">
+        <label for="confPasswordConfirm">Confirmar Nueva Contraseña</label>
+        <input type="password" class="form-input" id="confPasswordConfirm" placeholder="Repite la nueva contraseña" required minlength="6">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="btnGuardarSeguridad" style="margin-top:20px">
+        Actualizar Contraseña
+      </button>
+    </form>
+  </div>
+
+  <!-- Sección: Peligro -->
+  <div class="auth-card" style="max-width:100%; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.02);">
+    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--danger);">⚠️ Zona de Peligro</h2>
+    <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">
+      Una vez elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate antes de hacerlo. Todos tus datos personales, alertas e incidencias reportadas desaparecerán instantáneamente.
+    </p>
+    <button class="btn btn-danger btn-full" onclick="procesoEliminarCuenta()" style="padding:14px; font-weight:700;">
+      Eliminar Cuenta BecaMax
+    </button>
+  </div>
+
+  <div style="text-align:center; padding-top:24px;">
+    <a href="dashboard.html" style="font-size:0.95rem; color:var(--text-secondary); text-decoration: underline;">Volver al panel principal</a>
+  </div>
+
+</div>
+
+<!-- ===== MODAL ELIMINAR CUENTA ===== -->
+<div class="modal-overlay" id="modalEliminar">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" style="color:var(--danger)">Eliminar Cuenta Definitivamente</h2>
+    </div>
+    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 16px; line-height:1.5;">
+      Esta acción es irreversible y borrará todo tu progreso. Para confirmar, por favor escribe <strong>BORRAR</strong> en el siguiente cuadro.
+    </p>
+    <input type="text" id="inputEliminarConfirm" class="form-input" placeholder="Escribe BORRAR aquí, en mayúsculas..." style="margin-bottom:20px; text-align:center; font-weight:700;">
+    <div class="modal-actions">
+      <button class="btn btn-secondary" style="flex:1" onclick="document.getElementById('modalEliminar').classList.remove('active')">Cancelar</button>
+      <button class="btn btn-danger" style="flex:1" id="btnConfirmarEliminar" disabled onclick="ejecutarEliminacionCuenta()">Eliminar Ahora</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <p>BecasMax · Plataforma de Oportunidades Académicas</p>
+  <p style="margin-top:10px; font-size: 0.8em; opacity: 0.5;">© 2026 Francisco Javier Párraga Oliver</p>
+</footer>
+
+</body>
+</html>

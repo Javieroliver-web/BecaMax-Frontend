@@ -85,15 +85,15 @@ async function guardarPerfilAcademico(e) {
   btn.disabled = true;
   btn.textContent = 'Guardando...';
 
-  // Usamos upsert para crear o actualizar el perfil en la base de datos
+  // Usamos update para no alterar otros campos como el avatar
   const { error } = await supabaseClient
     .from('perfiles')
-    .upsert([{ 
-      user_id: session.user.id, 
+    .update({ 
       tipo_estudio: tipo, 
       region: region, 
       area: area 
-    }], { onConflict: 'user_id' });
+    })
+    .eq('user_id', session.user.id);
 
   btn.disabled = false;
   btn.textContent = 'Guardar Perfil Académico';
@@ -106,42 +106,6 @@ async function guardarPerfilAcademico(e) {
   }
 }
 
-async function actualizarContrasena(e) {
-  e.preventDefault();
-  
-  const password = document.getElementById('perfPassword').value;
-  const passwordConfirm = document.getElementById('perfPasswordConfirm').value;
-  const btn = document.getElementById('btnGuardarSeguridad');
-
-  if (password !== passwordConfirm) {
-    showToast('Las contraseñas no coinciden.', 'error');
-    return;
-  }
-
-  if (password.length < 6) {
-    showToast('La contraseña debe tener al menos 6 caracteres.', 'error');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Actualizando...';
-
-  const { data, error } = await supabaseClient.auth.updateUser({
-    password: password
-  });
-
-  btn.disabled = false;
-  btn.textContent = 'Actualizar Contraseña';
-
-  if (error) {
-    console.error('Error al cambiar contraseña:', error);
-    showToast('Error al cambiar la contraseña. ' + error.message, 'error');
-  } else {
-    showToast('🔒 Contraseña actualizada correctamente.', 'success');
-    document.getElementById('perfPassword').value = '';
-    document.getElementById('perfPasswordConfirm').value = '';
-  }
-}
 
 document.addEventListener('DOMContentLoaded', async () => {
   const session = await requireAuth();
@@ -181,13 +145,11 @@ async function guardarAvatar(url) {
   document.getElementById('perfilAvatarImg').src = url;
   document.getElementById('modalAvatares').classList.remove('active');
 
-  // Guardar en Supabase
+  // Guardar en Supabase usando UPDATE en lugar de UPSERT para no sobrescribir datos valiosos
   const { error } = await supabaseClient
     .from('perfiles')
-    .upsert([{ 
-      user_id: session.user.id, 
-      avatar_url: url 
-    }], { onConflict: 'user_id' });
+    .update({ avatar_url: url })
+    .eq('user_id', session.user.id);
 
   if (error) {
     console.error('Error al guardar avatar:', error);

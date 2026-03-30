@@ -1,6 +1,17 @@
 // ============================================================
 //  AUTH.JS – Supabase Auth logic (shared across all pages)
-// ============================================================
+// ============================================
+// BecaMax - Lógica Central de Autenticación
+// ============================================
+
+// Inicializar el tema de accesibilidad globalmente antes de que renderice
+(function() {
+  const useLightMode = localStorage.getItem('becamax_lightMode') === 'true';
+  if (useLightMode) {
+    document.documentElement.classList.add('light-mode');
+    if (document.body) document.body.classList.add('light-mode');
+  }
+})();
 
 // --- Sincronización Inmediata de Tema (evita parpadeo) ---
 const localTheme = localStorage.getItem('theme') || 'dark';
@@ -171,6 +182,7 @@ async function updateHeaderAuth() {
     const btnRegister = document.getElementById('btnRegister');
     const btnDashboard = document.getElementById('btnDashboard');
     const btnPerfil = document.getElementById('btnPerfil');
+    const btnConfiguracion = document.getElementById('btnConfiguracion');
     const btnLogout = document.getElementById('btnLogout');
     
     const mobileLogin = document.getElementById('mobileLogin');
@@ -181,6 +193,7 @@ async function updateHeaderAuth() {
     if (btnRegister) btnRegister.style.display = 'none';
     if (btnDashboard) btnDashboard.style.display = 'inline-block';
     if (btnPerfil) btnPerfil.style.display = 'inline-block';
+    if (btnConfiguracion) btnConfiguracion.style.display = 'inline-block';
     if (btnLogout) btnLogout.style.display = 'inline-block';
 
     if (mobileLogin) mobileLogin.style.display = 'none';
