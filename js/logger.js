@@ -15,7 +15,11 @@
   var host = window.location.hostname;
   if (host === 'localhost' || host === '127.0.0.1' || host === '') return;
 
-  var page     = window.location.pathname || '/';
+  // Solo registrar visitas a la pantalla de presentación principal
+  var page = window.location.pathname || '/';
+  if (page !== '/' && !page.endsWith('index.html')) {
+    return; 
+  }
   var lang     = navigator.language || 'N/A';
   var screen_  = window.screen.width + 'x' + window.screen.height;
   var ua       = navigator.userAgent;
