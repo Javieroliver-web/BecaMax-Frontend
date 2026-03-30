@@ -51,6 +51,16 @@
   <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
     <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);">Datos Personales</h2>
     <form id="formPersonales" onsubmit="guardarDatosPersonales(event)">
+      
+      <!-- Avatar Selector -->
+      <div style="text-align:center; margin-bottom: 24px;">
+        <div class="avatar-editable" onclick="abrirModalAvatares()" title="Cambiar foto de perfil">
+          <img src="https://api.dicebear.com/9.x/micah/svg?seed=Default" alt="Avatar" id="perfilAvatarImg">
+          <div class="avatar-overlay">✏️</div>
+        </div>
+        <p style="margin-top:8px; font-size:0.85rem; color:var(--text-secondary);">Haz clic en la foto para cambiarla</p>
+      </div>
+
       <div class="form-group">
         <label for="perfNombre">Nombre completo</label>
         <input type="text" class="form-input" id="perfNombre" placeholder="Tu nombre...">
@@ -129,6 +139,21 @@
     <a href="dashboard.html" style="font-size:0.95rem; color:var(--text-secondary); text-decoration: underline;">Volver al panel principal</a>
   </div>
 
+</div>
+
+<!-- ===== MODAL AVATARES ===== -->
+<div class="modal-overlay" id="modalAvatares">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Selecciona tu Avatar</h2>
+    </div>
+    <div class="avatars-grid" id="avatarsGrid">
+      <!-- Inyectado por JS -->
+    </div>
+    <div class="modal-actions" style="margin-top:20px;">
+      <button class="btn btn-secondary btn-full" onclick="document.getElementById('modalAvatares').classList.remove('active')">Cancelar</button>
+    </div>
+  </div>
 </div>
 
 <!-- ===== TOAST CONTAINER ===== -->

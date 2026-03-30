@@ -148,24 +148,51 @@ async function requireAuth() {
 // ---- Update header with user info --------------------------
 async function updateHeaderAuth() {
   const { data: { session } } = await supabaseClient.auth.getSession();
-  const actionsEl = document.getElementById('headerActions');
-  if (!actionsEl) return;
 
   if (session) {
-    // Check if user is admin to show the button
-    const { data: perfil } = await supabaseClient.from('perfiles').select('rol').eq('user_id', session.user.id).single();
-    const adminLink = (perfil && perfil.rol === 'admin') 
-      ? `<a href="admin-dashboard.html" class="btn btn-ghost btn-sm" title="Panel Administrador">🛡️ Admin</a>` 
-      : ``;
+    const nombre = session.user.user_metadata?.full_name || session.user.user_metadata?.nombre || session.user.email.split('@')[0];
+    
+    // Fetch profile data for role and avatar
+    const { data: perfil } = await supabaseClient.from('perfiles').select('rol, avatar_url').eq('user_id', session.user.id).single();
 
-    const nombre = session.user.user_metadata?.nombre || session.user.email.split('@')[0];
-    actionsEl.innerHTML = `
-      ${adminLink}
-      <a href="dashboard.html" class="btn btn-secondary btn-sm">🔔 Mis alertas</a>
-      <a href="perfil.html" class="btn btn-ghost btn-sm" title="Ajustes de Perfil">⚙️ Perfil</a>
-      <span style="font-size:.82rem;color:var(--text-secondary)">${nombre}</span>
-      <button class="btn btn-ghost btn-sm" onclick="handleSignOut()">Salir</button>
-    `;
+    // Rellenar nombre de usuario (en dashboard.html, perfil.html e index.html si está)
+    const nameEls = document.querySelectorAll('#headerUserName');
+    nameEls.forEach(el => {
+      if (perfil && perfil.avatar_url) {
+        el.innerHTML = `<img src="${perfil.avatar_url}" class="header-avatar-img" title="Tu perfil" style="margin-right:4px;"> ${nombre}`;
+      } else {
+        el.textContent = nombre;
+      }
+      el.style.display = '';
+    });
+
+    // En index.html (y otros sitos) habilitar botones y ocultar login
+    const btnLogin = document.getElementById('btnLogin');
+    const btnRegister = document.getElementById('btnRegister');
+    const btnDashboard = document.getElementById('btnDashboard');
+    const btnPerfil = document.getElementById('btnPerfil');
+    const btnLogout = document.getElementById('btnLogout');
+    
+    const mobileLogin = document.getElementById('mobileLogin');
+    const mobileRegister = document.getElementById('mobileRegister');
+    const mobileDashboard = document.getElementById('mobileDashboard');
+
+    if (btnLogin) btnLogin.style.display = 'none';
+    if (btnRegister) btnRegister.style.display = 'none';
+    if (btnDashboard) btnDashboard.style.display = 'inline-block';
+    if (btnPerfil) btnPerfil.style.display = 'inline-block';
+    if (btnLogout) btnLogout.style.display = 'inline-block';
+
+    if (mobileLogin) mobileLogin.style.display = 'none';
+    if (mobileRegister) mobileRegister.style.display = 'none';
+    if (mobileDashboard) mobileDashboard.style.display = 'block';
+
+    if (perfil && perfil.rol === 'admin') {
+      const adminLink = document.getElementById('adminLink');
+      const adminLinkMobile = document.getElementById('adminLinkMobile');
+      if (adminLink) adminLink.style.display = 'inline-block';
+      if (adminLinkMobile) adminLinkMobile.style.display = 'block';
+    }
   }
 }
 

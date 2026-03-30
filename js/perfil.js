@@ -29,6 +29,15 @@ async function cargarPerfil() {
     document.getElementById('perfTipo').value = data.tipo_estudio || '';
     document.getElementById('perfRegion').value = data.region || 'Andalucía';
     document.getElementById('perfArea').value = data.area || 'Cualquier área';
+    
+    if (data.avatar_url) {
+      document.getElementById('perfilAvatarImg').src = data.avatar_url;
+      // Actualizar también el header por si acaso
+      const nameEls = document.querySelectorAll('#headerUserName');
+      nameEls.forEach(el => {
+        el.innerHTML = `<img src="${data.avatar_url}" class="header-avatar-img"> ${el.textContent}`;
+      });
+    }
   }
 }
 
@@ -140,3 +149,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     cargarPerfil();
   }
 });
+
+// ============================================================
+// LÓGICA DE AVATARES
+// ============================================================
+const AVATARES_PREDEFINIDOS = [
+  'Felix', 'Luna', 'Alex', 'Sam', 'Oliver', 'Emma', 'Avery', 'Caleb', 'Chloe'
+];
+
+function abrirModalAvatares() {
+  const grid = document.getElementById('avatarsGrid');
+  grid.innerHTML = '';
+  
+  AVATARES_PREDEFINIDOS.forEach(seed => {
+    const url = `https://api.dicebear.com/9.x/micah/svg?seed=${seed}`;
+    const div = document.createElement('div');
+    div.className = 'avatar-choice';
+    div.innerHTML = `<img src="${url}" alt="${seed} Avatar">`;
+    div.onclick = () => guardarAvatar(url);
+    grid.appendChild(div);
+  });
+
+  document.getElementById('modalAvatares').classList.add('active');
+}
+
+async function guardarAvatar(url) {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) return;
+
+  // Cambiar miniatura UI instantáneamente
+  document.getElementById('perfilAvatarImg').src = url;
+  document.getElementById('modalAvatares').classList.remove('active');
+
+  // Guardar en Supabase
+  const { error } = await supabaseClient
+    .from('perfiles')
+    .upsert([{ 
+      user_id: session.user.id, 
+      avatar_url: url 
+    }], { onConflict: 'user_id' });
+
+  if (error) {
+    console.error('Error al guardar avatar:', error);
+    showToast('Error al actualizar el avatar.', 'error');
+  } else {
+    showToast('📸 Foto de perfil actualizada.', 'success');
+    updateHeaderAuth(); // Refrescar globales si es necesario
+  }
+}
+
