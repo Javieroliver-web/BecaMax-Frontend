@@ -175,7 +175,7 @@ async function updateHeaderAuth() {
         const toPages = isPagesDir ? './' : 'pages/';
 
         const adminLinks = perfil?.rol === 'admin' ? `
-          <a href="${toPages}admin-monitorizacion.html" class="dropdown-link" style="color:var(--primary-light); font-weight:700;">🛡️ Panel de Control</a>
+          <a href="${toPages}admin-monitorizacion.html" class="dropdown-link">Panel de Control</a>
         ` : '';
 
         const misAlertasBtn = `
@@ -263,7 +263,7 @@ async function updateHeaderAuth() {
         <a href="${toPages}dashboard.html" class="btn btn-secondary btn-full" style="margin-bottom:10px; justify-content:center;">🔔 Mis alertas</a>
         <a href="${toPages}perfil.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">👤 Mi Perfil</a>
         <a href="${toPages}configuracion.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">⚙️ Configuración</a>
-        ${perfil?.rol === 'admin' ? `<a href="${toPages}admin-monitorizacion.html" class="btn btn-warning btn-full" style="margin-bottom:10px; justify-content:center;">🛡️ Monitorización</a>` : ''}
+        ${perfil?.rol === 'admin' ? `<a href="${toPages}admin-monitorizacion.html" class="btn btn-warning btn-full" style="margin-bottom:10px; justify-content:center;">Monitorización</a>` : ''}
         <button onclick="handleSignOut()" class="btn btn-danger btn-full" style="margin-top:10px; width:100%;">🚪 Cerrar sesión</button>
       `;
     }
