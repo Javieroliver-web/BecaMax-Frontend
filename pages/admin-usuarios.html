@@ -16,10 +16,12 @@
         <img src="../img/logo.png" alt="BX" class="logo-img" style="height:32px;width:32px;border-radius:6px;object-fit:cover;">
         <span class="logo-text">BecaMax Admin</span>
       </a>
-      <div class="header-actions">
-        <a href="dashboard.html" class="btn btn-ghost btn-sm">⬅️ Volver al Dashboard</a>
-      </div>
+      <div class="header-actions"></div>
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
+    <div class="mobile-menu" id="mobileMenu" aria-hidden="true"></div>
   </header>
 
   <main class="dashboard-content" style="padding-top:100px;">
@@ -112,5 +114,22 @@
     .admin-table tr:hover { background: rgba(255,255,255,0.02); }
     .badge-urgente { background: #ef4444; color: white; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    (function(){
+      var hBtn = document.getElementById('hamburgerBtn');
+      var mMenu = document.getElementById('mobileMenu');
+      if(hBtn && mMenu){
+        hBtn.addEventListener('click', function(){
+          var open = hBtn.classList.toggle('open');
+          hBtn.setAttribute('aria-expanded', open);
+          mMenu.classList.toggle('open', open);
+          mMenu.setAttribute('aria-hidden', !open);
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

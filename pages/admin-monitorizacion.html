@@ -122,13 +122,14 @@
     <div class="header-inner">
       <a href="../index.html" class="logo">
         <img src="../img/logo.png" alt="BX" class="logo-img" style="height:32px;width:32px;border-radius:6px;object-fit:cover;">
-        <span class="logo-text">Control Center</span>
+        <span class="logo-text">BecaMax Admin</span>
       </a>
-      <div class="header-actions">
-        <a href="../index.html" class="btn btn-ghost btn-sm">⬅️ Volver a Becas</a>
-        <button class="btn btn-secondary btn-sm" onclick="handleSignOut()">Cerrar sesión</button>
-      </div>
+      <div class="header-actions"></div>
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
+    <div class="mobile-menu" id="mobileMenu" aria-hidden="true"></div>
   </header>
 
   <main class="admin-container">
@@ -234,6 +235,20 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
+      // Hamburger logic
+      (function(){
+        var hBtn = document.getElementById('hamburgerBtn');
+        var mMenu = document.getElementById('mobileMenu');
+        if(hBtn && mMenu){
+          hBtn.addEventListener('click', function(){
+            var open = hBtn.classList.toggle('open');
+            hBtn.setAttribute('aria-expanded', open);
+            mMenu.classList.toggle('open', open);
+            mMenu.setAttribute('aria-hidden', !open);
+          });
+        }
+      })();
+
       const isAdmin = await requireAdmin();
       if (isAdmin) {
         cargarDatosDashboard();

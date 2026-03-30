@@ -166,20 +166,20 @@ async function updateHeaderAuth() {
 
     const headerActions = document.querySelector('.header-actions');
     if (headerActions) {
-      // Si el dropdown no existe, lo inyectamos
       let dropdown = document.getElementById('userDropdownMenuDiv');
       if (!dropdown) {
         
-        // Detectar si estamos en el subdirectorio pages o en la raiĺz
-        const isRoot = window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '';
-        const p = isRoot ? 'pages/' : '';
+        // Determinar base de ruta (si estamos en /pages/ o en /)
+        const isPagesDir = window.location.pathname.includes('/pages/');
+        const root = isPagesDir ? '../' : './';
+        const pages = isPagesDir ? '' : 'pages/';
 
         const adminLinks = perfil?.rol === 'admin' ? `
-          <a href="${p}admin-monitorizacion.html" class="dropdown-link">Monitorización</a>
+          <a href="${root}${pages}admin-monitorizacion.html" class="dropdown-link">Monitorización</a>
         ` : '';
 
         const misAlertasBtn = `
-          <a href="${p}dashboard.html" class="btn btn-ghost btn-sm" style="margin-right:8px;">🔔 Mis alertas</a>
+          <a href="${root}${pages}dashboard.html" class="btn btn-ghost btn-sm" style="margin-right:8px;">🔔 Mis alertas</a>
         `;
 
         const avatarFallback = nombre.charAt(0).toUpperCase();
@@ -204,8 +204,8 @@ async function updateHeaderAuth() {
               <div class="dropdown-role">${perfil?.rol === 'admin' ? 'Administrador' : 'Estudiante'}</div>
               <hr class="dropdown-divider">
               <div class="dropdown-links">
-                <a href="${p}perfil.html" class="dropdown-link">Mi Perfil</a>
-                <a href="${p}configuracion.html" class="dropdown-link">Configuración</a>
+                <a href="${root}${pages}perfil.html" class="dropdown-link">Mi Perfil</a>
+                <a href="${root}${pages}configuracion.html" class="dropdown-link">Configuración</a>
                 ${adminLinks}
                 <hr class="dropdown-divider">
                 <button onclick="handleSignOut()" class="dropdown-link" style="color:var(--danger); background:none; border:none; width:100%; text-align:left; cursor:pointer;">Cerrar sesión</button>
@@ -214,18 +214,17 @@ async function updateHeaderAuth() {
           </div>
         `;
         
-        // Esconder botones viejos que ahora están en el Dropdown
-        Array.from(headerActions.querySelectorAll('a, button, span')).forEach(el => {
+        // Limpiar botones estáticos legacy para evitar duplicados
+        Array.from(headerActions.querySelectorAll('a, button, span, div')).forEach(el => {
+          if (el.id === 'userDropdownMenuDiv') return;
           const t = el.textContent.trim().toLowerCase();
           if (
-            t.includes('cerrar sesión') || 
-            t.includes('salir') || 
-            t.includes('iniciar sesión') || 
-            t.includes('registrarse') || 
-            t.includes('perfil') || 
+            t.includes('cerrar sesión') || t.includes('salir') || 
+            t.includes('iniciar sesión') || t.includes('registrarse') || 
+            t.includes('perfil') || t.includes('configuración') ||
             (t.includes('mis alertas') && el.tagName === 'A') || 
             (t.includes('monitorización') && el.tagName === 'A') ||
-            el.id === 'headerUserName'
+            el.id === 'headerUserName' || el.classList.contains('user-menu')
           ) {
             el.remove();
           }
@@ -240,11 +239,13 @@ async function updateHeaderAuth() {
       }
     }
 
-    // Gestionar Menú Móvil
+    // Menú Móvil Dinámico
     const mobileMenu = document.getElementById('mobileMenu');
     if (mobileMenu) {
-      const isRoot = window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '';
-      const p = isRoot ? 'pages/' : '';
+      const isPagesDir = window.location.pathname.includes('/pages/');
+      const root = isPagesDir ? '../' : './';
+      const pages = isPagesDir ? '' : 'pages/';
+      
       const avatarFallback = nombre.charAt(0).toUpperCase();
       const avatarImgLarge = perfil?.avatar_url 
         ? `<img src="${perfil.avatar_url}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);">` 
@@ -258,10 +259,11 @@ async function updateHeaderAuth() {
              <div style="font-size:0.8rem; text-transform:uppercase; color:var(--primary-light); font-weight:600;">${perfil?.rol === 'admin' ? 'Administrador' : 'Estudiante'}</div>
            </div>
         </div>
-        <a href="${p}dashboard.html" class="btn btn-secondary btn-full" style="margin-bottom:10px; justify-content:center;">🔔 Mis alertas</a>
-        <a href="${p}perfil.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">👤 Mi Perfil</a>
-        <a href="${p}configuracion.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">⚙️ Configuración</a>
-        ${perfil?.rol === 'admin' ? `<a href="${p}admin-monitorizacion.html" class="btn btn-warning btn-full" style="margin-bottom:10px; justify-content:center;">🛡️ Monitorización</a>` : ''}
+        <a href="${root}index.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">🔍 Buscar becas</a>
+        <a href="${root}${pages}dashboard.html" class="btn btn-secondary btn-full" style="margin-bottom:10px; justify-content:center;">🔔 Mis alertas</a>
+        <a href="${root}${pages}perfil.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">👤 Mi Perfil</a>
+        <a href="${root}${pages}configuracion.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">⚙️ Configuración</a>
+        ${perfil?.rol === 'admin' ? `<a href="${root}${pages}admin-monitorizacion.html" class="btn btn-warning btn-full" style="margin-bottom:10px; justify-content:center;">🛡️ Monitorización</a>` : ''}
         <button onclick="handleSignOut()" class="btn btn-danger btn-full" style="margin-top:10px; width:100%;">🚪 Cerrar sesión</button>
       `;
     }
