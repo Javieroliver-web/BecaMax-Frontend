@@ -171,15 +171,15 @@ async function updateHeaderAuth() {
         
         // Determinar base de ruta (si estamos en /pages/ o en /)
         const isPagesDir = window.location.pathname.includes('/pages/');
-        const root = isPagesDir ? '../' : './';
-        const pages = isPagesDir ? '' : 'pages/';
+        const toRoot = isPagesDir ? '../' : './';
+        const toPages = isPagesDir ? './' : 'pages/';
 
         const adminLinks = perfil?.rol === 'admin' ? `
-          <a href="${root}${pages}admin-monitorizacion.html" class="dropdown-link" style="color:var(--primary-light); font-weight:700;">🛡️ Panel de Control</a>
+          <a href="${toPages}admin-monitorizacion.html" class="dropdown-link" style="color:var(--primary-light); font-weight:700;">🛡️ Panel de Control</a>
         ` : '';
 
         const misAlertasBtn = `
-          <a href="${root}${pages}dashboard.html" class="btn btn-ghost btn-sm" style="margin-right:8px;">🔔 Mis alertas</a>
+          <a href="${toPages}dashboard.html" class="btn btn-ghost btn-sm" style="margin-right:8px;">🔔 Mis alertas</a>
         `;
 
         const avatarFallback = nombre.charAt(0).toUpperCase();
@@ -204,8 +204,8 @@ async function updateHeaderAuth() {
               <div class="dropdown-role">${perfil?.rol === 'admin' ? 'Administrador' : 'Estudiante'}</div>
               <hr class="dropdown-divider">
               <div class="dropdown-links">
-                <a href="${root}${pages}perfil.html" class="dropdown-link">Mi Perfil</a>
-                <a href="${root}${pages}configuracion.html" class="dropdown-link">Configuración</a>
+                <a href="${toPages}perfil.html" class="dropdown-link">Mi Perfil</a>
+                <a href="${toPages}configuracion.html" class="dropdown-link">Configuración</a>
                 ${adminLinks}
                 <hr class="dropdown-divider">
                 <button onclick="handleSignOut()" class="dropdown-link" style="color:var(--danger); background:none; border:none; width:100%; text-align:left; cursor:pointer;">Cerrar sesión</button>
@@ -243,8 +243,8 @@ async function updateHeaderAuth() {
     const mobileMenu = document.getElementById('mobileMenu');
     if (mobileMenu) {
       const isPagesDir = window.location.pathname.includes('/pages/');
-      const root = isPagesDir ? '../' : './';
-      const pages = isPagesDir ? '' : 'pages/';
+      const toRoot = isPagesDir ? '../' : './';
+      const toPages = isPagesDir ? './' : 'pages/';
       
       const avatarFallback = nombre.charAt(0).toUpperCase();
       const avatarImgLarge = perfil?.avatar_url 
@@ -259,11 +259,11 @@ async function updateHeaderAuth() {
              <div style="font-size:0.8rem; text-transform:uppercase; color:var(--primary-light); font-weight:600;">${perfil?.rol === 'admin' ? 'Administrador' : 'Estudiante'}</div>
            </div>
         </div>
-        <a href="${root}index.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">🔍 Buscar becas</a>
-        <a href="${root}${pages}dashboard.html" class="btn btn-secondary btn-full" style="margin-bottom:10px; justify-content:center;">🔔 Mis alertas</a>
-        <a href="${root}${pages}perfil.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">👤 Mi Perfil</a>
-        <a href="${root}${pages}configuracion.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">⚙️ Configuración</a>
-        ${perfil?.rol === 'admin' ? `<a href="${root}${pages}admin-monitorizacion.html" class="btn btn-warning btn-full" style="margin-bottom:10px; justify-content:center;">🛡️ Monitorización</a>` : ''}
+        <a href="${toRoot}index.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">🔍 Buscar becas</a>
+        <a href="${toPages}dashboard.html" class="btn btn-secondary btn-full" style="margin-bottom:10px; justify-content:center;">🔔 Mis alertas</a>
+        <a href="${toPages}perfil.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">👤 Mi Perfil</a>
+        <a href="${toPages}configuracion.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">⚙️ Configuración</a>
+        ${perfil?.rol === 'admin' ? `<a href="${toPages}admin-monitorizacion.html" class="btn btn-warning btn-full" style="margin-bottom:10px; justify-content:center;">🛡️ Monitorización</a>` : ''}
         <button onclick="handleSignOut()" class="btn btn-danger btn-full" style="margin-top:10px; width:100%;">🚪 Cerrar sesión</button>
       `;
     }
