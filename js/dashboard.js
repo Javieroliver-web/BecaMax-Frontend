@@ -4,9 +4,9 @@
 
 let alertaSeleccionadaId = null;
 let NOTIFICACIONES = [
-  { id: 1, icono: '🎓', titulo: 'Nueva beca disponible', texto: 'Se ha publicado la Beca 6000 para el curso 2025/26. ¡Cierra en 15 días!', fecha: 'Hace 2 horas', leida: false },
-  { id: 2, icono: '⚠️', titulo: 'Plazo próximo a cerrar', texto: 'Tu alerta "Becas Máster" tiene 2 becas que cierran en menos de 48h.', fecha: 'Hace 5 horas', leida: false },
-  { id: 3, icono: '✅', titulo: 'Perfil actualizado', texto: 'Tu perfil ha sido verificado correctamente. Ya puedes ver recomendaciones.', fecha: 'Ayer', leida: true }
+  { id: 1, icono: '🎓', titulo: 'Nueva beca disponible', texto: 'Se ha publicado la Beca 6000 para el curso 2025/26. ¡Cierra en 15 días!', fecha: 'Hace 2 horas', leida: false, url: 'beca-detalle.html?id=1' },
+  { id: 2, icono: '⚠️', titulo: 'Plazo próximo a cerrar', texto: 'Tu alerta "Becas Máster" tiene 2 becas que cierran en menos de 48h.', fecha: 'Hace 5 horas', leida: false, url: 'dashboard.html' },
+  { id: 3, icono: '✅', titulo: 'Perfil actualizado', texto: 'Tu perfil ha sido verificado correctamente. Ya puedes ver recomendaciones.', fecha: 'Ayer', leida: true, url: 'perfil.html' }
 ];
 
 // ---- Etiquetas legibles de filtros -------------------------
@@ -326,7 +326,14 @@ function marcarNotificacionLeida(id) {
   if (notif) {
     notif.leida = true;
     renderNotificaciones();
-    showToast('Marcada como leída', 'info');
+    
+    if (notif.url) {
+      setTimeout(() => {
+        window.location.href = notif.url;
+      }, 150);
+    } else {
+      showToast('Marcada como leída', 'info');
+    }
   }
 }
 
