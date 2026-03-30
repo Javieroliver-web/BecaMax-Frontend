@@ -175,7 +175,7 @@ async function updateHeaderAuth() {
         const pages = isPagesDir ? '' : 'pages/';
 
         const adminLinks = perfil?.rol === 'admin' ? `
-          <a href="${root}${pages}admin-monitorizacion.html" class="dropdown-link">Monitorización</a>
+          <a href="${root}${pages}admin-monitorizacion.html" class="dropdown-link" style="color:var(--primary-light); font-weight:700;">🛡️ Panel de Control</a>
         ` : '';
 
         const misAlertasBtn = `

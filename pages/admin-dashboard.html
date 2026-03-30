@@ -32,9 +32,10 @@
 <section class="dashboard-hero" style="padding: 20px 0;">
   <div class="dashboard-hero-inner">
     <h1 style="text-align:center; font-size: 1.8rem; margin-bottom:15px">Panel de Control 🛡️</h1>
-    <nav class="admin-nav">
-      <a href="admin-dashboard.html" class="btn btn-primary btn-sm">Resumen Global</a>
-      <a href="admin-monitorizacion.html" class="btn btn-ghost btn-sm">🛡️ Monitorización</a>
+    <!-- Navegación Admin Unificada -->
+    <nav class="admin-nav" style="display:flex; gap:10px; margin-bottom: 30px; justify-content: center;">
+      <a href="admin-dashboard.html" class="btn btn-primary btn-sm">📊 Resumen</a>
+      <a href="admin-monitorizacion.html" class="btn btn-ghost btn-sm">🛡️ Usuarios y Logs</a>
       <a href="admin-incidencias.html" class="btn btn-ghost btn-sm">💬 Incidencias</a>
     </nav>
   </div>
@@ -55,31 +56,7 @@
       <p>Incidencias Ptes.</p>
     </div>
   </div>
-
-  <!-- SECCIÓN NOTICIAS -->
-  <section style="margin-top: 50px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--border-radius-lg); padding: 30px;">
-    <h2 style="font-size: 1.4rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">📢 Publicar Noticia Global</h2>
-    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Este mensaje aparecerá en la página principal para todos los usuarios. Al publicar uno nuevo, el anterior se eliminará automáticamente.</p>
-    
-    <div class="form-group">
-      <label for="newsContent">Mensaje de la noticia</label>
-      <textarea id="newsContent" rows="4" class="form-input" placeholder="Escribe aquí el mensaje... (Max 250 caracteres)" maxlength="250" style="resize: none;"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="newsExpiration">Expiración del mensaje</label>
-      <select id="newsExpiration" class="form-input">
-        <option value="24h">24 Horas (1 día)</option>
-        <option value="7d">7 Días (1 semana)</option>
-        <option value="1m">1 Mes</option>
-        <option value="none">Sin expiración (permanente)</option>
-      </select>
-    </div>
-
-    <div style="text-align: right; margin-top: 20px;">
-      <button id="btnPostNews" class="btn btn-primary">🚀 Publicar Noticia Ahora</button>
-    </div>
-  </section>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

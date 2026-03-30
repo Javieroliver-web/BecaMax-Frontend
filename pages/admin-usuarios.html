@@ -60,6 +60,9 @@
   <script src="../js/auth.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
+      window.location.replace('admin-monitorizacion.html');
+      return;
+      // El resto del código se mantiene pero no se ejecutará
       const session = await requireAuth();
       if (!session) return;
 
