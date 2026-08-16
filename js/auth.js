@@ -1,23 +1,19 @@
 // ============================================================
 //  AUTH.JS – Supabase Auth logic (shared across all pages)
-// ============================================
-// BecaMax - Lógica Central de Autenticación
-// ============================================
+// ============================================================
 
-// Inicializar el tema de accesibilidad globalmente antes de que renderice
+// --- Sincronización Inmediata de Tema (evita parpadeo FOUC) ---
+// Clave unificada: siempre 'theme' (elimina la antigua 'becamax_lightMode')
 (function() {
-  const useLightMode = localStorage.getItem('becamax_lightMode') === 'true';
-  if (useLightMode) {
-    document.documentElement.classList.add('light-mode');
-    if (document.body) document.body.classList.add('light-mode');
+  const t = localStorage.getItem('theme') || 'dark';
+  // Migrar clave legacy si existe
+  if (localStorage.getItem('becamax_lightMode') !== null) {
+    if (localStorage.getItem('becamax_lightMode') === 'true') localStorage.setItem('theme', 'light');
+    localStorage.removeItem('becamax_lightMode');
   }
+  if (t === 'light' && document.body) document.body.classList.add('light-mode');
+  if (t === 'light') document.documentElement.classList.add('light-mode');
 })();
-
-// --- Sincronización Inmediata de Tema (evita parpadeo) ---
-const localTheme = localStorage.getItem('theme') || 'dark';
-if (localTheme === 'light' && document.body) {
-  document.body.classList.add('light-mode');
-}
 
 
 // ---- Helpers ------------------------------------------------
@@ -108,9 +104,10 @@ async function handleLogin(e) {
       return;
     }
 
-    // Redirigir al returnUrl o al dashboard
+    // Redirigir al returnUrl validado o al dashboard
     const params = new URLSearchParams(window.location.search);
-    const ret = params.get('returnUrl') || 'dashboard.html';
+    const rawRet = params.get('returnUrl') || '';
+    const ret    = sanitizeReturnUrl(rawRet) || 'dashboard.html';
     window.location.href = ret;
   }
 }
@@ -123,6 +120,19 @@ async function handleForgotPassword(e) {
   const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
   if (error) showToast('Error: ' + tradError(error.message), 'error');
   else showToast('✉️ Email de recuperación enviado', 'success');
+}
+
+// ---- Validación de returnUrl (previene Open Redirect) -------
+// Solo permite rutas relativas internas (sin protocolo externo)
+function sanitizeReturnUrl(url) {
+  if (!url) return null;
+  try {
+    // Rechazar URLs absolutas con protocolo (http://, https://, //)
+    if (/^(https?:)?\/\//i.test(url)) return null;
+    // Solo permitir rutas que empiecen por / o sean relativas simples
+    if (!/^[\/a-zA-Z0-9_.\-?=#&%+,]+$/.test(url)) return null;
+    return url;
+  } catch { return null; }
 }
 
 // ---- Sign out -----------------------------------------------
@@ -148,8 +158,8 @@ async function requireAuth() {
 
   if (perfil && perfil.estado === 'bloqueado') {
     await supabaseClient.auth.signOut();
-    alert('Acceso Denegado: Su cuenta ha sido bloqueada.');
-    window.location.href = '/index.html';
+    showToast('⛔ Acceso denegado: su cuenta ha sido suspendida.', 'error');
+    setTimeout(() => { window.location.href = '/index.html'; }, 2500);
     return null;
   }
 

@@ -15,28 +15,68 @@ let filtrosActivos = {
 };
 let ordenActual = 'deadline';
 
-// URL del backend (ajustar tras el despliegue o usar variable de entorno)
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-  ? 'http://localhost:3000/api' 
-  : 'https://beca-max-backend.vercel.app/api'; // Cambiar por tu URL real de Vercel
+// Utilidad de seguridad para evitar XSS
+function sanitizeHTML(str) {
+  if (typeof str !== 'string') return str;
+  const temp = document.createElement('div');
+  temp.textContent = str;
+  return temp.innerHTML;
+}
+
+// Utilidad de rendimiento (Debounce)
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+// URL del backend — detecta automáticamente local vs producción
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000/api'
+  : 'https://beca-max-backend.vercel.app/api'; // ← Cambia por tu URL real tras el deploy
 
 async function cargarBecas() {
   try {
-    const response = await fetch(`${API_URL}/becas`);
+    // Construir query params con los filtros activos para que el backend filtre en servidor
+    const params = new URLSearchParams();
+    if (filtrosActivos.busqueda)   params.set('busqueda',   filtrosActivos.busqueda);
+    if (filtrosActivos.tipo)       params.set('tipo',       filtrosActivos.tipo);
+    if (filtrosActivos.region)     params.set('region',     filtrosActivos.region);
+    if (filtrosActivos.area)       params.set('area',       filtrosActivos.area);
+    if (filtrosActivos.plazo)      params.set('plazo',      filtrosActivos.plazo);
+    if (filtrosActivos.importeMin !== null) params.set('importeMin', filtrosActivos.importeMin);
+    if (filtrosActivos.importeMax !== null) params.set('importeMax', filtrosActivos.importeMax);
+    params.set('orden', ordenActual);
+    params.set('limit', '100');
+
+    const response = await fetch(`${API_URL}/becas?${params.toString()}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
     const result = await response.json();
     BECAS = result.data || [];
+
+    // Indicar en consola si estamos usando datos estáticos o Supabase
+    if (result.meta?.fuente === 'estatico') {
+      console.info('[BecaMax] Cargando becas desde datos estáticos (fallback).');
+    } else {
+      console.info(`[BecaMax] ${result.meta?.total ?? BECAS.length} becas cargadas desde Supabase.`);
+    }
+
     actualizarStats();
     renderGrid();
   } catch (error) {
-    console.error('Error al cargar becas:', error);
-    showToast('Error al conectar con el servidor', 'error');
+    console.warn('[BecaMax] No se pudo conectar con el backend, usando datos locales:', error.message);
+    // Fallback: usar el array estático incluido en la página si el backend no responde
     if (typeof BECAS_ESTATICAS !== 'undefined') {
-        BECAS = BECAS_ESTATICAS;
-        actualizarStats();
-        renderGrid();
+      BECAS = BECAS_ESTATICAS;
+      actualizarStats();
+      renderGrid();
     }
   }
 }
+
 
 async function fetchNews() {
   try {
@@ -64,8 +104,8 @@ async function fetchNews() {
       <div class="news-panel-header">
         <span>📢 mensaje del admin</span>
       </div>
-      <div class="news-panel-content">${news.content}</div>
-      <span class="news-panel-date">Publicado el ${dateStr}</span>
+      <div class="news-panel-content">${sanitizeHTML(news.content)}</div>
+      <span class="news-panel-date">Publicado el ${sanitizeHTML(dateStr)}</span>
     `;
     panel.style.display = 'block';
 
@@ -167,34 +207,34 @@ function renderCard(b, delay = 0) {
   const pct  = u === 'cerrada' ? 100 : Math.max(0, Math.min(100, 100 - (dias / 365) * 100));
 
   return `
-  <article class="beca-card ${u === 'cerrada' ? 'cerrada' : ''}" style="animation-delay:${delay}ms">
+  <article class="beca-card ${u === 'cerrada' ? 'cerrada' : ''}" style="animation-delay:${delay}ms" tabindex="0">
     <div class="card-top">
       <div class="card-badges">
-        <span class="badge badge-tipo">${tipoLabel(b.tipo)}</span>
-        <span class="badge badge-${u}">${urgenciaLabel(u, dias)}</span>
+        <span class="badge badge-tipo">${sanitizeHTML(tipoLabel(b.tipo))}</span>
+        <span class="badge badge-${u}">${sanitizeHTML(urgenciaLabel(u, dias))}</span>
       </div>
     </div>
     <div class="card-body">
-      <div class="card-nombre">${b.nombre}</div>
-      <div class="card-entidad">${b.entidad}</div>
-      <p class="card-desc">${b.descripcion}</p>
+      <div class="card-nombre font-heading">${sanitizeHTML(b.nombre)}</div>
+      <div class="card-entidad">${sanitizeHTML(b.entidad)}</div>
+      <p class="card-desc">${sanitizeHTML(b.descripcion)}</p>
     </div>
     <div class="card-meta">
       <div class="meta-item">
         <div class="meta-label">Importe</div>
-        <div class="meta-value">${formatImporte(b)}</div>
+        <div class="meta-value">${sanitizeHTML(formatImporte(b))}</div>
       </div>
       <div class="meta-item">
         <div class="meta-label">Plazo</div>
-        <div class="meta-value">${formatFecha(b.deadline)}</div>
+        <div class="meta-value">${sanitizeHTML(formatFecha(b.deadline))}</div>
       </div>
     </div>
-    <div class="countdown-bar">
+    <div class="countdown-bar" aria-hidden="true">
       <div class="countdown-fill ${u}" style="width:${pct}%"></div>
     </div>
     <div class="card-actions">
-      <a href="pages/beca-detalle.html?id=${b.id}" class="btn btn-secondary btn-sm">🔍 Detalles</a>
-      <a href="${b.url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Ver beca ↗</a>
+      <a href="pages/beca-detalle.html?id=${sanitizeHTML(b.id)}" class="btn btn-secondary btn-sm" aria-label="Ver detalles de ${sanitizeHTML(b.nombre)}">Detalles</a>
+      <a href="${sanitizeHTML(b.url)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" aria-label="Ir a web oficial de ${sanitizeHTML(b.nombre)}">Ver beca</a>
     </div>
   </article>`;
 }
@@ -235,10 +275,10 @@ function renderGrid() {
 function verRequisitos(id) {
   const b = BECAS.find(x => x.id === id);
   if (!b) return;
-  const lista = b.requisitos.map(r => `<li style="margin-bottom:6px">✅ ${r}</li>`).join('');
+  const lista = b.requisitos.map(r => `<li style="margin-bottom:6px">✅ ${sanitizeHTML(r)}</li>`).join('');
   // Reutilizamos el modal de alerta como modal de info
   const modal = document.getElementById('modalAlerta');
-  modal.querySelector('.modal-title').textContent    = b.nombre;
+  modal.querySelector('.modal-title').textContent    = sanitizeHTML(b.nombre);
   modal.querySelector('.modal-subtitle').textContent = 'Requisitos principales:';
   document.getElementById('alertaFiltrosResumen').innerHTML = `<ul style="list-style:none;padding:0">${lista}</ul>`;
   document.getElementById('alertaNombre').parentElement.style.display = 'none';
@@ -294,31 +334,33 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarBecas();
   fetchNews();
 
-  // Búsqueda
+  // Búsqueda con debounce — llama a la API con el término de búsqueda
   const searchInput = document.getElementById('searchInput');
   const searchClear = document.getElementById('searchClear');
+  const debouncedCargar = debounce(cargarBecas, 350);
+
   searchInput.addEventListener('input', () => {
     filtrosActivos.busqueda = searchInput.value.trim();
     searchClear.classList.toggle('visible', !!searchInput.value);
-    renderGrid();
+    debouncedCargar();
   });
   searchClear.addEventListener('click', () => {
     searchInput.value = '';
     filtrosActivos.busqueda = '';
     searchClear.classList.remove('visible');
-    renderGrid();
+    cargarBecas();
   });
 
-  // Filtros
-  document.getElementById('filtroTipo').addEventListener('change',      e => { filtrosActivos.tipo       = e.target.value; renderGrid(); });
-  document.getElementById('filtroRegion').addEventListener('change',    e => { filtrosActivos.region     = e.target.value; renderGrid(); });
-  document.getElementById('filtroArea').addEventListener('change',      e => { filtrosActivos.area       = e.target.value; renderGrid(); });
-  document.getElementById('filtroPlazo').addEventListener('change',     e => { filtrosActivos.plazo      = e.target.value; renderGrid(); });
-  document.getElementById('filtroImporteMin').addEventListener('input', e => { filtrosActivos.importeMin = e.target.value ? Number(e.target.value) : null; renderGrid(); });
-  document.getElementById('filtroImporteMax').addEventListener('input', e => { filtrosActivos.importeMax = e.target.value ? Number(e.target.value) : null; renderGrid(); });
+  // Filtros — cada cambio recarga desde el backend con el nuevo filtro
+  document.getElementById('filtroTipo').addEventListener('change',      e => { filtrosActivos.tipo       = e.target.value; cargarBecas(); });
+  document.getElementById('filtroRegion').addEventListener('change',    e => { filtrosActivos.region     = e.target.value; cargarBecas(); });
+  document.getElementById('filtroArea').addEventListener('change',      e => { filtrosActivos.area       = e.target.value; cargarBecas(); });
+  document.getElementById('filtroPlazo').addEventListener('change',     e => { filtrosActivos.plazo      = e.target.value; cargarBecas(); });
+  document.getElementById('filtroImporteMin').addEventListener('input', e => { filtrosActivos.importeMin = e.target.value ? Number(e.target.value) : null; debouncedCargar(); });
+  document.getElementById('filtroImporteMax').addEventListener('input', e => { filtrosActivos.importeMax = e.target.value ? Number(e.target.value) : null; debouncedCargar(); });
 
-  // Ordenación
-  document.getElementById('sortSelect').addEventListener('change', e => { ordenActual = e.target.value; renderGrid(); });
+  // Ordenación — recarga con el nuevo orden
+  document.getElementById('sortSelect').addEventListener('change', e => { ordenActual = e.target.value; cargarBecas(); });
 
   // Reset filtros
   document.getElementById('btnResetFiltros').addEventListener('click', () => {
@@ -331,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('filtroPlazo').value = '';
     document.getElementById('filtroImporteMin').value = '';
     document.getElementById('filtroImporteMax').value = '';
-    renderGrid();
+    cargarBecas();
   });
 
   // Guardar alerta

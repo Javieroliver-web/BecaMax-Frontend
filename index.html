@@ -11,6 +11,8 @@
   <link rel="icon" type="image/png" href="img/logo.png">
   <link rel="stylesheet" href="css/styles.css">
   <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -19,7 +21,7 @@
   <div class="header-inner">
     <a href="index.html" class="logo">
       <img src="img/logo.png" alt="BX" class="logo-img" style="height:32px;width:32px;border-radius:6px;object-fit:cover;">
-      <span class="logo-text">BecaMax</span>
+      <span class="logo-text font-heading">BecaMax</span>
     </a>
     <nav class="header-actions">
       <a href="pages/auth.html" class="btn btn-secondary btn-sm" id="btnLogin">Iniciar sesión</a>
@@ -44,30 +46,70 @@
 
 <!-- ===== HERO ===== -->
 <section class="hero">
-  <div class="dev-banner">🚧 Web en desarrollo en estado Beta — algunos datos son de muestra 🚧</div>
-  <h1 class="hero-title">No te pierdas ninguna <span class="text-gradient">beca</span></h1>
-  <p class="hero-subtitle">Filtra las becas disponibles en Andalucía, guarda tus búsquedas y recibe alertas por email antes de que acabe el plazo.</p>
-  <div class="search-bar">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="searchInput" placeholder="Busca por nombre, entidad o etiqueta…" autocomplete="off">
-    <button class="search-clear" id="searchClear" title="Limpiar">✕</button>
+  <div class="dev-banner">Versión beta — algunos datos son de muestra</div>
+  <h1 class="hero-title">No te pierdas ninguna beca</h1>
+  <p class="hero-subtitle" style="max-width:600px;margin:0 auto;">Filtra las becas disponibles en Andalucía, guarda tus búsquedas y recibe alertas por email antes de que acabe el plazo.</p>
+  <div class="search-bar" role="search">
+    <span class="search-icon" aria-hidden="true">🔍</span>
+    <input type="search" id="searchInput" placeholder="Busca por nombre, entidad o etiqueta…" autocomplete="off" aria-label="Buscar becas" maxlength="100">
+    <button class="search-clear" id="searchClear" title="Limpiar búsqueda" aria-label="Limpiar búsqueda">✕</button>
   </div>
-  <div class="hero-stats" id="heroStats">
-    <div class="stat"><div class="stat-value" id="statTotal">–</div><div class="stat-label">Becas disponibles</div></div>
-    <div class="stat"><div class="stat-value" id="statUrgente">–</div><div class="stat-label">Plazo urgente</div></div>
-    <div class="stat"><div class="stat-value" id="statMaxImporte">–</div><div class="stat-label">Mayor importe</div></div>
+  <div class="hero-stats" id="heroStats" style="margin-top:48px;display:flex;justify-content:center;align-items:center;gap:32px;max-width:900px;margin-left:auto;margin-right:auto;flex-wrap:wrap;">
+    <div class="stat" style="background:var(--bg-secondary);padding:32px;border-radius:16px;box-shadow:var(--shadow-card);flex:1;min-width:min(240px,100%);text-align:center;transition:transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)';this.style.boxShadow='var(--shadow-hover)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='var(--shadow-card)'">
+      <div class="stat-value font-heading" id="statTotal" style="color:var(--primary);font-size:3rem;font-weight:800;letter-spacing:-1px;">15+</div>
+      <div class="stat-label" style="font-size:1rem;color:var(--text-secondary);font-weight:600;margin-top:8px;">Becas disponibles</div>
+    </div>
+    <div class="stat" style="background:var(--bg-secondary);padding:32px;border-radius:16px;box-shadow:var(--shadow-card);flex:1;min-width:min(240px,100%);text-align:center;transition:transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)';this.style.boxShadow='var(--shadow-hover)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='var(--shadow-card)'">
+      <div class="stat-value font-heading" id="statUrgente" style="color:var(--secondary);font-size:3rem;font-weight:800;letter-spacing:-1px;">50.000 €</div>
+      <div class="stat-label" style="font-size:1rem;color:var(--text-secondary);font-weight:600;margin-top:8px;">Financiación potencial</div>
+    </div>
+    <div class="stat" style="background:var(--bg-secondary);padding:32px;border-radius:16px;box-shadow:var(--shadow-card);flex:1;min-width:min(240px,100%);text-align:center;transition:transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)';this.style.boxShadow='var(--shadow-hover)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='var(--shadow-card)'">
+      <div class="stat-value font-heading" id="statMaxImporte" style="color:var(--primary-dark);font-size:3rem;font-weight:800;letter-spacing:-1px;">100%</div>
+      <div class="stat-label" style="font-size:1rem;color:var(--text-secondary);font-weight:600;margin-top:8px;">Gratis y sin límites</div>
+    </div>
   </div>
 </section>
 
+<!-- ===== STRIPE-STYLE FEATURES ===== -->
+<section class="features" style="max-width:var(--max-width);margin:120px auto;padding:0 24px;">
+  <div style="text-align:center;margin-bottom:80px;">
+    <h2 class="font-heading" style="font-size:clamp(2rem, 5vw, 3.5rem);margin-bottom:24px;color:var(--text-primary);letter-spacing:-1.5px;font-weight:800;">Potencia tu futuro.</h2>
+    <p style="color:var(--text-secondary);font-size:1.25rem;max-width:650px;margin:0 auto;line-height:1.7;">La plataforma de búsqueda de becas más avanzada. Diseñada para ser rápida, inteligente e increíblemente fácil de usar.</p>
+  </div>
+  
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:40px;">
+    <div style="background:var(--bg-secondary);padding:48px;border-radius:24px;box-shadow:var(--shadow-card);transition:transform 0.3s ease;" onmouseover="this.style.transform='translateY(-10px)';this.style.boxShadow='var(--shadow-hover)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='var(--shadow-card)'">
+      <div style="background:rgba(99,91,255,0.1);color:var(--primary);width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:32px;">
+        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h14l-5 7v5l-4 2v-7L2 3z"/></svg>
+      </div>
+      <h3 class="font-heading" style="color:var(--text-primary);font-size:1.5rem;margin-bottom:16px;font-weight:700;">Filtrado en tiempo real</h3>
+      <p style="color:var(--text-secondary);font-size:1.05rem;line-height:1.7;">Procesamos miles de convocatorias y cruzamos los datos con tu perfil en milisegundos gracias a nuestra API.</p>
+    </div>
+    
+    <div style="background:var(--bg-secondary);padding:48px;border-radius:24px;box-shadow:var(--shadow-card);transition:transform 0.3s ease;" onmouseover="this.style.transform='translateY(-10px)';this.style.boxShadow='var(--shadow-hover)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='var(--shadow-card)'">
+      <div style="background:rgba(245,158,11,0.1);color:var(--warning);width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:32px;">
+        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-1.1 0-2-.9-2-2h4c0 1.1-.9 2-2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V1.5C10.5 1.22 10.28 1 10 1s-.5.22-.5.5v.18C6.64 2.36 5 4.92 5 8v5l-2 2v1h14v-1l-2-2z"/></svg>
+      </div>
+      <h3 class="font-heading" style="color:var(--text-primary);font-size:1.5rem;margin-bottom:16px;font-weight:700;">Alertas automáticas</h3>
+      <p style="color:var(--text-secondary);font-size:1.05rem;line-height:1.7;">Recibe notificaciones críticas directo a tu email antes de que expiren los plazos. Mantente siempre un paso por delante.</p>
+    </div>
+    
+    <div style="background:var(--bg-secondary);padding:48px;border-radius:24px;box-shadow:var(--shadow-card);transition:transform 0.3s ease;" onmouseover="this.style.transform='translateY(-10px)';this.style.boxShadow='var(--shadow-hover)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='var(--shadow-card)'">
+      <div style="background:rgba(16,185,129,0.1);color:var(--success);width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:32px;">
+        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2L2 5v6c0 5.5 3.5 10.7 7 12 3.5-1.3 7-6.5 7-12V5l-7-3z"/></svg>
+      </div>
+      <h3 class="font-heading" style="color:var(--text-primary);font-size:1.5rem;margin-bottom:16px;font-weight:700;">100% Precisión</h3>
+      <p style="color:var(--text-secondary);font-size:1.05rem;line-height:1.7;">Si no cumples los requisitos de una beca, no la verás. Eliminamos el ruido para que te enfoques en lo que importa.</p>
+    </div>
+  </div>
+</section>
+
+
 <!-- ===== AD SLOT (top) ===== -->
-<!-- ADSENSE: descomentar cuando la cuenta esté aprobada
-<div style="max-width:var(--max-width);margin:0 auto;padding:0 24px">
+<!-- El siguiente bloque mostrará los anuncios una vez que Google apruebe el sitio. -->
+<div class="ad-container" style="max-width:var(--max-width);margin:16px auto;padding:0 24px;min-height:90px;" aria-hidden="true">
   <ins class="adsbygoogle ad-slot" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
--->
-<div style="max-width:var(--max-width);margin:0 auto;padding:0 24px">
-  <div class="ad-slot">Espacio publicitario · Google AdSense (pendiente de activar)</div>
 </div>
 
 <!-- ===== MAIN LAYOUT ===== -->
@@ -154,11 +196,11 @@
 
 
   <!-- RESULTADOS -->
-  <section class="results-area">
+  <section class="results-area" aria-label="Resultados de becas">
     <div class="results-header">
-      <p class="results-count"><strong id="countText">0</strong> becas encontradas</p>
+      <p class="results-count" aria-live="polite"><strong id="countText">0</strong> becas encontradas</p>
       <div class="sort-wrap">
-        Ordenar:
+        <label for="sortSelect">Ordenar:</label>
         <select class="sort-select" id="sortSelect">
           <option value="deadline">Plazo más próximo</option>
           <option value="importe_desc">Mayor importe</option>
@@ -175,20 +217,20 @@
 </main>
 
 <!-- ===== MODAL GUARDAR ALERTA ===== -->
-<div class="modal-overlay" id="modalAlerta">
+<div class="modal-overlay" id="modalAlerta" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal">
-    <h2 class="modal-title">🔔 Guardar alerta</h2>
+    <h2 class="modal-title" id="modalTitle">🔔 Guardar alerta</h2>
     <p class="modal-subtitle">Te avisaremos por email cuando haya becas nuevas que encajen con estos filtros.</p>
     <div class="form-group">
       <label for="alertaNombre">Nombre de la alerta</label>
-      <input type="text" class="form-input" id="alertaNombre" placeholder="Ej. Becas universitarias Sevilla" maxlength="60">
+      <input type="text" class="form-input" id="alertaNombre" placeholder="Ej. Becas universitarias Sevilla" maxlength="60" pattern="[a-zA-Z0-9 ñÑáéíóúÁÉÍÓÚ\-_]+" title="Solo letras, números, espacios y guiones permitidos">
     </div>
     <div class="form-group">
       <label>Filtros activos</label>
-      <div id="alertaFiltrosResumen" style="font-size:.83rem;color:var(--text-secondary);background:var(--bg-tertiary);padding:12px;border-radius:10px;line-height:1.7"></div>
+      <div id="alertaFiltrosResumen" style="font-size:.83rem;color:var(--text-secondary);background:var(--bg-tertiary);padding:12px;border-radius:10px;line-height:1.7" aria-live="polite"></div>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-secondary" id="btnCerrarModal">Cancelar</button>
+      <button class="btn btn-secondary" id="btnCerrarModal" aria-label="Cancelar y cerrar modal">Cancelar</button>
       <button class="btn btn-primary" id="btnConfirmarAlerta">Guardar alerta</button>
     </div>
   </div>
@@ -199,10 +241,21 @@
 
 <!-- ===== FOOTER ===== -->
 <footer class="footer">
-  <p>BecasMax · Información orientativa. Verifica siempre las convocatorias en la fuente oficial.</p>
-  <p style="margin-top:6px"><a href="pages/auth.html">Acceder</a> · <a href="pages/dashboard.html">Mi panel</a> · <a href="pages/incidencias.html">Reportar incidencia</a> · Datos: <a href="https://www.juntadeandalucia.es" target="_blank" rel="noopener">Junta de Andalucía</a> · <a href="https://www.becaseducacion.gob.es" target="_blank" rel="noopener">MEC</a></p>
-  <p style="margin-top:10px; font-size: 0.8em; opacity: 0.5;">© 2026 Francisco Javier Párraga Oliver · Todos los derechos reservados</p>
-  <p style="margin-top:4px; font-size: 0.8em; opacity: 0.6;">Versión 1.2.3.3</p>
+  <div class="footer-inner">
+    <div class="footer-brand">Beca<span>Max</span></div>
+    <nav class="footer-links">
+      <a href="pages/auth.html">Acceder</a>
+      <a href="pages/dashboard.html">Mi panel</a>
+      <a href="pages/incidencias.html">Reportar incidencia</a>
+      <a href="pages/legal/privacidad.html">Privacidad</a>
+      <a href="pages/legal/aviso-legal.html">Aviso legal</a>
+      <a href="pages/legal/cookies.html">Cookies</a>
+    </nav>
+  </div>
+  <div class="footer-copy">
+    © 2026 Francisco Javier Párraga Oliver · Todos los derechos reservados · v2.0.0.0<br>
+    Datos de <a href="https://www.juntadeandalucia.es" target="_blank" rel="noopener" style="color:var(--primary)">Junta de Andalucía</a> y <a href="https://www.becaseducacion.gob.es" target="_blank" rel="noopener" style="color:var(--primary)">MEC</a>. Información orientativa, verifica siempre en la fuente oficial.
+  </div>
 </footer>
 
 <!-- ===== AVISO LEGAL BANNER ===== -->

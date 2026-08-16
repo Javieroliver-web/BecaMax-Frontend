@@ -16,7 +16,7 @@
   <div class="header-inner">
     <a href="../index.html" class="logo">
       <img src="../img/logo.png" alt="BX" class="logo-img" style="height:32px;width:32px;border-radius:6px;object-fit:cover;">
-      <span class="logo-text">BecaMax</span>
+      <span class="logo-text font-heading">BecaMax</span>
     </a>
     <div class="header-actions">
       <button class="btn btn-ghost btn-sm btn-notifications" id="btnNotifications" title="Notificaciones">
@@ -38,7 +38,7 @@
 <!-- ===== DASHBOARD HERO ===== -->
 <section class="dashboard-hero">
   <div class="dashboard-hero-inner">
-    <h1>Mis alertas <span class="text-gradient">🔔</span></h1>
+    <h1 class="font-heading">Mis alertas</h1>
     <p>Aquí están tus búsquedas guardadas. Te avisamos por email cuando aparezcan becas nuevas que encajen.</p>
   </div>
 </section>
@@ -49,7 +49,7 @@
   <!-- Alertas guardadas -->
   <div class="dashboard-section">
     <div class="section-header">
-      <h2 class="section-title">Alertas activas</h2>
+      <h2 class="section-title font-heading">Alertas activas</h2>
       <span class="section-count" id="alertasCount">0 alertas</span>
     </div>
     <div id="alertasList">
@@ -60,7 +60,7 @@
   <!-- Beca según Perfil de Usuario -->
   <div class="dashboard-section">
     <div class="section-header">
-      <h2 class="section-title">Recomendadas para tu perfil <span style="font-size:.8rem;color:var(--text-muted);font-weight:normal">(<a href="perfil.html" style="color:var(--primary-light)">Editar perfil</a>)</span></h2>
+      <h2 class="section-title font-heading">Recomendadas para tu perfil <span style="font-size:.8rem;color:var(--text-muted);font-weight:normal;font-family:'Inter',sans-serif">(<a href="perfil.html" style="color:var(--primary-light)">Editar perfil</a>)</span></h2>
     </div>
     <div class="becas-grid" id="becasPerfil">
       <!-- Inyectado por dashboard.js -->
@@ -70,7 +70,7 @@
   <!-- Becas recomendadas según filtros guardados -->
   <div class="dashboard-section">
     <div class="section-header">
-      <h2 class="section-title">Coinciden con tus alertas activas</h2>
+      <h2 class="section-title font-heading">Coinciden con tus alertas activas</h2>
     </div>
     <div class="becas-grid" id="becasRecomendadas">
       <!-- Inyectado por dashboard.js -->
@@ -115,8 +115,17 @@
 
 <!-- FOOTER -->
 <footer class="footer">
-  <p>BecaMax · <a href="../index.html">Volver al buscador</a> · <a href="incidencias.html">Reportar incidencia</a></p>
-  <p style="margin-top:8px; font-size:0.8em; opacity:0.5;">© 2026 Francisco Javier Párraga Oliver · Todos los derechos reservados</p>
+  <div class="footer-inner">
+    <div class="footer-brand">Beca<span>Max</span></div>
+    <nav class="footer-links">
+      <a href="../index.html">Buscador</a>
+      <a href="incidencias.html">Reportar incidencia</a>
+      <a href="legal/privacidad.html">Privacidad</a>
+      <a href="legal/aviso-legal.html">Aviso legal</a>
+      <a href="legal/cookies.html">Cookies</a>
+    </nav>
+  </div>
+  <div class="footer-copy">© 2026 Francisco Javier Párraga Oliver · Todos los derechos reservados</div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

@@ -16,7 +16,7 @@
   <div class="header-inner">
     <a href="../index.html" class="logo">
       <img src="../img/logo.png" alt="BX" class="logo-img" style="height:32px;width:32px;border-radius:6px;object-fit:cover;">
-      <span class="logo-text">BecaMax</span>
+      <span class="logo-text font-heading">BecaMax</span>
     </a>
     <div class="header-actions"></div>
     <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú" aria-expanded="false">
@@ -29,7 +29,7 @@
 <!-- ===== HERO ===== -->
 <section class="dashboard-hero" style="padding-bottom:20px">
   <div class="dashboard-hero-inner" style="text-align:center">
-    <h1 style="font-size:1.8rem;margin-bottom:8px">Tu Perfil ⚙️</h1>
+    <h1 class="font-heading" style="font-size:1.8rem;margin-bottom:8px">Tu Perfil</h1>
     <p style="color:var(--text-secondary);max-width:540px;margin:0 auto">
       Cuéntanos qué estudias para que podamos recomendarte becas a tu medida automáticamente en tu panel.
     </p>
@@ -41,7 +41,7 @@
   
   <!-- Sección: Datos Personales -->
   <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
-    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);">Datos Personales</h2>
+    <h2 class="font-heading" style="font-size: 1rem; margin-bottom: 16px; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">Datos Personales</h2>
     <form id="formPersonales" onsubmit="guardarDatosPersonales(event)">
       
       <!-- Avatar Selector -->
@@ -69,7 +69,7 @@
 
   <!-- Sección: Perfil Académico -->
   <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
-    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);">Perfil Académico</h2>
+    <h2 class="font-heading" style="font-size: 1rem; margin-bottom: 16px; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">Perfil Académico</h2>
     <form id="formAcademico" onsubmit="guardarPerfilAcademico(event)">
       <div class="form-group">
         <label for="perfTipo">¿Qué estás estudiando (o quieres estudiar)?</label>
@@ -136,8 +136,17 @@
 
 <!-- ===== FOOTER ===== -->
 <footer class="footer">
-  <p>BecaMax · <a href="../index.html">Volver al buscador</a> · <a href="incidencias.html">Reportar incidencia</a></p>
-  <p style="margin-top:8px; font-size:0.8em; opacity:0.5;">© 2026 Francisco Javier Párraga Oliver · Todos los derechos reservados</p>
+  <div class="footer-inner">
+    <div class="footer-brand">Beca<span>Max</span></div>
+    <nav class="footer-links">
+      <a href="../index.html">Buscador</a>
+      <a href="incidencias.html">Reportar incidencia</a>
+      <a href="legal/privacidad.html">Privacidad</a>
+      <a href="legal/aviso-legal.html">Aviso legal</a>
+      <a href="legal/cookies.html">Cookies</a>
+    </nav>
+  </div>
+  <div class="footer-copy">© 2026 Francisco Javier Párraga Oliver · Todos los derechos reservados</div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

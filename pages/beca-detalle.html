@@ -4,27 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Detalles de Beca · BecaMax</title>
+  <meta name="description" content="Consulta todos los detalles, requisitos e importe de esta beca en BecaMax.">
   <link rel="icon" type="image/png" href="../img/logo.png">
   <link rel="stylesheet" href="../css/styles.css">
+  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body class="loading-state">
+
+  <!-- ===== LOADING OVERLAY ===== -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loader-content">
+      <div class="spinner"></div>
+      <p class="loading-text">Cargando beca...</p>
+    </div>
+  </div>
 
   <!-- ===== HEADER ===== -->
   <header class="header">
     <div class="header-inner">
       <a href="../index.html" class="logo">
         <img src="../img/logo.png" alt="BX" class="logo-img" style="height:32px;width:32px;border-radius:6px;object-fit:cover;">
-        <span class="logo-text">BecaMax</span>
+        <span class="logo-text font-heading">BecaMax</span>
       </a>
       <nav class="header-actions" id="headerActions">
         <a href="../index.html" class="btn btn-ghost btn-sm">🔍 Buscar</a>
-        <a href="dashboard.html" class="btn btn-secondary btn-sm">Mi panel</a>
+        <a href="dashboard.html" class="btn btn-secondary btn-sm" id="btnDashboardHeader" style="display:none;">Mi panel</a>
       </nav>
-      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú">
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
-    <!-- Menú móvil desplegable -->
     <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
       <a href="../index.html" class="btn btn-ghost btn-full">🔍 Buscar becas</a>
       <a href="dashboard.html" class="btn btn-secondary btn-full">Mi panel</a>
@@ -33,12 +42,13 @@
 
   <!-- ===== MAIN CONTENT ===== -->
   <main class="detail-layout" id="detailContainer" style="display:none;">
-    
+
     <!-- Columna Principal -->
     <div class="detail-main">
-      <div id="btnBack" style="margin-bottom:20px; cursor:pointer; color:var(--text-muted); font-size:.9rem; display:flex; align-items:center; gap:8px;">
-        ⬅️ Volver al listado
-      </div>
+      <a href="../index.html" id="btnBack" style="display:inline-flex;align-items:center;gap:8px;color:var(--text-muted);font-size:.9rem;margin-bottom:24px;transition:color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">
+        ← Volver al buscador
+      </a>
+
       <header class="detail-header">
         <div id="detailBadges" class="card-badges" style="margin-bottom:12px;"></div>
         <h1 class="detail-title" id="becaNombre">Cargando beca...</h1>
@@ -65,12 +75,16 @@
     <aside class="detail-sidebar">
       <div class="sidebar-card">
         <div class="sidebar-item">
-          <div class="sidebar-label">Importe Máximo</div>
+          <div class="sidebar-label">Importe</div>
           <div class="sidebar-value amount" id="becaImporte"></div>
         </div>
         <div class="sidebar-item">
           <div class="sidebar-label">Cierre de Plazo</div>
           <div class="sidebar-value" id="becaPlazo"></div>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-label">Urgencia</div>
+          <div class="sidebar-value" id="becaUrgencia"></div>
         </div>
         <div class="sidebar-item">
           <div class="sidebar-label">Ámbito</div>
@@ -80,109 +94,208 @@
           <div class="sidebar-label">Área</div>
           <div class="sidebar-value" id="becaArea"></div>
         </div>
-        <a href="#" id="btnApply" target="_blank" rel="noopener" class="btn btn-primary btn-full" style="margin-top:10px;">
+        <a href="#" id="btnApply" target="_blank" rel="noopener" class="btn btn-primary btn-full" style="margin-top:16px;">
           Ir a la web oficial ↗
         </a>
       </div>
 
-      <div class="sidebar-card" style="background:rgba(16,185,129,0.05); border-color:rgba(16,185,129,0.2);">
-        <h3 style="font-size:.9rem; margin-bottom:10px;">¿Te interesa esta beca?</h3>
-        <p style="font-size:.8rem; color:var(--text-secondary); margin-bottom:15px;">Guarda una alerta para que te avisemos antes de que cierre el plazo.</p>
+      <div class="sidebar-card" style="background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.2);">
+        <h3 style="font-size:.9rem;margin-bottom:10px;color:var(--text-primary);">¿Te interesa esta beca?</h3>
+        <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:15px;line-height:1.6;">Guarda una alerta y te avisamos por email antes de que cierre el plazo.</p>
         <a href="dashboard.html" class="btn btn-secondary btn-full btn-sm">🔔 Crear alerta</a>
       </div>
     </aside>
 
   </main>
 
-  <!-- State Error -->
-  <div id="errorState" style="display:none; text-align:center; padding:100px 24px;">
-    <div style="font-size:4rem; margin-bottom:20px;">🚫</div>
-    <h2 style="margin-bottom:10px;">Beca no encontrada</h2>
-    <p style="color:var(--text-muted); margin-bottom:24px;">Parece que el enlace es incorrecto o la beca ya no está disponible.</p>
-    <a href="../index.html" class="btn btn-primary">Volver al buscador</a>
+  <!-- State: Error -->
+  <div id="errorState" style="display:none;text-align:center;padding:100px 24px;">
+    <div style="font-size:4rem;margin-bottom:20px;">🚫</div>
+    <h2 style="margin-bottom:10px;color:var(--text-primary);">Beca no encontrada</h2>
+    <p style="color:var(--text-muted);margin-bottom:24px;">Parece que el enlace es incorrecto o la beca ya no está disponible.</p>
+    <a href="../index.html" class="btn btn-primary">← Volver al buscador</a>
   </div>
 
+  <!-- Footer -->
   <footer class="footer">
-    <p>BecaMax · Información oficial · 2026</p>
+    <div class="footer-inner">
+      <div class="footer-brand">Beca<span>Max</span></div>
+      <nav class="footer-links">
+        <a href="../index.html">Buscador</a>
+        <a href="legal/privacidad.html">Privacidad</a>
+        <a href="legal/aviso-legal.html">Aviso legal</a>
+        <a href="legal/cookies.html">Cookies</a>
+      </nav>
+    </div>
+    <div class="footer-copy">© 2026 Francisco Javier Párraga Oliver · Todos los derechos reservados</div>
   </footer>
 
   <!-- ===== SCRIPTS ===== -->
+  <!-- Fallback estático (se usa si el backend no responde) -->
   <script src="../data/becas.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/auth.js"></script>
+
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search);
-      const id = parseInt(params.get('id'));
+    // ── Utilidades ──────────────────────────────────────────────
+    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:3000/api'
+      : 'https://beca-max-backend.vercel.app/api'; // ← actualizar tras deploy
 
-      // Intentar encontrar la beca en BECAS_ESTATICAS (se cargará mejor en Fase 2)
-      const beca = typeof BECAS_ESTATICAS !== 'undefined' ? BECAS_ESTATICAS.find(b => b.id === id) : null;
+    function sanitize(str) {
+      if (typeof str !== 'string') return str;
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
 
-      if (!beca) {
-        document.body.classList.remove('loading-state');
-        document.getElementById('errorState').style.display = 'block';
-        return;
-      }
+    function diasRestantes(deadline) {
+      const hoy = new Date(); hoy.setHours(0,0,0,0);
+      return Math.ceil((new Date(deadline) - hoy) / 86400000);
+    }
 
-      // Rellenar datos
+    function urgenciaLabel(dias) {
+      if (dias < 0)   return { text: '⬛ Cerrada', cls: 'cerrada' };
+      if (dias <= 7)  return { text: `🔴 ${dias} días restantes`, cls: 'urgente' };
+      if (dias <= 30) return { text: `🟡 ${dias} días restantes`, cls: 'proximo' };
+      return           { text: `🟢 ${dias} días restantes`, cls: 'disponible' };
+    }
+
+    function formatImporte(imp) {
+      if (!imp) return 'No especificado';
+      if (imp.min === imp.max) return `${imp.min.toLocaleString('es-ES')} €`;
+      return `${imp.min.toLocaleString('es-ES')} – ${imp.max.toLocaleString('es-ES')} €`;
+    }
+
+    const tipoMap = {
+      universitaria:'Universitaria', bachillerato:'Bachillerato',
+      fp:'FP', master:'Máster', idiomas:'Idiomas',
+      investigacion:'Investigación', movilidad:'Movilidad', artistica:'Artística',
+      formacion:'Formación', primaria:'Primaria/ESO'
+    };
+
+    // ── Render ───────────────────────────────────────────────────
+    function renderBeca(beca) {
       document.title = `${beca.nombre} · BecaMax`;
-      document.getElementById('becaNombre').textContent = beca.nombre;
+
+      // Cabecera
+      document.getElementById('becaNombre').textContent  = beca.nombre;
       document.getElementById('becaEntidad').textContent = beca.entidad;
+
+      // Descripción
       document.getElementById('becaDesc').textContent = beca.descripcion;
-      document.getElementById('becaRegion').textContent = beca.region;
-      document.getElementById('becaArea').textContent = beca.area;
-      document.getElementById('btnApply').href = beca.url;
-
-      // Importe
-      const imp = beca.importe;
-      document.getElementById('becaImporte').textContent = imp.min === imp.max 
-        ? `${imp.min.toLocaleString('es-ES')} €` 
-        : `${imp.max.toLocaleString('es-ES')} €`;
-
-      // Plazo
-      const deadline = new Date(beca.deadline);
-      document.getElementById('becaPlazo').textContent = deadline.toLocaleDateString('es-ES', { 
-        day: '2-digit', month: 'long', year: 'numeric' 
-      });
 
       // Requisitos
       const reqList = document.getElementById('becaReqs');
-      beca.requisitos.forEach(r => {
+      reqList.innerHTML = '';
+      (beca.requisitos || []).forEach(r => {
         const li = document.createElement('li');
         li.className = 'req-item';
-        li.innerHTML = `<span class="req-icon">✅</span> <span class="detail-content">${r}</span>`;
+        li.innerHTML = `<span class="req-icon">✅</span> <span class="detail-content">${sanitize(r)}</span>`;
         reqList.appendChild(li);
       });
 
       // Etiquetas
-      const tagContainer = document.getElementById('becaEtiquetas');
-      beca.etiquetas.forEach(t => {
+      const tagCont = document.getElementById('becaEtiquetas');
+      tagCont.innerHTML = '';
+      (beca.etiquetas || []).forEach(t => {
         const span = document.createElement('span');
         span.className = 'alerta-tag';
         span.textContent = t;
-        tagContainer.appendChild(span);
+        tagCont.appendChild(span);
       });
 
-      // Badges (Badge tipo)
+      // Badges
       const badgeCont = document.getElementById('detailBadges');
+      badgeCont.innerHTML = '';
       const bTipo = document.createElement('span');
       bTipo.className = 'badge badge-tipo';
-      bTipo.textContent = beca.tipo.toUpperCase();
+      bTipo.textContent = tipoMap[beca.tipo] || beca.tipo;
       badgeCont.appendChild(bTipo);
 
-      // UI
-      document.body.classList.remove('loading-state');
-      document.getElementById('detailContainer').style.display = 'grid';
+      const dias = diasRestantes(beca.deadline);
+      const urg  = urgenciaLabel(dias);
+      const bUrg = document.createElement('span');
+      bUrg.className = `badge badge-${urg.cls}`;
+      bUrg.textContent = urg.text;
+      badgeCont.appendChild(bUrg);
 
-      document.getElementById('btnBack').addEventListener('click', () => {
-        window.history.back() || (window.location.href = '../index.html');
+      // Sidebar
+      document.getElementById('becaImporte').textContent  = formatImporte(beca.importe);
+      document.getElementById('becaRegion').textContent   = beca.region || '—';
+      document.getElementById('becaArea').textContent     = beca.area   || '—';
+      document.getElementById('becaUrgencia').innerHTML   = `<span class="badge badge-${urg.cls}" style="font-size:.85rem;">${urg.text}</span>`;
+      document.getElementById('btnApply').href            = beca.url || '#';
+
+      const deadline = new Date(beca.deadline);
+      document.getElementById('becaPlazo').textContent = deadline.toLocaleDateString('es-ES', {
+        day: '2-digit', month: 'long', year: 'numeric'
       });
 
-      // Mobile Menu JS
-      const hBtn = document.getElementById('hamburgerBtn');
+      // Mostrar contenido
+      document.body.classList.remove('loading-state');
+      document.getElementById('loadingOverlay').style.display  = 'none';
+      document.getElementById('detailContainer').style.display = 'grid';
+    }
+
+    function mostrarError() {
+      document.body.classList.remove('loading-state');
+      document.getElementById('loadingOverlay').style.display = 'none';
+      document.getElementById('errorState').style.display     = 'block';
+    }
+
+    // ── Carga de datos ───────────────────────────────────────────
+    async function cargarBeca(id) {
+      try {
+        // 1. Intentar la API del backend primero
+        const res = await fetch(`${API_URL}/becas/${encodeURIComponent(id)}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.status === 'success' && json.data) {
+            renderBeca(json.data);
+            return;
+          }
+        }
+        throw new Error('API sin datos');
+      } catch (apiErr) {
+        // 2. Fallback: buscar en el array estático local
+        console.warn('[BecaMax] Fallback a datos estáticos para beca-detalle:', apiErr.message);
+        if (typeof BECAS_ESTATICAS !== 'undefined') {
+          const idNum = parseInt(id);
+          const beca  = BECAS_ESTATICAS.find(b => b.id === idNum || String(b.id) === String(id));
+          if (beca) { renderBeca(beca); return; }
+        }
+        mostrarError();
+      }
+    }
+
+    // ── Init ─────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const id     = params.get('id');
+
+      if (!id) { mostrarError(); return; }
+
+      cargarBeca(id);
+
+      // Back button
+      document.getElementById('btnBack').addEventListener('click', e => {
+        if (window.history.length > 1) {
+          e.preventDefault();
+          window.history.back();
+        }
+      });
+
+      // Mobile Menu
+      const hBtn  = document.getElementById('hamburgerBtn');
       const mMenu = document.getElementById('mobileMenu');
-      if(hBtn && mMenu){
+      if (hBtn && mMenu) {
         hBtn.addEventListener('click', () => {
           const open = hBtn.classList.toggle('open');
+          hBtn.setAttribute('aria-expanded', open);
           mMenu.classList.toggle('open', open);
+          mMenu.setAttribute('aria-hidden', !open);
         });
       }
     });

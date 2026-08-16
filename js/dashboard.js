@@ -3,6 +3,7 @@
 // ============================================================
 
 let alertaSeleccionadaId = null;
+let BECAS = []; // Becas cargadas desde la API para el dashboard
 let NOTIFICACIONES = [
   { id: 1, icono: '🎓', titulo: 'Nueva beca disponible', texto: 'Se ha publicado la Beca 6000 para el curso 2025/26. ¡Cierra en 15 días!', fecha: 'Hace 2 horas', leida: false, url: 'beca-detalle.html?id=1' },
   { id: 2, icono: '⚠️', titulo: 'Plazo próximo a cerrar', texto: 'Tu alerta "Becas Máster" tiene 2 becas que cierran en menos de 48h.', fecha: 'Hace 5 horas', leida: false, url: 'dashboard.html' },
@@ -166,6 +167,21 @@ async function cargarBecasPerfil() {
                 .join('');
 }
 
+// ---- Carga de becas desde la API (con fallback estático) ---
+async function cargarBecasDesdeAPI() {
+  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api'
+    : 'https://beca-max-backend.vercel.app/api';
+  try {
+    const res = await fetch(`${API_URL}/becas?limit=100`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const result = await res.json();
+    BECAS = result.data || [];
+  } catch {
+    if (typeof BECAS_ESTATICAS !== 'undefined') BECAS = BECAS_ESTATICAS;
+  }
+}
+
 // ---- Funciones CRUD (Alertas) ------------------------------
 async function cargarAlertas() {
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -187,7 +203,7 @@ async function cargarAlertas() {
         <div class="dashboard-empty-icon">🔔</div>
         <h3>Sin alertas guardadas</h3>
         <p>Ve al buscador, aplica filtros y guarda una alerta para recibir notificaciones.</p>
-        <a href="index.html" class="btn btn-primary">🔍 Ir al buscador</a>
+        <a href="../index.html" class="btn btn-primary">🔍 Ir al buscador</a>
       </div>`;
     renderBecasRecomendadas([]);
     return;
@@ -230,13 +246,26 @@ async function guardarEditAlerta() {
 }
 
 async function eliminarAlerta(id) {
-  if (!confirm('¿Eliminar esta alerta?')) return;
-  const { error } = await supabaseClient
-    .from('filtros_guardados')
-    .delete()
-    .eq('id', id);
-  if (error) showToast('Error al eliminar', 'error');
-  else { showToast('🗑️ Alerta eliminada', 'info'); await cargarAlertas(); }
+  // Toast de confirmación no bloqueante en lugar de confirm() nativo
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast info';
+  t.style.cssText = 'flex-direction:column;align-items:flex-start;gap:10px;max-width:300px;pointer-events:all;';
+  t.innerHTML = `
+    <span>¿Eliminar esta alerta?</span>
+    <div style="display:flex;gap:8px;width:100%">
+      <button onclick="this.closest('.toast').remove()" class="btn btn-ghost btn-sm" style="flex:1">Cancelar</button>
+      <button id="confirmDeleteBtn_${id}" class="btn btn-danger btn-sm" style="flex:1">Eliminar</button>
+    </div>`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 6000);
+
+  document.getElementById(`confirmDeleteBtn_${id}`).addEventListener('click', async () => {
+    t.remove();
+    const { error } = await supabaseClient.from('filtros_guardados').delete().eq('id', id);
+    if (error) showToast('Error al eliminar', 'error');
+    else { showToast('🗑️ Alerta eliminada', 'info'); await cargarAlertas(); }
+  });
 }
 
 // ---- Helpers (los mismos que app.js, para las recomendadas)
@@ -352,33 +381,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   const nameEl = document.getElementById('headerUserName');
   if (nameEl) nameEl.textContent = nombre;
 
-  await cargarAlertas();
-  await cargarBecasPerfil();
+  // Cargar todo en paralelo: becas, alertas, perfil de usuario y perfil de admin
+  const [,, perfilData] = await Promise.all([
+    cargarBecasDesdeAPI(),
+    cargarAlertas(),
+    supabaseClient.from('perfiles').select('rol').eq('user_id', session.user.id).single()
+  ]);
+  await cargarBecasPerfil(); // Depende de BECAS ya cargado
   renderNotificaciones();
 
-  // 🛡️ Detección de Rol Administrador
-  console.log("🔍 [ADMIN CHECK] Usuario actual:", session.user.email);
-  const { data: perfil, error } = await supabaseClient
-    .from('perfiles')
-    .select('rol')
-    .eq('user_id', session.user.id)
-    .single();
-
-  if (error) {
-    console.warn("⚠️ [ADMIN CHECK] Fallo al leer perfil:", error.message);
-  } else {
-    console.log("ℹ️ [ADMIN CHECK] Perfil encontrado:", perfil);
-  }
-
+  const perfil = perfilData?.data;
   if (perfil && perfil.rol === 'admin') {
-    console.log("✅ [ADMIN CHECK] Acceso ADMIN concedido");
     const adminLink = document.getElementById('adminLink');
     const adminLinkMobile = document.getElementById('adminLinkMobile');
     if (adminLink) adminLink.style.display = 'inline-block';
     if (adminLinkMobile) adminLinkMobile.style.display = 'block';
-    showToast('🛡️ Modo Administrador activado', 'success');
-  } else {
-    console.log("❌ [ADMIN CHECK] No se ha detectado rol admin");
   }
 
   // Eventos Notificaciones
