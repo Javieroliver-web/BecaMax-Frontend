@@ -38,6 +38,30 @@ function switchTab(tab) {
 function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
 // ---- Register -----------------------------------------------
+let timerInterval = null;
+
+function iniciarContadorRateLimit(seconds, errEl, btn) {
+  errEl.classList.add('visible');
+  btn.disabled = true;
+  clearInterval(timerInterval);
+  
+  const tick = () => {
+    errEl.textContent = `Por seguridad, espera ${seconds} segundos para enviar otro correo.`;
+    btn.textContent = `Espera ${seconds}s...`;
+    seconds--;
+    if (seconds < 0) {
+      clearInterval(timerInterval);
+      errEl.classList.remove('visible');
+      btn.disabled = false;
+      btn.textContent = 'Crear cuenta gratuita';
+      localStorage.removeItem('rateLimitUnlock');
+    }
+  };
+  
+  tick();
+  timerInterval = setInterval(tick, 1000);
+}
+
 async function handleRegister(e) {
   e.preventDefault();
   const nombre = document.getElementById('regNombre').value.trim();
@@ -45,6 +69,14 @@ async function handleRegister(e) {
   const pass   = document.getElementById('regPassword').value;
   const errEl  = document.getElementById('regError');
   const btn    = document.getElementById('btnRegister');
+
+  // Comprobar si ya estamos bloqueados internamente ANTES de hacer la petición
+  const unlockTime = localStorage.getItem('rateLimitUnlock');
+  if (unlockTime && Date.now() < parseInt(unlockTime)) {
+    const remaining = Math.ceil((parseInt(unlockTime) - Date.now()) / 1000);
+    iniciarContadorRateLimit(remaining, errEl, btn);
+    return;
+  }
 
   errEl.classList.remove('visible');
   btn.disabled = true;
@@ -58,24 +90,10 @@ async function handleRegister(e) {
 
   if (error) {
     if (error.message.toLowerCase().includes('rate limit')) {
-      let seconds = 60;
-      errEl.classList.add('visible');
-      
-      const tick = () => {
-        errEl.textContent = `Por seguridad, espera ${seconds} segundos para enviar otro correo.`;
-        btn.textContent = `Espera ${seconds}s...`;
-        seconds--;
-        if (seconds < 0) {
-          clearInterval(timerInterval);
-          errEl.classList.remove('visible');
-          btn.disabled = false;
-          btn.textContent = 'Crear cuenta gratuita';
-        }
-      };
-      
-      tick();
-      const timerInterval = setInterval(tick, 1000);
-      return; // Salir para no reactivar el botón
+      // Registrar el bloqueo interno para que no se reinicie al recargar
+      const lockUntil = Date.now() + 60000;
+      localStorage.setItem('rateLimitUnlock', lockUntil);
+      iniciarContadorRateLimit(60, errEl, btn);
     } else {
       btn.disabled = false;
       btn.textContent = 'Crear cuenta gratuita';
