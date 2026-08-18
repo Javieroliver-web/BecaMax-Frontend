@@ -133,15 +133,14 @@
   <!-- ===== SCRIPTS ===== -->
   <!-- Fallback estático (se usa si el backend no responde) -->
   <script src="../data/becas.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase.js"></script>
   <script src="../js/auth.js"></script>
 
   <script>
     // ── Utilidades ──────────────────────────────────────────────
-    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:3000/api'
-      : 'https://beca-max-backend.vercel.app/api'; // ← actualizar tras deploy
+    const API_URL = CONFIG.API_URL;
 
     function sanitize(str) {
       if (typeof str !== 'string') return str;

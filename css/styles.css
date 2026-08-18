@@ -53,8 +53,8 @@ body.light-mode {
   --gradient: linear-gradient(135deg, #34d399, #10b981);
   --gradient-text: linear-gradient(135deg, #32325d, #10b981);
   --text-primary: #32325d;
-  --text-secondary: #525f7f;
-  --text-muted: #8898aa;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
   --shadow-card: 0 50px 100px -20px rgba(50,50,93,0.1), 0 30px 60px -30px rgba(0,0,0,0.15);
   --shadow-hover: 0 50px 100px -20px rgba(50,50,93,0.2), 0 30px 60px -30px rgba(0,0,0,0.25);
   --bg-animated: linear-gradient(135deg, #e0e7ff, #fce7f3, #e0f2fe, #d1fae5); /* Pastel brillante */
@@ -62,7 +62,7 @@ body.light-mode {
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Inter',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased;position:relative;z-index:0;overflow-x:hidden;transition:background-color 0.3s, color 0.3s}
-body::before{content:'';position:absolute;top:0;left:0;width:100%;height:65vh;background:var(--bg-animated);background-size:200% 200%;animation:gradientAnimation 10s ease infinite;transform:skewY(-6deg);transform-origin:top left;z-index:-1;transition:background 0.5s}
+body::before{content:'';position:absolute;top:0;left:0;width:100%;height:65vh;background:var(--bg-animated);background-size:200% 200%;animation:gradientAnimation 10s ease infinite;transform:skewY(-6deg);transform-origin:top left;z-index:-1;transition:background 0.5s;will-change:background-position}
 @keyframes gradientAnimation{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 h1,h2,h3,h4,h5,h6{font-family:'Inter',sans-serif;font-weight:700;line-height:1.2;text-transform:none;letter-spacing:-0.5px}
 .font-heading{font-family:'Inter',sans-serif}
@@ -660,123 +660,6 @@ body:not(.loading-state) .loading-overlay {
 @media(max-width:480px){
   .hero-stats{flex-direction:column;align-items:center;gap:10px}
 }
-/* ============================================ LOADING OVERLAY ============================================ */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--bg-primary);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
-}
-
-.loading-state {
-  overflow: hidden;
-}
-
-.loader-content {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-.loading-title {
-  font-size: 1.5rem;
-  background: var(--gradient-text);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.loading-text {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--glass-border);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.animate-bounce {
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-body:not(.loading-state) .loading-overlay {
-  opacity: 0;
-  pointer-events: none;
-  visibility: hidden;
-}
-
-/* ============================================ AVISO LEGAL BANNER ============================================ */
-#legal-banner{position:fixed;bottom:0;left:0;right:0;z-index:800;background:var(--bg-secondary);border-top:1px solid var(--glass-border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 -4px 24px rgba(0,0,0,.3);transform:translateY(0);transition:transform .35s cubic-bezier(0.4,0,0.2,1)}
-#legal-banner.hidden{transform:translateY(110%)}
-.legal-banner-text{font-size:.8rem;color:var(--text-secondary);line-height:1.5;flex:1}
-.legal-banner-text strong{color:var(--text-primary)}
-.legal-banner-close{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;color:var(--text-secondary);padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:var(--transition);flex-shrink:0}
-.legal-banner-close:hover{border-color:var(--primary);color:var(--primary-light)}
-@media(max-width:640px){#legal-banner{flex-direction:column;align-items:flex-start;gap:10px}.legal-banner-close{width:100%;text-align:center}}
-
-/* ============================================ ANTI-ADBLOCK ============================================ */
-#adblock-overlay{position:fixed;inset:0;z-index:9999;background:rgba(7,7,15,.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeInUp .35s ease}
-#adblock-overlay.adblock-hiding{animation:none;opacity:0;transition:opacity .35s ease}
-.adblock-modal{background:var(--bg-secondary);border:1px solid rgba(239,68,68,.2);border-radius:var(--border-radius-xl);padding:40px 36px;max-width:480px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.6)}
-.adblock-icon{font-size:3rem;margin-bottom:16px}
-.adblock-title{font-size:1.3rem;font-weight:800;margin-bottom:12px;color:var(--text-primary)}
-.adblock-text{font-size:.9rem;color:var(--text-secondary);line-height:1.6;margin-bottom:24px}
-.adblock-steps{background:var(--bg-tertiary);border-radius:var(--border-radius);padding:16px;margin-bottom:24px;text-align:left;display:flex;flex-direction:column;gap:10px}
-.adblock-step{display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--text-secondary)}
-.adblock-step-num{background:var(--gradient);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
-.adblock-btn{width:100%;padding:14px;background:var(--gradient);border:none;border-radius:var(--border-radius);color:#fff;font-weight:700;font-size:.95rem;cursor:pointer;transition:var(--transition);margin-bottom:10px}
-.adblock-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(16,185,129,.4)}
-@media(max-width:480px){.adblock-modal{padding:28px 20px}}
-
-
-/* ============================================ DETAIL PAGE ============================================ */
-.detail-layout{display:grid;grid-template-columns:1fr 340px;gap:32px;max-width:var(--max-width);margin:0 auto;padding:40px 24px 80px;align-items:start}
-.detail-main{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--border-radius-xl);padding:40px;position:relative}
-.detail-header{margin-bottom:32px}
-.detail-title{font-size:2.4rem;font-weight:800;margin-bottom:8px;line-height:1.1}
-.detail-entidad{font-size:1.1rem;color:var(--text-secondary);font-weight:600}
-.detail-section{margin-top:32px;padding-top:32px;border-top:1px solid var(--glass-border)}
-.detail-section-title{font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--text-primary);display:flex;align-items:center;gap:10px}
-.detail-content{color:var(--text-secondary);line-height:1.7}
-.req-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:10px}
-.req-item{display:flex;gap:10px;align-items:flex-start}
-.req-icon{color:var(--primary);font-size:.9rem;margin-top:2px}
-
-.detail-sidebar{position:sticky;top:calc(var(--header-height) + 20px);display:flex;flex-direction:column;gap:20px}
-.sidebar-card{background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:var(--border-radius-lg);padding:24px;box-shadow:var(--shadow-card)}
-.sidebar-item{margin-bottom:20px}
-.sidebar-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);font-weight:700;margin-bottom:4px}
-.sidebar-value{font-size:1.2rem;font-weight:800;color:var(--text-primary)}
-.sidebar-value.amount{color:var(--primary-light);font-size:1.6rem}
-
-@media(max-width:960px){
-  .detail-layout{grid-template-columns:1fr}
-  .detail-sidebar{position:static}
-  .detail-main{padding:28px 24px}
-  .detail-title{font-size:1.9rem}
-}
-.logo-img { display: block; }
-
 /* ============================================ AVATAR ============================================ */
 .avatar-editable {
   position: relative;
@@ -911,6 +794,7 @@ body:not(.loading-state) .loading-overlay {
   top: calc(100% + 12px);
   right: 0;
   width: 240px;
+  max-width: 90vw;
   background: var(--bg-tertiary);
   border: 1px solid var(--glass-border);
   border-radius: 16px;

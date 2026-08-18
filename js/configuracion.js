@@ -37,6 +37,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.body.classList.remove('light-mode');
       if (toggle) toggle.checked = false;
     }
+    
+    // Notificaciones
+    const toggleCorreos = document.getElementById('toggleCorreos');
+    const confFrecuencia = document.getElementById('confFrecuencia');
+    
+    if (toggleCorreos) {
+      const savedCorreos = localStorage.getItem('becamax_correos');
+      if (savedCorreos !== null) toggleCorreos.checked = savedCorreos === 'true';
+      
+      toggleCorreos.addEventListener('change', (e) => {
+        localStorage.setItem('becamax_correos', e.target.checked);
+        showToast('Preferencia de correos guardada', 'success');
+      });
+    }
+    
+    if (confFrecuencia) {
+      const savedFrecuencia = localStorage.getItem('becamax_frecuencia');
+      if (savedFrecuencia !== null) confFrecuencia.value = savedFrecuencia;
+      
+      confFrecuencia.addEventListener('change', (e) => {
+        localStorage.setItem('becamax_frecuencia', e.target.value);
+        showToast('Frecuencia de alertas guardada', 'success');
+      });
+    }
   }
   
   function alternarTema() {

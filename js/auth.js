@@ -137,15 +137,20 @@ function sanitizeReturnUrl(url) {
 
 // ---- Sign out -----------------------------------------------
 async function handleSignOut() {
+  sessionStorage.clear();
   await supabaseClient.auth.signOut();
-  window.location.href = '/index.html';
+  const isPagesDir = window.location.pathname.includes('/pages/');
+  const toRoot = isPagesDir ? '../' : './';
+  window.location.href = toRoot + 'index.html';
 }
 
 // ---- Session guard: redirige si no está logueado -----------
 async function requireAuth() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) {
-    window.location.href = '/pages/auth.html?returnUrl=' + encodeURIComponent(window.location.pathname);
+    const isPagesDir = window.location.pathname.includes('/pages/');
+    const toPages = isPagesDir ? './' : 'pages/';
+    window.location.href = toPages + 'auth.html?returnUrl=' + encodeURIComponent(window.location.pathname);
     return null;
   }
 
@@ -159,7 +164,9 @@ async function requireAuth() {
   if (perfil && perfil.estado === 'bloqueado') {
     await supabaseClient.auth.signOut();
     showToast('⛔ Acceso denegado: su cuenta ha sido suspendida.', 'error');
-    setTimeout(() => { window.location.href = '/index.html'; }, 2500);
+    const isPagesDir = window.location.pathname.includes('/pages/');
+    const toRoot = isPagesDir ? '../' : './';
+    setTimeout(() => { window.location.href = toRoot + 'index.html'; }, 2500);
     return null;
   }
 
@@ -172,7 +179,18 @@ async function updateHeaderAuth() {
 
   if (session) {
     const nombre = session.user.user_metadata?.full_name || session.user.user_metadata?.nombre || session.user.email.split('@')[0];
-    const { data: perfil } = await supabaseClient.from('perfiles').select('rol, avatar_url').eq('user_id', session.user.id).single();
+    
+    let perfil = null;
+    const cacheKey = `becamax_perfil_${session.user.id}`;
+    const cachedPerfil = sessionStorage.getItem(cacheKey);
+    
+    if (cachedPerfil) {
+      perfil = JSON.parse(cachedPerfil);
+    } else {
+      const { data } = await supabaseClient.from('perfiles').select('rol, avatar_url').eq('user_id', session.user.id).single();
+      perfil = data;
+      if (perfil) sessionStorage.setItem(cacheKey, JSON.stringify(perfil));
+    }
 
     const headerActions = document.querySelector('.header-actions');
     if (headerActions) {

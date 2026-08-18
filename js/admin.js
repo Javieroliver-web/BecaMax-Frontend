@@ -148,9 +148,7 @@ async function eliminarUsuarioDefinitivo(userId) {
   showToast('Iniciando borrado...', 'info');
   
   try {
-    const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-      ? 'http://localhost:3000' 
-      : 'https://beca-max-backend.vercel.app';
+    const backendUrl = CONFIG.BASE_URL;
       
     const { data: { session } } = await supabaseClient.auth.getSession();
     const token = session?.access_token;
@@ -194,9 +192,7 @@ async function publicarNoticia() {
     btn.disabled = true;
     btn.textContent = '⏱️ Publicando...';
 
-    const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-      ? 'http://localhost:3000' 
-      : 'https://beca-max-backend.vercel.app';
+    const backendUrl = CONFIG.BASE_URL;
       
     const { data: { session } } = await supabaseClient.auth.getSession();
     const token = session?.access_token;

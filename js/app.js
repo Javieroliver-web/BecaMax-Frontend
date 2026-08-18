@@ -32,10 +32,8 @@ function debounce(func, wait) {
   };
 }
 
-// URL del backend — detecta automáticamente local vs producción
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:3000/api'
-  : 'https://beca-max-backend.vercel.app/api'; // ← Cambia por tu URL real tras el deploy
+// URL del backend obtenida de config.js
+const API_URL = CONFIG.API_URL;
 
 async function cargarBecas() {
   try {

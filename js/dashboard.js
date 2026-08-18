@@ -4,11 +4,15 @@
 
 let alertaSeleccionadaId = null;
 let BECAS = []; // Becas cargadas desde la API para el dashboard
-let NOTIFICACIONES = [
+let NOTIFICACIONES = JSON.parse(localStorage.getItem('becamax_notificaciones')) || [
   { id: 1, icono: '🎓', titulo: 'Nueva beca disponible', texto: 'Se ha publicado la Beca 6000 para el curso 2025/26. ¡Cierra en 15 días!', fecha: 'Hace 2 horas', leida: false, url: 'beca-detalle.html?id=1' },
   { id: 2, icono: '⚠️', titulo: 'Plazo próximo a cerrar', texto: 'Tu alerta "Becas Máster" tiene 2 becas que cierran en menos de 48h.', fecha: 'Hace 5 horas', leida: false, url: 'dashboard.html' },
   { id: 3, icono: '✅', titulo: 'Perfil actualizado', texto: 'Tu perfil ha sido verificado correctamente. Ya puedes ver recomendaciones.', fecha: 'Ayer', leida: true, url: 'perfil.html' }
 ];
+
+function guardarNotificaciones() {
+  localStorage.setItem('becamax_notificaciones', JSON.stringify(NOTIFICACIONES));
+}
 
 // ---- Etiquetas legibles de filtros -------------------------
 function resumenFiltros(filtros) {
@@ -169,9 +173,7 @@ async function cargarBecasPerfil() {
 
 // ---- Carga de becas desde la API (con fallback estático) ---
 async function cargarBecasDesdeAPI() {
-  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000/api'
-    : 'https://beca-max-backend.vercel.app/api';
+  const API_URL = CONFIG.API_URL;
   try {
     const res = await fetch(`${API_URL}/becas?limit=100`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -354,6 +356,7 @@ function marcarNotificacionLeida(id) {
   const notif = NOTIFICACIONES.find(n => n.id === id);
   if (notif) {
     notif.leida = true;
+    guardarNotificaciones();
     renderNotificaciones();
     
     if (notif.url) {
@@ -368,6 +371,7 @@ function marcarNotificacionLeida(id) {
 
 function marcarTodasLeidas() {
   NOTIFICACIONES.forEach(n => n.leida = true);
+  guardarNotificaciones();
   renderNotificaciones();
   showToast('✅ Todas las notificaciones leídas', 'success');
 }

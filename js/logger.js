@@ -7,9 +7,7 @@
   'use strict';
 
   // Determinar la URL del backend según el entorno
-  var API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000/api'
-    : 'https://beca-max-backend.vercel.app/api';
+  var API_URL = CONFIG.API_URL;
 
   // No enviar en localhost/desarrollo (opcional, en desarrollo podría ser útil comentar esto para probar)
   var host = window.location.hostname;
