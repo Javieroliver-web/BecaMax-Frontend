@@ -27,8 +27,16 @@ async function cargarPerfil() {
 
   if (data) {
     document.getElementById('perfTipo').value = data.tipo_estudio || '';
+    
+    // Disparar evento change para actualizar las opciones de área si es FP
+    document.getElementById('perfTipo').dispatchEvent(new Event('change'));
+
     document.getElementById('perfRegion').value = data.region || 'Andalucía';
-    document.getElementById('perfArea').value = data.area || 'Cualquier área';
+    
+    // Pequeño timeout para asegurar que el DOM actualizó las opciones
+    setTimeout(() => {
+      document.getElementById('perfArea').value = data.area || 'Cualquier área';
+    }, 50);
     
     if (data.avatar_url) {
       document.getElementById('perfilAvatarImg').src = data.avatar_url;
@@ -111,6 +119,56 @@ document.addEventListener('DOMContentLoaded', async () => {
   const session = await requireAuth();
   if (session) {
     cargarPerfil();
+  }
+
+  // Lógica para cambiar las áreas de estudio dinámicamente si elige FP
+  const perfTipo = document.getElementById('perfTipo');
+  const perfArea = document.getElementById('perfArea');
+  
+  if (perfTipo && perfArea) {
+    perfTipo.addEventListener('change', (e) => {
+      const v = e.target.value;
+      if (v === 'fp') {
+        perfArea.innerHTML = `
+          <option value="Formación Profesional">Informática y Comunicaciones</option>
+          <option value="Formación Profesional">Sanidad</option>
+          <option value="Formación Profesional">Administración y Gestión</option>
+          <option value="Formación Profesional">Comercio y Marketing</option>
+          <option value="Formación Profesional">Hostelería y Turismo</option>
+          <option value="Formación Profesional">Servicios Socioculturales y a la Comunidad</option>
+          <option value="Formación Profesional">Electricidad y Electrónica</option>
+          <option value="Formación Profesional">Actividades Físicas y Deportivas</option>
+          <option value="Formación Profesional">Imagen y Sonido</option>
+          <option value="Formación Profesional">Otras Familias de FP</option>
+        `;
+      } else if (v === 'universitaria' || v === 'master' || v === 'investigacion') {
+        perfArea.innerHTML = `
+          <option value="Cualquier área">Cualquier área / General</option>
+          <option value="Ciencia y Tecnología">Ciencias de la Salud</option>
+          <option value="Ciencia y Tecnología">Ingeniería y Arquitectura</option>
+          <option value="Ciencia y Tecnología">Ciencias (Puras / Exactas)</option>
+          <option value="Arte y Diseño">Artes y Humanidades</option>
+          <option value="Educación">Ciencias Sociales, Jurídicas y Educación</option>
+        `;
+      } else if (v === 'artistica') {
+        perfArea.innerHTML = `
+          <option value="Arte y Diseño">Música y Conservatorio</option>
+          <option value="Arte y Diseño">Danza y Arte Dramático</option>
+          <option value="Arte y Diseño">Artes Plásticas y Diseño</option>
+        `;
+      } else if (v === 'idiomas') {
+        perfArea.innerHTML = `
+          <option value="Idiomas">Idiomas y Acreditaciones</option>
+        `;
+      } else {
+        perfArea.innerHTML = `
+          <option value="Cualquier área">Cualquier área / General</option>
+          <option value="Ciencia y Tecnología">Ciencias y Tecnología</option>
+          <option value="Arte y Diseño">Artes</option>
+          <option value="Educación">Humanidades y Ciencias Sociales</option>
+        `;
+      }
+    });
   }
 });
 
