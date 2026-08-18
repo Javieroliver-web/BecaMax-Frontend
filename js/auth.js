@@ -56,13 +56,35 @@ async function handleRegister(e) {
     options: { data: { nombre } }
   });
 
-  btn.disabled = false;
-  btn.textContent = 'Crear cuenta gratuita';
-
   if (error) {
-    errEl.textContent = tradError(error.message);
-    errEl.classList.add('visible');
+    if (error.message.toLowerCase().includes('rate limit')) {
+      let seconds = 60;
+      errEl.classList.add('visible');
+      
+      const tick = () => {
+        errEl.textContent = `Por seguridad, espera ${seconds} segundos para enviar otro correo.`;
+        btn.textContent = `Espera ${seconds}s...`;
+        seconds--;
+        if (seconds < 0) {
+          clearInterval(timerInterval);
+          errEl.classList.remove('visible');
+          btn.disabled = false;
+          btn.textContent = 'Crear cuenta gratuita';
+        }
+      };
+      
+      tick();
+      const timerInterval = setInterval(tick, 1000);
+      return; // Salir para no reactivar el botón
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Crear cuenta gratuita';
+      errEl.textContent = tradError(error.message);
+      errEl.classList.add('visible');
+    }
   } else {
+    btn.disabled = false;
+    btn.textContent = 'Crear cuenta gratuita';
     document.getElementById('formRegistro').style.display = 'none';
     document.querySelector('.auth-tabs').style.display = 'none';
     document.getElementById('authSuccess').classList.add('visible');

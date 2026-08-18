@@ -142,8 +142,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       // La base de datos, en cascada, purgará todo (perfiles, alertas, incidencias).
       await supabaseClient.auth.signOut();
       
-      alert('Tu cuenta ha sido eliminada por completo. ¡Buena suerte, estudiante!');
-      window.location.href = '../index.html';
+      showToast('Tu cuenta ha sido eliminada por completo. ¡Buena suerte!', 'success');
+      
+      // Esperamos 3 segundos antes de redirigir para que el usuario pueda leer el mensaje
+      setTimeout(() => {
+        window.location.href = '../index.html';
+      }, 3000);
   
     } catch (err) {
       console.error('Error purgueando cuenta:', err);
