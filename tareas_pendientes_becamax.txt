@@ -44,12 +44,16 @@
     (no se ha añadido uno de forma automática: el runtime varía con el
     número de convocatorias candidatas y podría acercarse a los límites de
     duración de las funciones serverless de Vercel).
-[ ] Integración de Cloudflare Turnstile (anti-bots): es cosmético. `auth.html`
-    usa la sitekey pública de pruebas de Cloudflare (siempre pasa) y el
-    backend nunca verifica el token contra la API de Cloudflare (siteverify).
-    Cero protección real contra bots. Recomendado: usar la protección CAPTCHA
-    nativa de Supabase Auth (requiere crear un site real en Cloudflare
-    Turnstile y activar la integración en Supabase Dashboard).
+[x] (2026-08-29) Integración de Cloudflare Turnstile: creado el widget real
+    en Cloudflare (hostname becamax.vercel.app + localhost, modo Managed).
+    `auth.html`/`auth.js` ya usan la site key real en los 3 formularios
+    (login, registro y recuperación de contraseña) y pasan el token como
+    `options.captchaToken` a signInWithPassword/signUp/resetPasswordForEmail.
+    PENDIENTE (acción manual del usuario, no se puede hacer desde el código):
+    pegar la Secret Key en Supabase Dashboard -> Authentication -> Attack
+    Protection / CAPTCHA -> activar Turnstile. Sin ese paso, Supabase no
+    valida el token todavía y la protección no es efectiva pese a que el
+    frontend ya lo envía.
 
 === 🛠️ DESARROLLO FUTURO PENDIENTE (Siguiente Fase) ===
 [ ] Crear versión App Móvil nativa (React Native / Flutter).
