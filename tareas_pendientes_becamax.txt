@@ -31,11 +31,19 @@
 
 
 === ⚠️ TAREAS REABIERTAS (marcadas como completadas pero no lo estaban) ===
-[ ] Integración de base de datos BDNS dinámica con scraper backend: NO existe
-    tal scraper. `src/scripts/bdns_sync.js` tiene un array fijo de 4 becas de
-    ejemplo y un TODO ("Aquí iría la llamada axios..."). Decidir si se
-    implementa el scraper real contra la API pública de Infosubvenciones/BDNS
-    o se deja así por ahora.
+[x] (2026-08-29) Integración de base de datos BDNS dinámica: reimplementado
+    `src/scripts/bdns_sync.js` contra la API pública real de Infosubvenciones
+    (https://www.infosubvenciones.es/bdnstrans/api), filtrando convocatorias
+    nacionales (nivel1=ESTADO) y de Andalucía con fecha de solicitud real
+    aún vigente. No se usa el `presupuestoTotal` de la BDNS como importe por
+    beneficiario (induciría a error); se deja `importe: null` y se enlaza a
+    las bases oficiales. Requiere ejecutar antes
+    `supabase/becas_bdns_migration.sql` en el SQL Editor de Supabase (añade
+    la columna codigo_bdns necesaria para el upsert idempotente). Ejecutar
+    con `npm run bdns:sync`. Pendiente decidir si se automatiza con un cron
+    (no se ha añadido uno de forma automática: el runtime varía con el
+    número de convocatorias candidatas y podría acercarse a los límites de
+    duración de las funciones serverless de Vercel).
 [ ] Integración de Cloudflare Turnstile (anti-bots): es cosmético. `auth.html`
     usa la sitekey pública de pruebas de Cloudflare (siempre pasa) y el
     backend nunca verifica el token contra la API de Cloudflare (siteverify).
