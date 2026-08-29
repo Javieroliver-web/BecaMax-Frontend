@@ -48,7 +48,7 @@ function renderAlerta(alerta) {
   return `
   <div class="alerta-card" id="alerta-${id}">
     <div class="alerta-info">
-      <div class="alerta-nombre">${alerta.nombre}</div>
+      <div class="alerta-nombre">${escapeHtml(alerta.nombre)}</div>
       <div class="alerta-tags">
         ${tags.map(t => `<span class="alerta-tag">${t}</span>`).join('')}
       </div>

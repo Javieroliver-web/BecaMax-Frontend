@@ -2,11 +2,28 @@
 //  COOKIES.JS – Banner de cookies GDPR
 // ============================================================
 
+window.BecaMaxConsent = {
+  KEY: 'becamax_cookies_consent',
+  get() { return localStorage.getItem(this.KEY); },
+  hasAdsConsent() { return this.get() === 'all'; },
+  unlockAds() {
+    if (!this.hasAdsConsent()) return;
+    window.adsbygoogle = window.adsbygoogle || [];
+    window.adsbygoogle.pauseAdRequests = 0;
+    document.querySelectorAll('ins.adsbygoogle:not([data-ad-status])').forEach(() => {
+      try { window.adsbygoogle.push({}); } catch (e) { /* noop */ }
+    });
+  }
+};
+
 (function () {
-  const COOKIE_KEY = 'becamax_cookies_consent';
+  const COOKIE_KEY = window.BecaMaxConsent.KEY;
 
   // Si ya aceptó, no mostrar nada
-  if (localStorage.getItem(COOKIE_KEY)) return;
+  if (localStorage.getItem(COOKIE_KEY)) {
+    window.BecaMaxConsent.unlockAds();
+    return;
+  }
 
   const banner = document.createElement('div');
   banner.id = 'cookiesBanner';
@@ -34,6 +51,7 @@
 
   document.getElementById('cookiesAcceptAll').addEventListener('click', () => {
     localStorage.setItem(COOKIE_KEY, 'all');
+    window.BecaMaxConsent.unlockAds();
     _hideBanner(banner);
   });
 

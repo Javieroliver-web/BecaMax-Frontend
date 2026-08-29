@@ -15,3 +15,15 @@ const CONFIG = {
     return this.IS_LOCAL ? 'http://localhost:3000' : 'https://beca-max-backend.vercel.app';
   }
 };
+
+// Escapa texto antes de insertarlo via innerHTML (evita XSS almacenado
+// desde campos rellenables por usuarios o terceros no autenticados).
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}

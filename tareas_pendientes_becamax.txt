@@ -3,6 +3,23 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== ✅ FIXES CRÍTICOS APLICADOS (2026-08-29, auditoría Claude Code) ===
+- [x] (2026-08-29) SyntaxError en alerts.controller.js (faltaba `try {` antes
+      de un `catch`) tumbaba TODA la API, no solo el cron de alertas.
+      require('./src/app') explotaba. Corregido y verificado con node -c.
+- [x] (2026-08-29) IDOR en /api/favorites: el endpoint aceptaba un user_id
+      del cliente y usaba la service_role key, permitiendo leer/modificar
+      favoritos de cualquier usuario. Ahora exige Bearer token válido y el
+      user_id sale siempre del token verificado contra Supabase.
+- [x] (2026-08-29) Se versionaron en supabase/ los scripts de favoritos y
+      notificaciones (favoritos_setup.sql, notificaciones_setup.sql) y el
+      de storage de avatares (storage_avatars_setup.sql), que solo existían
+      sueltos en local y nunca se habían commiteado.
+- [x] (2026-08-29) AdSense y el logger de accesos (IP/geo -> Discord) ahora
+      respetan el consentimiento del banner de cookies (antes se disparaban
+      siempre). El overlay de detección de adblock ya no bloquea scroll/Escape
+      y se puede cerrar.
+
 === 🚨 ACCIONES MANUALES A REALIZAR POR EL USUARIO ===
 [x] Ejecutar script SQL de Favoritos: Copiar el contenido de `d:\Proyectos\BecaMax-Backend\supabase_favoritos.sql` y ejecutarlo en el SQL Editor de Supabase.
 [x] Ejecutar script SQL de Notificaciones: Copiar el contenido de `d:\Proyectos\BecaMax-Backend\supabase_notificaciones.sql` y ejecutarlo en el SQL Editor de Supabase.
@@ -13,13 +30,38 @@
 [ ] Comprimir Imágenes (Opcional): Pasar los logos o fondos pesados de `/img` por un compresor a WebP o AVIF (ej: squoosh.app) de forma manual.
 
 
+=== ⚠️ TAREAS REABIERTAS (marcadas como completadas pero no lo estaban) ===
+[ ] Integración de base de datos BDNS dinámica con scraper backend: NO existe
+    tal scraper. `src/scripts/bdns_sync.js` tiene un array fijo de 4 becas de
+    ejemplo y un TODO ("Aquí iría la llamada axios..."). Decidir si se
+    implementa el scraper real contra la API pública de Infosubvenciones/BDNS
+    o se deja así por ahora.
+[ ] Integración de Cloudflare Turnstile (anti-bots): es cosmético. `auth.html`
+    usa la sitekey pública de pruebas de Cloudflare (siempre pasa) y el
+    backend nunca verifica el token contra la API de Cloudflare (siteverify).
+    Cero protección real contra bots. Recomendado: usar la protección CAPTCHA
+    nativa de Supabase Auth (requiere crear un site real en Cloudflare
+    Turnstile y activar la integración en Supabase Dashboard).
+
 === 🛠️ DESARROLLO FUTURO PENDIENTE (Siguiente Fase) ===
 [ ] Crear versión App Móvil nativa (React Native / Flutter).
 
+=== 💰 MONETIZACIÓN NO INVASIVA (Nueva fase, propuesta 2026-08-29) ===
+[ ] Slots de anuncio adicionales en dashboard.html (entre secciones del grid
+    de becas) y beca-detalle.html (debajo del contenido), nunca como
+    interstitial ni pop-up, reutilizando el patrón pauseAdRequests + .ad-slot.
+[ ] Crear ads.txt en la raíz del frontend una vez exista un Publisher ID real
+    de AdSense (contenido: google.com, pub-TU_PUBLISHER_ID, DIRECT, f08c47fec0942fa0).
+[ ] Sustituir el pub-id placeholder (ca-pub-XXXXXXXXXXXXXXXX) por el real
+    cuando Google apruebe la cuenta AdSense (necesita tráfico orgánico real).
+[ ] Reforzar contenido estático indexable (guías, FAQ) para pasar la revisión
+    de AdSense, dado que la mayor parte del contenido es dinámico.
+[ ] (Opcional, más adelante) Google Consent Mode v2 completo si se añade
+    Google Analytics además de AdSense.
+
 ==================================================
-              TAREAS COMPLETADAS 
+              TAREAS COMPLETADAS
 ==================================================
-- [x] Integración de base de datos BDNS dinámica en Supabase con scraper backend.
 - [x] Cron Job del Backend para envío automático de alertas.
 - [x] Rediseño completo de correos transaccionales (Alertas y Registro).
 - [x] Paginación y carga dinámica infinita en el grid de becas.
@@ -30,5 +72,4 @@
 - [x] Avatares dinámicos (DiceBear).
 - [x] Skeleton Loaders para todas las cargas desde API.
 - [x] Banner GDPR de cookies y SEO OpenGraph (imágenes compartidas sociales).
-- [x] Integración de Cloudflare Turnstile (anti-bots).
 - [x] Refuerzo RLS en toda la base de datos de Supabase.

@@ -57,8 +57,8 @@ async function cargarDatosDashboard() {
             <td title="${u.user_id}" style="font-family:monospace; font-size:0.8rem;">${u.user_id.substring(0,8)}...</td>
             <td><span class="badge ${isAdmin ? 'badge-admin' : 'badge-user'}">${u.rol.toUpperCase()}</span></td>
             <td><span class="badge ${isBlocked ? 'badge-bloqueado' : 'badge-activo'}">${(u.estado || 'activo').toUpperCase()}</span></td>
-            <td>${u.tipo_estudio || '—'}</td>
-            <td>${u.region || '—'}</td>
+            <td>${escapeHtml(u.tipo_estudio) || '—'}</td>
+            <td>${escapeHtml(u.region) || '—'}</td>
             <td>${new Date(u.updated_at).toLocaleDateString()}</td>
             <td>
               <div class="action-group">
@@ -94,10 +94,10 @@ async function cargarDatosDashboard() {
       logsList.innerHTML = logs.map(l => `
         <tr>
           <td>${new Date(l.created_at).toLocaleString()}</td>
-          <td><b>${l.action}</b></td>
-          <td>${l.details || '—'}</td>
-          <td title="${l.admin_id}">${l.admin_id ? l.admin_id.substring(0,8) : 'Sistema'}</td>
-          <td title="${l.user_id}">${l.user_id ? l.user_id.substring(0,8) : '—'}</td>
+          <td><b>${escapeHtml(l.action)}</b></td>
+          <td>${escapeHtml(l.details) || '—'}</td>
+          <td title="${escapeHtml(l.admin_id)}">${l.admin_id ? escapeHtml(l.admin_id.substring(0,8)) : 'Sistema'}</td>
+          <td title="${escapeHtml(l.user_id)}">${l.user_id ? escapeHtml(l.user_id.substring(0,8)) : '—'}</td>
         </tr>
       `).join('');
     } else {

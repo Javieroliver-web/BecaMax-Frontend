@@ -21,6 +21,12 @@
   <link rel="stylesheet" href="css/styles.css">
   <script defer src="/_vercel/insights/script.js"></script>
   <!-- Google AdSense -->
+  <!-- Los anuncios arrancan PAUSADOS por defecto (RGPD): solo se activan cuando
+       el usuario pulsa "Aceptar todas" en el banner de cookies (ver cookies.js). -->
+  <script>
+    window.adsbygoogle = window.adsbygoogle || [];
+    window.adsbygoogle.pauseAdRequests = 1;
+  </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 </head>
 <body>

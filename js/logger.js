@@ -13,6 +13,9 @@
   var host = window.location.hostname;
   if (host === 'localhost' || host === '127.0.0.1' || host === '') return;
 
+  // No enviar sin consentimiento explícito de cookies (RGPD)
+  if (localStorage.getItem('becamax_cookies_consent') !== 'all') return;
+
   // Solo registrar visitas a la pantalla de presentación principal
   var page = window.location.pathname || '/';
   if (page !== '/' && !page.endsWith('index.html')) {
