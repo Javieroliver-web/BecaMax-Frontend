@@ -67,6 +67,17 @@ function iniciarContadorRateLimit(seconds, errEl, btn) {
   timerInterval = setInterval(tick, 1000);
 }
 
+// ---- Cloudflare Turnstile helpers ----------------------------
+function getTurnstileToken(widgetId) {
+  if (typeof turnstile === 'undefined') return null;
+  return turnstile.getResponse(widgetId) || null;
+}
+
+function resetTurnstile(widgetId) {
+  if (typeof turnstile === 'undefined') return;
+  try { turnstile.reset(widgetId); } catch (e) { /* noop */ }
+}
+
 async function handleRegister(e) {
   e.preventDefault();
   const nombre = document.getElementById('regNombre').value.trim();
@@ -87,16 +98,20 @@ async function handleRegister(e) {
   btn.disabled = true;
   btn.textContent = 'Creando cuenta…';
 
+  const captchaToken = getTurnstileToken('turnstile-register');
+
   const { error } = await supabaseClient.auth.signUp({
     email,
     password: pass,
-    options: { data: { nombre } }
+    options: { data: { nombre }, captchaToken }
   });
+
+  resetTurnstile('turnstile-register');
 
   if (error) {
     if (error.message.toLowerCase().includes('rate limit')) {
       // Supabase por defecto bloquea durante 1 HORA (3600 segundos) tras varios intentos fallidos
-      const lockUntil = Date.now() + 3600000; 
+      const lockUntil = Date.now() + 3600000;
       localStorage.setItem('rateLimitUnlock', lockUntil);
       iniciarContadorRateLimit(3600, errEl, btn);
     } else {
@@ -126,7 +141,15 @@ async function handleLogin(e) {
   btn.disabled = true;
   btn.textContent = 'Entrando…';
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+  const captchaToken = getTurnstileToken('turnstile-login');
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password: pass,
+    options: { captchaToken }
+  });
+
+  resetTurnstile('turnstile-login');
 
   btn.disabled = false;
   btn.textContent = 'Iniciar sesión';
@@ -162,7 +185,9 @@ async function handleForgotPassword(e) {
   e.preventDefault();
   const email = document.getElementById('loginEmail').value.trim();
   if (!email) { showToast('Introduce tu email primero', 'info'); return; }
-  const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+  const captchaToken = getTurnstileToken('turnstile-login');
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { captchaToken });
+  resetTurnstile('turnstile-login');
   if (error) showToast('Error: ' + tradError(error.message), 'error');
   else showToast(' Email de recuperación enviado', 'success');
 }

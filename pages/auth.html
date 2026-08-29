@@ -55,6 +55,11 @@
         </div>
         <div class="form-error" id="loginError"></div>
       </div>
+      <!-- Cloudflare Turnstile Widget -->
+      <div class="form-group" style="display:flex;justify-content:center;margin-top:20px;margin-bottom:20px">
+        <div class="cf-turnstile" id="turnstile-login" data-sitekey="0x4AAAAAAEhCuu_3A-3gntYK" data-theme="dark"></div>
+      </div>
+
       <button type="submit" class="btn btn-primary btn-full" id="btnLogin">
         Iniciar sesión
       </button>
@@ -83,9 +88,9 @@
         <div class="form-error" id="regError"></div>
       </div>
 
-      <!-- Cloudflare Turnstile Widget (Clave de prueba pública) -->
+      <!-- Cloudflare Turnstile Widget -->
       <div class="form-group" style="display:flex;justify-content:center;margin-top:20px;margin-bottom:20px">
-        <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="dark"></div>
+        <div class="cf-turnstile" id="turnstile-register" data-sitekey="0x4AAAAAAEhCuu_3A-3gntYK" data-theme="dark"></div>
       </div>
 
       <button type="submit" class="btn btn-primary btn-full" id="btnRegister">
