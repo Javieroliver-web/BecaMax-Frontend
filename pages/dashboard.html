@@ -5,6 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mis Alertas · BecaMax</title>
   <meta name="description" content="Gestiona tus alertas personalizadas de becas. Activa, desactiva o elimina tus búsquedas guardadas.">
+  <!-- OpenGraph -->
+  <meta property="og:title" content="Mis Alertas · BecaMax">
+  <meta property="og:description" content="Gestiona tus alertas personalizadas de becas. Activa, desactiva o elimina tus búsquedas guardadas.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://beca-max.vercel.app/pages/dashboard.html">
+  <meta property="og:image" content="https://beca-max.vercel.app/img/logo.png">
+  <meta property="og:locale" content="es_ES">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Mis Alertas · BecaMax">
+  <meta name="twitter:description" content="Gestiona tus alertas personalizadas de becas.">
+  <meta name="twitter:image" content="https://beca-max.vercel.app/img/logo.png">
   <link rel="icon" type="image/png" href="../img/logo.png">
   <link rel="stylesheet" href="../css/styles.css">
   <script defer src="/_vercel/insights/script.js"></script>
@@ -20,7 +32,7 @@
     </a>
     <div class="header-actions">
       <button class="btn btn-ghost btn-sm btn-notifications" id="btnNotifications" title="Notificaciones">
-        🔔<span class="badge-count" id="notifBadge">0</span>
+        <span class="badge-count" id="notifBadge">0</span>
       </button>
     </div>
     <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú" aria-expanded="false">
@@ -28,9 +40,9 @@
     </button>
   </div>
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
-    <a href="admin-monitorizacion.html" class="btn btn-warning btn-full" id="adminLinkMobile" style="display:none;">🛡️ Monitorización</a>
-    <a href="../index.html" class="btn btn-ghost btn-full">🔍 Buscar becas</a>
-    <a href="perfil.html" class="btn btn-secondary btn-full">⚙️ Mi perfil</a>
+    <a href="admin-monitorizacion.html" class="btn btn-warning btn-full" id="adminLinkMobile" style="display:none;"> Monitorización</a>
+    <a href="../index.html" class="btn btn-ghost btn-full"> Buscar becas</a>
+    <a href="perfil.html" class="btn btn-secondary btn-full"> Mi perfil</a>
     <button class="btn btn-danger btn-full" onclick="handleSignOut()">Cerrar sesión</button>
   </div>
 </header>
@@ -54,6 +66,16 @@
     </div>
     <div id="alertasList">
       <!-- Inyectado por dashboard.js -->
+    </div>
+  </div>
+
+  <!-- Favoritos -->
+  <div class="dashboard-section">
+    <div class="section-header">
+      <h2 class="section-title font-heading">⭐ Mis favoritos</h2>
+    </div>
+    <div class="becas-grid" id="becasFavoritos">
+      <!-- Inyectado por favorites.js -->
     </div>
   </div>
 
@@ -86,7 +108,7 @@
 <div class="modal-overlay" id="modalNotificaciones">
   <div class="modal modal-wide">
     <div class="modal-header">
-      <h2 class="modal-title">🔔 Notificaciones</h2>
+      <h2 class="modal-title"> Notificaciones</h2>
       <button class="btn-text" id="btnMarcarTodoLeido">Marcar todo como leído</button>
     </div>
     <div class="notifications-list" id="notificationsList">
@@ -101,7 +123,7 @@
 <!-- MODAL EDITAR NOMBRE ALERTA -->
 <div class="modal-overlay" id="modalEditarAlerta">
   <div class="modal">
-    <h2 class="modal-title">✏️ Renombrar alerta</h2>
+    <h2 class="modal-title"> Renombrar alerta</h2>
     <div class="form-group" style="margin-top:16px">
       <label for="editAlertaNombre">Nuevo nombre</label>
       <input type="text" class="form-input" id="editAlertaNombre" maxlength="60">
@@ -133,9 +155,11 @@
 <script src="../js/supabase.js"></script>
 <script src="../data/becas.js"></script>
 <script src="../js/auth.js"></script>
+<script src="../js/favorites.js"></script>
 <script src="../js/dashboard.js"></script>
 <script src="../js/adblock.js"></script>
 <script src="../js/logger.js"></script>
+<script src="../js/cookies.js"></script>
 
 <!-- ===== MOBILE NAV JS ===== -->
 <script>

@@ -1,0 +1,34 @@
+==================================================
+      TAREAS PENDIENTES Y HOJA DE RUTA - BECAMAX
+                 (Nivel Producción Premium)
+==================================================
+
+=== 🚨 ACCIONES MANUALES A REALIZAR POR EL USUARIO ===
+[x] Ejecutar script SQL de Favoritos: Copiar el contenido de `d:\Proyectos\BecaMax-Backend\supabase_favoritos.sql` y ejecutarlo en el SQL Editor de Supabase.
+[x] Ejecutar script SQL de Notificaciones: Copiar el contenido de `d:\Proyectos\BecaMax-Backend\supabase_notificaciones.sql` y ejecutarlo en el SQL Editor de Supabase.
+[x] Ejecutar script SQL de Storage (Fotos): Copiar el contenido de `d:\Proyectos\BecaMax-Backend\supabase_storage.sql` y ejecutarlo en el SQL Editor de Supabase.
+[ ] Configurar Plantilla de Email (Reset Password): Copiar el HTML de `d:\Proyectos\BecaMax-Backend\plantilla_email_reset.html` y pegarlo en Supabase -> Authentication -> Email Templates -> Reset Password.
+[ ] Configurar SMTP de Resend: Ir a Supabase -> Authentication -> Providers -> Email e introducir los credenciales de SMTP (Host: smtp.resend.com, Port: 465, User: resend, Pass: tu_api_key).
+[ ] Rate Limit: Aumentar el límite de correos enviados por hora en Supabase (si usas plan Pro) o pedir aumento a Resend.
+[ ] Comprimir Imágenes (Opcional): Pasar los logos o fondos pesados de `/img` por un compresor a WebP o AVIF (ej: squoosh.app) de forma manual.
+
+
+=== 🛠️ DESARROLLO FUTURO PENDIENTE (Siguiente Fase) ===
+[ ] Crear versión App Móvil nativa (React Native / Flutter).
+
+==================================================
+              TAREAS COMPLETADAS 
+==================================================
+- [x] Integración de base de datos BDNS dinámica en Supabase con scraper backend.
+- [x] Cron Job del Backend para envío automático de alertas.
+- [x] Rediseño completo de correos transaccionales (Alertas y Registro).
+- [x] Paginación y carga dinámica infinita en el grid de becas.
+- [x] Sistema de Favoritos con persistencia y caché local.
+- [x] Sistema de Notificaciones In-App con Supabase (campanita, marcar leídas).
+- [x] Subida de foto de perfil con Supabase Storage.
+- [x] Botón "Ojo" y validación en tiempo real de contraseñas.
+- [x] Avatares dinámicos (DiceBear).
+- [x] Skeleton Loaders para todas las cargas desde API.
+- [x] Banner GDPR de cookies y SEO OpenGraph (imágenes compartidas sociales).
+- [x] Integración de Cloudflare Turnstile (anti-bots).
+- [x] Refuerzo RLS en toda la base de datos de Supabase.

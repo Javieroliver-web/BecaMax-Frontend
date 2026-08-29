@@ -71,11 +71,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (toggle.checked) {
       document.body.classList.add('light-mode');
       localStorage.setItem('theme', 'light');
-      if(headerToggle) headerToggle.innerHTML = '🌙';
+      if(headerToggle) headerToggle.innerHTML = '';
     } else {
       document.body.classList.remove('light-mode');
       localStorage.setItem('theme', 'dark');
-      if(headerToggle) headerToggle.innerHTML = '🌞';
+      if(headerToggle) headerToggle.innerHTML = '';
     }
   }
   
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.error('Error al cambiar contraseña:', error);
       showToast('Error al cambiar la contraseña. ' + error.message, 'error');
     } else {
-      showToast('🔒 Contraseña actualizada correctamente.', 'success');
+      showToast(' Contraseña actualizada correctamente.', 'success');
       document.getElementById('confPassword').value = '';
       document.getElementById('confPasswordConfirm').value = '';
     }

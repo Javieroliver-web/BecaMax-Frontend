@@ -15,6 +15,9 @@ let filtrosActivos = {
 };
 let ordenActual = 'deadline';
 
+let currentPage = 1;
+const PAGE_SIZE = 12;
+
 // Utilidad de seguridad para evitar XSS
 function sanitizeHTML(str) {
   if (typeof str !== 'string') return str;
@@ -36,6 +39,27 @@ function debounce(func, wait) {
 const API_URL = CONFIG.API_URL;
 
 async function cargarBecas() {
+  const grid = document.getElementById('becasGrid');
+  if (grid) {
+    // Render skeletons
+    grid.innerHTML = Array(6).fill('').map(() => `
+      <article class="skeleton-card">
+        <div style="display:flex;justify-content:space-between">
+          <div style="display:flex;gap:8px"><div class="skeleton-badge"></div><div class="skeleton-badge"></div></div>
+          <div class="skeleton-badge" style="width:32px;height:32px;border-radius:8px"></div>
+        </div>
+        <div class="skeleton-line long tall" style="margin-top:8px"></div>
+        <div class="skeleton-line short"></div>
+        <div style="margin-top:12px"><div class="skeleton-line full"></div><div class="skeleton-line medium" style="margin-top:4px"></div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px">
+          <div><div class="skeleton-line xs" style="margin-bottom:6px"></div><div class="skeleton-line medium tall"></div></div>
+          <div><div class="skeleton-line xs" style="margin-bottom:6px"></div><div class="skeleton-line medium tall"></div></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px"><div class="skeleton-btn" style="flex:1"></div><div class="skeleton-btn" style="flex:1"></div></div>
+      </article>
+    `).join('');
+  }
+
   try {
     // Construir query params con los filtros activos para que el backend filtre en servidor
     const params = new URLSearchParams();
@@ -100,7 +124,7 @@ async function fetchNews() {
     const dateStr = new Date(news.created_at).toLocaleDateString();
     panel.innerHTML = `
       <div class="news-panel-header">
-        <span>📢 mensaje del admin</span>
+        <span> mensaje del admin</span>
       </div>
       <div class="news-panel-content">${sanitizeHTML(news.content)}</div>
       <span class="news-panel-date">Publicado el ${sanitizeHTML(dateStr)}</span>
@@ -135,9 +159,9 @@ function urgencia(dias) {
 
 function urgenciaLabel(u, dias) {
   if (u === 'cerrada')    return '⬛ Cerrada';
-  if (u === 'urgente')    return `🔴 ${dias}d restantes`;
-  if (u === 'proximo')    return `🟡 ${dias}d restantes`;
-  return `🟢 ${dias}d restantes`;
+  if (u === 'urgente')    return ` ${dias}d restantes`;
+  if (u === 'proximo')    return ` ${dias}d restantes`;
+  return ` ${dias}d restantes`;
 }
 
 function formatImporte(b) {
@@ -211,6 +235,7 @@ function renderCard(b, delay = 0) {
         <span class="badge badge-tipo">${sanitizeHTML(tipoLabel(b.tipo))}</span>
         <span class="badge badge-${u}">${sanitizeHTML(urgenciaLabel(u, dias))}</span>
       </div>
+      <button class="btn-fav ${typeof isFavorite === 'function' && isFavorite(b.id) ? 'active' : ''}" onclick="typeof toggleFavorite === 'function' ? toggleFavorite('${sanitizeHTML(b.id)}', this) : null" aria-label="Añadir a favoritos" title="Guardar beca">⭐</button>
     </div>
     <div class="card-body">
       <div class="card-nombre font-heading">${sanitizeHTML(b.nombre)}</div>
@@ -248,7 +273,7 @@ function actualizarStats(becasFiltradas) {
 }
 
 // ---- Render principal --------------------------------------
-function renderGrid() {
+function renderGrid(append = false) {
   const filtradas  = aplicarFiltros(BECAS);
   const ordenadas  = ordenar(filtradas, ordenActual);
   const grid       = document.getElementById('becasGrid');
@@ -259,21 +284,51 @@ function renderGrid() {
   if (ordenadas.length === 0) {
     grid.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">🔍</div>
+        <div class="empty-icon"></div>
         <h3>Sin resultados</h3>
         <p>Prueba a cambiar los filtros o amplía la búsqueda.</p>
       </div>`;
     return;
   }
 
-  grid.innerHTML = ordenadas.map((b, i) => renderCard(b, i * 40)).join('');
+  if (append) {
+    const newItems = ordenadas.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+    const newHtml = newItems.map((b, i) => renderCard(b, i * 40)).join('');
+    grid.insertAdjacentHTML('beforeend', newHtml);
+  } else {
+    const paginated = ordenadas.slice(0, currentPage * PAGE_SIZE);
+    const html = paginated.map((b, i) => renderCard(b, (i % PAGE_SIZE) * 40)).join('');
+    grid.innerHTML = html;
+  }
+
+  // Comprobar si hay más becas por cargar
+  let loadMoreBtn = document.getElementById('loadMoreBtn');
+  
+  if (ordenadas.length > currentPage * PAGE_SIZE) {
+    if (!loadMoreBtn) {
+      loadMoreBtn = document.createElement('div');
+      loadMoreBtn.id = 'loadMoreBtn';
+      loadMoreBtn.style.gridColumn = '1 / -1';
+      loadMoreBtn.style.textAlign = 'center';
+      loadMoreBtn.style.marginTop = '20px';
+      loadMoreBtn.innerHTML = `<button class="btn btn-secondary">Cargar más resultados ⬇</button>`;
+      loadMoreBtn.onclick = () => {
+        currentPage++;
+        renderGrid(true);
+      };
+      grid.parentNode.insertBefore(loadMoreBtn, grid.nextSibling); // Insertar justo después del grid
+    }
+    loadMoreBtn.style.display = 'block';
+  } else {
+    if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+  }
 }
 
 // ---- Modal requisitos --------------------------------------
 function verRequisitos(id) {
   const b = BECAS.find(x => x.id === id);
   if (!b) return;
-  const lista = b.requisitos.map(r => `<li style="margin-bottom:6px">✅ ${sanitizeHTML(r)}</li>`).join('');
+  const lista = b.requisitos.map(r => `<li style="margin-bottom:6px"> ${sanitizeHTML(r)}</li>`).join('');
   // Reutilizamos el modal de alerta como modal de info
   const modal = document.getElementById('modalAlerta');
   modal.querySelector('.modal-title').textContent    = sanitizeHTML(b.nombre);
@@ -298,7 +353,7 @@ function abrirModalAlerta() {
   if (busqueda)   partes.push('Búsqueda: "' + busqueda + '"');
 
   const modal = document.getElementById('modalAlerta');
-  modal.querySelector('.modal-title').textContent    = '🔔 Guardar alerta';
+  modal.querySelector('.modal-title').textContent    = ' Guardar alerta';
   modal.querySelector('.modal-subtitle').textContent = 'Te avisaremos por email cuando haya becas nuevas que encajen con estos filtros.';
   document.getElementById('alertaFiltrosResumen').innerHTML =
     partes.length ? partes.join(' · ') : 'Sin filtros (todas las becas)';
@@ -324,7 +379,7 @@ async function confirmarAlerta() {
   document.getElementById('modalAlerta').classList.remove('active');
 
   if (error) showToast('Error al guardar la alerta', 'error');
-  else       showToast('✅ Alerta guardada correctamente', 'success');
+  else       showToast(' Alerta guardada correctamente', 'success');
 }
 
 // ---- Event listeners ---------------------------------------
@@ -340,6 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
   searchInput.addEventListener('input', () => {
     filtrosActivos.busqueda = searchInput.value.trim();
     searchClear.classList.toggle('visible', !!searchInput.value);
+    currentPage = 1;
     debouncedCargar();
   });
   searchClear.addEventListener('click', () => {
@@ -350,15 +406,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Filtros — cada cambio recarga desde el backend con el nuevo filtro
-  document.getElementById('filtroTipo').addEventListener('change',      e => { filtrosActivos.tipo       = e.target.value; cargarBecas(); });
-  document.getElementById('filtroRegion').addEventListener('change',    e => { filtrosActivos.region     = e.target.value; cargarBecas(); });
-  document.getElementById('filtroArea').addEventListener('change',      e => { filtrosActivos.area       = e.target.value; cargarBecas(); });
-  document.getElementById('filtroPlazo').addEventListener('change',     e => { filtrosActivos.plazo      = e.target.value; cargarBecas(); });
-  document.getElementById('filtroImporteMin').addEventListener('input', e => { filtrosActivos.importeMin = e.target.value ? Number(e.target.value) : null; debouncedCargar(); });
-  document.getElementById('filtroImporteMax').addEventListener('input', e => { filtrosActivos.importeMax = e.target.value ? Number(e.target.value) : null; debouncedCargar(); });
+  document.getElementById('filtroTipo').addEventListener('change',      e => { filtrosActivos.tipo       = e.target.value; currentPage = 1; cargarBecas(); });
+  document.getElementById('filtroRegion').addEventListener('change',    e => { filtrosActivos.region     = e.target.value; currentPage = 1; cargarBecas(); });
+  document.getElementById('filtroArea').addEventListener('change',      e => { filtrosActivos.area       = e.target.value; currentPage = 1; cargarBecas(); });
+  document.getElementById('filtroPlazo').addEventListener('change',     e => { filtrosActivos.plazo      = e.target.value; currentPage = 1; cargarBecas(); });
+  document.getElementById('filtroImporteMin').addEventListener('input', e => { filtrosActivos.importeMin = e.target.value ? Number(e.target.value) : null; currentPage = 1; debouncedCargar(); });
+  document.getElementById('filtroImporteMax').addEventListener('input', e => { filtrosActivos.importeMax = e.target.value ? Number(e.target.value) : null; currentPage = 1; debouncedCargar(); });
 
   // Ordenación — recarga con el nuevo orden
-  document.getElementById('sortSelect').addEventListener('change', e => { ordenActual = e.target.value; cargarBecas(); });
+  document.getElementById('sortSelect').addEventListener('change', e => { ordenActual = e.target.value; currentPage = 1; cargarBecas(); });
 
   // Reset filtros
   document.getElementById('btnResetFiltros').addEventListener('click', () => {
@@ -371,6 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('filtroPlazo').value = '';
     document.getElementById('filtroImporteMin').value = '';
     document.getElementById('filtroImporteMax').value = '';
+    currentPage = 1;
     cargarBecas();
   });
 

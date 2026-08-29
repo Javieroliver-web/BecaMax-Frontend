@@ -4,15 +4,7 @@
 
 let alertaSeleccionadaId = null;
 let BECAS = []; // Becas cargadas desde la API para el dashboard
-let NOTIFICACIONES = JSON.parse(localStorage.getItem('becamax_notificaciones')) || [
-  { id: 1, icono: '🎓', titulo: 'Nueva beca disponible', texto: 'Se ha publicado la Beca 6000 para el curso 2025/26. ¡Cierra en 15 días!', fecha: 'Hace 2 horas', leida: false, url: 'beca-detalle.html?id=1' },
-  { id: 2, icono: '⚠️', titulo: 'Plazo próximo a cerrar', texto: 'Tu alerta "Becas Máster" tiene 2 becas que cierran en menos de 48h.', fecha: 'Hace 5 horas', leida: false, url: 'dashboard.html' },
-  { id: 3, icono: '✅', titulo: 'Perfil actualizado', texto: 'Tu perfil ha sido verificado correctamente. Ya puedes ver recomendaciones.', fecha: 'Ayer', leida: true, url: 'perfil.html' }
-];
-
-function guardarNotificaciones() {
-  localStorage.setItem('becamax_notificaciones', JSON.stringify(NOTIFICACIONES));
-}
+let NOTIFICACIONES = []; // Cargadas dinámicamente desde Supabase
 
 // ---- Etiquetas legibles de filtros -------------------------
 function resumenFiltros(filtros) {
@@ -60,15 +52,15 @@ function renderAlerta(alerta) {
       <div class="alerta-tags">
         ${tags.map(t => `<span class="alerta-tag">${t}</span>`).join('')}
       </div>
-      <div class="alerta-coincidencias">🎓 ${n} beca${n !== 1 ? 's' : ''} coincide${n !== 1 ? 'n' : ''} ahora</div>
+      <div class="alerta-coincidencias"> ${n} beca${n !== 1 ? 's' : ''} coincide${n !== 1 ? 'n' : ''} ahora</div>
     </div>
     <div class="alerta-actions">
       <label class="toggle" title="Activar/desactivar">
         <input type="checkbox" ${alerta.activo ? 'checked' : ''} onchange="toggleAlerta('${id}', this.checked)">
         <span class="toggle-slider"></span>
       </label>
-      <button class="btn btn-secondary btn-sm" onclick="editarAlerta('${id}', '${alerta.nombre.replace(/'/g,"\\'")}')">✏️</button>
-      <button class="btn btn-danger btn-sm" onclick="eliminarAlerta('${id}')">🗑️</button>
+      <button class="btn btn-secondary btn-sm" onclick="editarAlerta('${id}', '${alerta.nombre.replace(/'/g,"\\'")}')"></button>
+      <button class="btn btn-danger btn-sm" onclick="eliminarAlerta('${id}')"></button>
     </div>
   </div>`;
 }
@@ -79,7 +71,7 @@ function renderBecasRecomendadas(alertas) {
   if (!activas.length) {
     document.getElementById('becasRecomendadas').innerHTML = `
       <div class="empty-state" style="grid-column:1/-1">
-        <div class="empty-icon">🔕</div>
+        <div class="empty-icon"></div>
         <h3>Sin alertas activas</h3>
         <p>Activa al menos una alerta para ver las becas recomendadas.</p>
       </div>`;
@@ -109,7 +101,7 @@ function renderBecasRecomendadas(alertas) {
   if (!recomendadas.length) {
     document.getElementById('becasRecomendadas').innerHTML = `
       <div class="empty-state" style="grid-column:1/-1">
-        <div class="empty-icon">🎓</div>
+        <div class="empty-icon"></div>
         <h3>Sin coincidencias actuales</h3>
         <p>No hay becas abiertas que encajen con tus filtros ahora mismo.</p>
       </div>`;
@@ -137,7 +129,7 @@ async function cargarBecasPerfil() {
   if (!perfil || (!perfil.tipo_estudio && !perfil.region && (!perfil.area || perfil.area === 'Cualquier área'))) {
     document.getElementById('becasPerfil').innerHTML = `
       <div class="empty-state" style="grid-column:1/-1; padding:40px 20px;">
-        <div class="empty-icon" style="font-size:2.5rem; margin-bottom:10px;">⚙️</div>
+        <div class="empty-icon" style="font-size:2.5rem; margin-bottom:10px;"></div>
         <h3>Perfil incompleto</h3>
         <p>Configura lo que estudias para recibir recomendaciones automáticas aquí.</p>
         <a href="perfil.html" class="btn btn-primary btn-sm" style="margin-top:12px;">Configurar perfil</a>
@@ -158,7 +150,7 @@ async function cargarBecasPerfil() {
   if (!recomendadas.length) {
     document.getElementById('becasPerfil').innerHTML = `
       <div class="empty-state" style="grid-column:1/-1; padding:40px 20px;">
-        <div class="empty-icon" style="font-size:2.5rem; margin-bottom:10px;">🎓</div>
+        <div class="empty-icon" style="font-size:2.5rem; margin-bottom:10px;"></div>
         <h3>Sin coincidencias</h3>
         <p>No hay becas abiertas que encajen estrictamente con tu perfil actual.</p>
       </div>`;
@@ -202,10 +194,10 @@ async function cargarAlertas() {
     countEl.textContent = '0 alertas';
     lista.innerHTML = `
       <div class="dashboard-empty">
-        <div class="dashboard-empty-icon">🔔</div>
+        <div class="dashboard-empty-icon"></div>
         <h3>Sin alertas guardadas</h3>
         <p>Ve al buscador, aplica filtros y guarda una alerta para recibir notificaciones.</p>
-        <a href="../index.html" class="btn btn-primary">🔍 Ir al buscador</a>
+        <a href="../index.html" class="btn btn-primary"> Ir al buscador</a>
       </div>`;
     renderBecasRecomendadas([]);
     return;
@@ -222,7 +214,7 @@ async function toggleAlerta(id, activo) {
     .update({ activo })
     .eq('id', id);
   if (error) showToast('Error al actualizar la alerta', 'error');
-  else showToast(activo ? '✅ Alerta activada' : '⏸️ Alerta pausada', 'info');
+  else showToast(activo ? ' Alerta activada' : ' Alerta pausada', 'info');
 }
 
 function editarAlerta(id, nombreActual) {
@@ -244,7 +236,7 @@ async function guardarEditAlerta() {
   alertaSeleccionadaId = null;
 
   if (error) showToast('Error al renombrar', 'error');
-  else { showToast('✅ Alerta renombrada', 'success'); await cargarAlertas(); }
+  else { showToast(' Alerta renombrada', 'success'); await cargarAlertas(); }
 }
 
 async function eliminarAlerta(id) {
@@ -266,7 +258,7 @@ async function eliminarAlerta(id) {
     t.remove();
     const { error } = await supabaseClient.from('filtros_guardados').delete().eq('id', id);
     if (error) showToast('Error al eliminar', 'error');
-    else { showToast('🗑️ Alerta eliminada', 'info'); await cargarAlertas(); }
+    else { showToast(' Alerta eliminada', 'info'); await cargarAlertas(); }
   });
 }
 
@@ -283,9 +275,9 @@ function urgencia(dias) {
 }
 function urgenciaLabel(u, dias) {
   if (u === 'cerrada') return '⬛ Cerrada';
-  if (u === 'urgente') return `🔴 ${dias}d restantes`;
-  if (u === 'proximo') return `🟡 ${dias}d restantes`;
-  return `🟢 ${dias}d restantes`;
+  if (u === 'urgente') return ` ${dias}d restantes`;
+  if (u === 'proximo') return ` ${dias}d restantes`;
+  return ` ${dias}d restantes`;
 }
 function formatImporte(b) {
   if (b.importe.min === b.importe.max) return b.importe.min.toLocaleString('es-ES') + ' €';
@@ -316,14 +308,26 @@ function renderCard(b, delay = 0) {
     </div>
     <div class="countdown-bar"><div class="countdown-fill ${u}" style="width:${pct}%"></div></div>
     <div class="card-actions">
-      <a href="beca-detalle.html?id=${b.id}" class="btn btn-secondary btn-sm">🔍 Detalles</a>
+      <a href="beca-detalle.html?id=${b.id}" class="btn btn-secondary btn-sm"> Detalles</a>
       <a href="${b.url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Ver beca ↗</a>
     </div>
   </article>`;
 }
 
 // ---- Notificaciones -----------------------------------------
-function renderNotificaciones() {
+async function renderNotificaciones() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) return;
+
+  const { data, error } = await supabaseClient
+    .from('notificaciones')
+    .select('*')
+    .eq('user_id', session.user.id)
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  if (!error && data) NOTIFICACIONES = data;
+
   const lista = document.getElementById('notificationsList');
   const badge = document.getElementById('notifBadge');
   const sinLeer = NOTIFICACIONES.filter(n => !n.leida).length;
@@ -340,40 +344,51 @@ function renderNotificaciones() {
     return;
   }
 
-  lista.innerHTML = NOTIFICACIONES.map(n => `
-    <div class="notification-item ${n.leida ? '' : 'unread'}" onclick="marcarNotificacionLeida(${n.id})">
-      <div class="notif-icon">${n.icono}</div>
+  lista.innerHTML = NOTIFICACIONES.map(n => {
+    const fechaStr = new Date(n.created_at).toLocaleDateString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+    return `
+    <div class="notification-item ${n.leida ? '' : 'unread'}" onclick="marcarNotificacionLeida('${n.id}', '${n.url_destino || ''}')">
+      <div class="notif-icon">${n.icono || ''}</div>
       <div class="notif-content">
-        <div class="notif-title">${n.titulo} ${n.leida ? '' : '🔵'}</div>
+        <div class="notif-title">${n.titulo} ${n.leida ? '' : ''}</div>
         <div class="notif-text">${n.texto}</div>
-        <div class="notif-time">${n.fecha}</div>
+        <div class="notif-time">${fechaStr}</div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
-function marcarNotificacionLeida(id) {
+async function marcarNotificacionLeida(id, url) {
   const notif = NOTIFICACIONES.find(n => n.id === id);
-  if (notif) {
-    notif.leida = true;
-    guardarNotificaciones();
-    renderNotificaciones();
+  if (notif && !notif.leida) {
+    notif.leida = true; // Actualización optimista
+    renderNotificaciones(); // Re-renderizar rápido
     
-    if (notif.url) {
-      setTimeout(() => {
-        window.location.href = notif.url;
-      }, 150);
-    } else {
-      showToast('Marcada como leída', 'info');
-    }
+    // Sincronizar en background
+    await supabaseClient.from('notificaciones').update({ leida: true }).eq('id', id);
+  }
+  
+  if (url) {
+    window.location.href = url;
+  } else {
+    showToast('Marcada como leída', 'info');
   }
 }
 
-function marcarTodasLeidas() {
+async function marcarTodasLeidas() {
+  const sinLeer = NOTIFICACIONES.filter(n => !n.leida).map(n => n.id);
+  if (sinLeer.length === 0) return;
+
+  // Optimista
   NOTIFICACIONES.forEach(n => n.leida = true);
-  guardarNotificaciones();
   renderNotificaciones();
-  showToast('✅ Todas las notificaciones leídas', 'success');
+  showToast(' Todas las notificaciones leídas', 'success');
+
+  // Background sync
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
+    await supabaseClient.from('notificaciones').update({ leida: true }).eq('user_id', session.user.id).eq('leida', false);
+  }
 }
 
 // ---- Init ---------------------------------------------------
@@ -385,7 +400,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   const nameEl = document.getElementById('headerUserName');
   if (nameEl) nameEl.textContent = nombre;
 
-  // Cargar todo en paralelo: becas, alertas, perfil de usuario y perfil de admin
+  // Render Skeletons temporales en los grids mientras carga
+  const skeletonHTML = Array(3).fill('').map(() => `
+    <article class="skeleton-card">
+      <div style="display:flex;justify-content:space-between">
+        <div style="display:flex;gap:8px"><div class="skeleton-badge"></div><div class="skeleton-badge"></div></div>
+        <div class="skeleton-badge" style="width:32px;height:32px;border-radius:8px"></div>
+      </div>
+      <div class="skeleton-line long tall" style="margin-top:8px"></div>
+      <div class="skeleton-line short"></div>
+      <div style="margin-top:12px"><div class="skeleton-line full"></div><div class="skeleton-line medium" style="margin-top:4px"></div></div>
+    </article>
+  `).join('');
+  const gridPerfil = document.getElementById('becasPerfil');
+  const gridRec = document.getElementById('becasRecomendadas');
+  if (gridPerfil) gridPerfil.innerHTML = skeletonHTML;
+  if (gridRec) gridRec.innerHTML = skeletonHTML;
+
+  // Cargar todo en paralelo
   const [,, perfilData] = await Promise.all([
     cargarBecasDesdeAPI(),
     cargarAlertas(),
@@ -393,6 +425,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   ]);
   await cargarBecasPerfil(); // Depende de BECAS ya cargado
   renderNotificaciones();
+
+  // Favoritos (requiere BECAS cargado)
+  if (typeof initFavorites === 'function') {
+    await initFavorites(session.user.id);
+    renderFavoritosSection('becasFavoritos');
+  }
 
   const perfil = perfilData?.data;
   if (perfil && perfil.rol === 'admin') {
@@ -424,3 +462,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (e.target === e.currentTarget) e.currentTarget.classList.remove('active');
   });
 });
+

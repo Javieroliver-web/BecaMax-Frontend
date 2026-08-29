@@ -13,7 +13,7 @@
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loader-content">
     <div class="spinner"></div>
-    <div class="loading-title">⚙️ Cargando Configuración...</div>
+    <div class="loading-title"> Cargando Configuración...</div>
   </div>
 </div>
 
@@ -35,7 +35,7 @@
 <!-- ===== HERO ===== -->
 <section class="dashboard-hero">
   <div class="dashboard-hero-inner">
-    <h1 style="font-size: 2.2rem; margin-bottom: 6px;">⚙️ <span class="text-gradient">Configuración</span></h1>
+    <h1 style="font-size: 2.2rem; margin-bottom: 6px;"> <span class="text-gradient">Configuración</span></h1>
     <p style="font-size: 1.05rem; opacity: 0.85;">Accesibilidad, seguridad y preferencias técnicas.</p>
   </div>
 </section>
@@ -45,7 +45,7 @@
   
   <!-- Sección: Accesibilidad y Visuales -->
   <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
-    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);">🎨 Apariencia</h2>
+    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);"> Apariencia</h2>
     
     <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-tertiary); padding:16px; border-radius:var(--border-radius); border:1px solid var(--glass-border);">
       <div>
@@ -61,7 +61,7 @@
 
   <!-- Sección: Notificaciones -->
   <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
-    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);">🔔 Notificaciones</h2>
+    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);"> Notificaciones</h2>
     
     <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-tertiary); padding:16px; border-radius:var(--border-radius); border:1px solid var(--glass-border); margin-bottom:12px;">
       <div>
@@ -88,15 +88,21 @@
 
   <!-- Sección: Seguridad -->
   <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
-    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);">🔑 Seguridad</h2>
+    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);"> Seguridad</h2>
     <form id="formSeguridad" onsubmit="actualizarContrasena(event)">
       <div class="form-group">
         <label for="confPassword">Nueva Contraseña</label>
-        <input type="password" class="form-input" id="confPassword" placeholder="Mínimo 6 caracteres" required minlength="6">
+        <div class="password-wrapper">
+          <input type="password" class="form-input" id="confPassword" placeholder="Mínimo 6 caracteres" required minlength="6">
+          <button type="button" class="btn-eye" onclick="togglePass('confPassword',this)" aria-label="Mostrar contraseña"></button>
+        </div>
       </div>
       <div class="form-group" style="margin-top:16px">
         <label for="confPasswordConfirm">Confirmar Nueva Contraseña</label>
-        <input type="password" class="form-input" id="confPasswordConfirm" placeholder="Repite la nueva contraseña" required minlength="6">
+        <div class="password-wrapper">
+          <input type="password" class="form-input" id="confPasswordConfirm" placeholder="Repite la nueva contraseña" required minlength="6">
+          <button type="button" class="btn-eye" onclick="togglePass('confPasswordConfirm',this)" aria-label="Mostrar contraseña"></button>
+        </div>
       </div>
       <button type="submit" class="btn btn-primary btn-full" id="btnGuardarSeguridad" style="margin-top:20px">
         Actualizar Contraseña
@@ -106,7 +112,7 @@
 
   <!-- Sección: Peligro -->
   <div class="auth-card" style="max-width:100%; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.02);">
-    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--danger);">⚠️ Zona de Peligro</h2>
+    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--danger);"> Zona de Peligro</h2>
     <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">
       Una vez elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate antes de hacerlo. Todos tus datos personales, alertas e incidencias reportadas desaparecerán instantáneamente.
     </p>
@@ -164,6 +170,13 @@
 <script src="../js/adblock.js"></script>
 <script src="../js/logger.js"></script>
 <script>
+function togglePass(id, btn) {
+  const inp = document.getElementById(id);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.textContent = show ? '' : '';
+  btn.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña');
+}
 (function(){
   var hBtn = document.getElementById('hamburgerBtn');
   var mMenu = document.getElementById('mobileMenu');

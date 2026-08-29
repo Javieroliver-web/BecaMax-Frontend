@@ -63,10 +63,10 @@ async function cargarDatosDashboard() {
             <td>
               <div class="action-group">
                 ${isBlocked 
-                  ? `<button class="btn btn-secondary btn-sm" onclick="cambiarEstadoUsuario('${u.user_id}', 'activo')" title="Activar Permisos">✅</button>`
-                  : `<button class="btn btn-warning btn-sm" onclick="cambiarEstadoUsuario('${u.user_id}', 'bloqueado')" title="Bloquear Acceso" ${isAdmin ? 'disabled' : ''}>🚫</button>`
+                  ? `<button class="btn btn-secondary btn-sm" onclick="cambiarEstadoUsuario('${u.user_id}', 'activo')" title="Activar Permisos"></button>`
+                  : `<button class="btn btn-warning btn-sm" onclick="cambiarEstadoUsuario('${u.user_id}', 'bloqueado')" title="Bloquear Acceso" ${isAdmin ? 'disabled' : ''}></button>`
                 }
-                <button class="btn btn-danger btn-sm" onclick="eliminarUsuarioDefinitivo('${u.user_id}')" title="Borrado físico de la base de datos" ${isAdmin ? 'disabled' : ''}>🗑️</button>
+                <button class="btn btn-danger btn-sm" onclick="eliminarUsuarioDefinitivo('${u.user_id}')" title="Borrado físico de la base de datos" ${isAdmin ? 'disabled' : ''}></button>
               </div>
             </td>
           </tr>
@@ -138,7 +138,7 @@ async function cambiarEstadoUsuario(userId, nuevoEstado) {
 
 async function eliminarUsuarioDefinitivo(userId) {
   const code = Math.floor(1000 + Math.random() * 9000);
-  const promptValue = prompt(`⚠️ ATENCIÓN: Esta acción es IRREVERSIBLE. Se eliminará el usuario y todos sus datos dependientes de Auth y Base de Datos. INGRESA EL CÓDIGO ${code} PARA CONFIRMAR:`);
+  const promptValue = prompt(` ATENCIÓN: Esta acción es IRREVERSIBLE. Se eliminará el usuario y todos sus datos dependientes de Auth y Base de Datos. INGRESA EL CÓDIGO ${code} PARA CONFIRMAR:`);
   
   if (promptValue !== code.toString()) {
     showToast('Código incorrecto. Borrado cancelado.', 'error');
@@ -190,7 +190,7 @@ async function publicarNoticia() {
 
   try {
     btn.disabled = true;
-    btn.textContent = '⏱️ Publicando...';
+    btn.textContent = ' Publicando...';
 
     const backendUrl = CONFIG.BASE_URL;
       
@@ -212,7 +212,7 @@ async function publicarNoticia() {
       throw new Error(result.message || 'Error al publicar noticia');
     }
 
-    showToast('✅ Noticia publicada exitosamente', 'success');
+    showToast(' Noticia publicada exitosamente', 'success');
     document.getElementById('newsContent').value = '';
     
   } catch (error) {
@@ -220,7 +220,7 @@ async function publicarNoticia() {
     showToast(error.message, 'error');
   } finally {
     btn.disabled = false;
-    btn.textContent = '🚀 Publicar Noticia Ahora';
+    btn.textContent = ' Publicar Noticia Ahora';
   }
 }
 

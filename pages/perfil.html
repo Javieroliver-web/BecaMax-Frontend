@@ -48,7 +48,7 @@
       <div style="text-align:center; margin-bottom: 24px;">
         <div class="avatar-editable" onclick="abrirModalAvatares()" title="Cambiar foto de perfil">
           <img src="https://api.dicebear.com/9.x/micah/svg?seed=Default" alt="Avatar" id="perfilAvatarImg">
-          <div class="avatar-overlay">✏️</div>
+          <div class="avatar-overlay"></div>
         </div>
         <p style="margin-top:8px; font-size:0.85rem; color:var(--text-secondary);">Haz clic en la foto para cambiarla</p>
       </div>
@@ -121,10 +121,19 @@
     <div class="modal-header">
       <h2 class="modal-title">Selecciona tu Avatar</h2>
     </div>
-    <div class="avatars-grid" id="avatarsGrid">
+    <div class="avatars-grid" id="avatarsGrid" style="margin-bottom: 20px;">
       <!-- Inyectado por JS -->
     </div>
-    <div class="modal-actions" style="margin-top:20px;">
+    
+    <div style="text-align: center; margin-bottom: 20px;">
+      <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">O sube tu propia foto</p>
+      <input type="file" id="uploadAvatar" style="display:none" accept="image/png, image/jpeg, image/webp">
+      <button class="btn btn-primary btn-sm" onclick="document.getElementById('uploadAvatar').click()">
+        Subir Foto 
+      </button>
+    </div>
+
+    <div class="modal-actions">
       <button class="btn btn-secondary btn-full" onclick="document.getElementById('modalAvatares').classList.remove('active')">Cancelar</button>
     </div>
   </div>

@@ -69,7 +69,7 @@ async function guardarDatosPersonales(e) {
     console.error('Error al actualizar datos personales:', error);
     showToast('Error al actualizar nombre.', 'error');
   } else {
-    showToast('✅ Datos personales actualizados correctamente.', 'success');
+    showToast(' Datos personales actualizados correctamente.', 'success');
     // Actualizar nombre en el header si existe
     const headerName = document.getElementById('headerUserName');
     if (headerName) headerName.textContent = nombre;
@@ -110,7 +110,7 @@ async function guardarPerfilAcademico(e) {
     console.error('Error al guardar perfil académico:', error);
     showToast('Error al actualizar perfil.', 'error');
   } else {
-    showToast('🎓 Perfil académico guardado. Tus recomendaciones se han actualizado.', 'success');
+    showToast(' Perfil académico guardado. Tus recomendaciones se han actualizado.', 'success');
   }
 }
 
@@ -199,11 +199,9 @@ async function guardarAvatar(url) {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) return;
 
-  // Cambiar miniatura UI instantáneamente
   document.getElementById('perfilAvatarImg').src = url;
   document.getElementById('modalAvatares').classList.remove('active');
 
-  // Guardar en Supabase usando UPDATE en lugar de UPSERT para no sobrescribir datos valiosos
   const { error } = await supabaseClient
     .from('perfiles')
     .update({ avatar_url: url })
@@ -213,8 +211,52 @@ async function guardarAvatar(url) {
     console.error('Error al guardar avatar:', error);
     showToast('Error al actualizar el avatar.', 'error');
   } else {
-    showToast('📸 Foto de perfil actualizada.', 'success');
-    updateHeaderAuth(); // Refrescar globales si es necesario
+    showToast(' Foto de perfil actualizada.', 'success');
+    // Actualizar nombre en el header si existe (para refrescar imagen global)
+    if (typeof updateHeaderAuth === 'function') updateHeaderAuth();
   }
 }
+
+// Event listener para subida de imagen personalizada
+document.addEventListener('DOMContentLoaded', () => {
+  const fileInput = document.getElementById('uploadAvatar');
+  if (fileInput) {
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) return;
+
+      // Cerrar modal temporalmente y mostrar toast de carga
+      document.getElementById('modalAvatares').classList.remove('active');
+      showToast('Subiendo imagen...', 'info');
+
+      // Nombre de archivo único
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${session.user.id}-${Math.random()}.${fileExt}`;
+      const filePath = `${session.user.id}/${fileName}`;
+
+      // Subir al bucket
+      const { error: uploadError } = await supabaseClient.storage
+        .from('avatars')
+        .upload(filePath, file, { cacheControl: '3600', upsert: true });
+
+      if (uploadError) {
+        console.error('Upload Error:', uploadError);
+        showToast('Error al subir la imagen. Comprueba el tamaño.', 'error');
+        return;
+      }
+
+      // Obtener URL pública
+      const { data: publicUrlData } = supabaseClient.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      if (publicUrlData && publicUrlData.publicUrl) {
+        await guardarAvatar(publicUrlData.publicUrl);
+      }
+    });
+  }
+});
 

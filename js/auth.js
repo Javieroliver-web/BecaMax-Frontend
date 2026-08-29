@@ -46,9 +46,14 @@ function iniciarContadorRateLimit(seconds, errEl, btn) {
   clearInterval(timerInterval);
   
   const tick = () => {
-    errEl.textContent = `Por seguridad, espera ${seconds} segundos para enviar otro correo.`;
-    btn.textContent = `Espera ${seconds}s...`;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    const tiempoTxt = m > 0 ? `${m}m ${s}s` : `${s}s`;
+
+    errEl.textContent = `Por seguridad antispam, debes esperar ${tiempoTxt} para enviar otro correo de registro.`;
+    btn.textContent = `Bloqueado (${tiempoTxt})`;
     seconds--;
+    
     if (seconds < 0) {
       clearInterval(timerInterval);
       errEl.classList.remove('visible');
@@ -90,10 +95,10 @@ async function handleRegister(e) {
 
   if (error) {
     if (error.message.toLowerCase().includes('rate limit')) {
-      // Registrar el bloqueo interno para que no se reinicie al recargar
-      const lockUntil = Date.now() + 60000;
+      // Supabase por defecto bloquea durante 1 HORA (3600 segundos) tras varios intentos fallidos
+      const lockUntil = Date.now() + 3600000; 
       localStorage.setItem('rateLimitUnlock', lockUntil);
-      iniciarContadorRateLimit(60, errEl, btn);
+      iniciarContadorRateLimit(3600, errEl, btn);
     } else {
       btn.disabled = false;
       btn.textContent = 'Crear cuenta gratuita';
@@ -139,7 +144,7 @@ async function handleLogin(e) {
 
     if (perfil && perfil.estado === 'bloqueado') {
       await supabaseClient.auth.signOut();
-      errEl.textContent = '⛔ Cuenta suspendida por la administración.';
+      errEl.textContent = ' Cuenta suspendida por la administración.';
       errEl.classList.add('visible');
       return;
     }
@@ -159,7 +164,7 @@ async function handleForgotPassword(e) {
   if (!email) { showToast('Introduce tu email primero', 'info'); return; }
   const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
   if (error) showToast('Error: ' + tradError(error.message), 'error');
-  else showToast('✉️ Email de recuperación enviado', 'success');
+  else showToast(' Email de recuperación enviado', 'success');
 }
 
 // ---- Validación de returnUrl (previene Open Redirect) -------
@@ -203,7 +208,7 @@ async function requireAuth() {
 
   if (perfil && perfil.estado === 'bloqueado') {
     await supabaseClient.auth.signOut();
-    showToast('⛔ Acceso denegado: su cuenta ha sido suspendida.', 'error');
+    showToast(' Acceso denegado: su cuenta ha sido suspendida.', 'error');
     const isPagesDir = window.location.pathname.includes('/pages/');
     const toRoot = isPagesDir ? '../' : './';
     setTimeout(() => { window.location.href = toRoot + 'index.html'; }, 2500);
@@ -247,7 +252,7 @@ async function updateHeaderAuth() {
         ` : '';
 
         const misAlertasBtn = `
-          <a href="${toPages}dashboard.html" class="btn btn-ghost btn-sm" style="margin-right:8px;">🔔 Mis alertas</a>
+          <a href="${toPages}dashboard.html" class="btn btn-ghost btn-sm" style="margin-right:8px;"> Mis alertas</a>
         `;
 
         const avatarFallback = nombre.charAt(0).toUpperCase();
@@ -327,12 +332,12 @@ async function updateHeaderAuth() {
              <div style="font-size:0.8rem; text-transform:uppercase; color:var(--primary-light); font-weight:600;">${perfil?.rol === 'admin' ? 'Administrador' : 'Estudiante'}</div>
            </div>
         </div>
-        <a href="${toRoot}index.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">🔍 Buscar becas</a>
-        <a href="${toPages}dashboard.html" class="btn btn-secondary btn-full" style="margin-bottom:10px; justify-content:center;">🔔 Mis alertas</a>
-        <a href="${toPages}perfil.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">👤 Mi Perfil</a>
-        <a href="${toPages}configuracion.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">⚙️ Configuración</a>
+        <a href="${toRoot}index.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;"> Buscar becas</a>
+        <a href="${toPages}dashboard.html" class="btn btn-secondary btn-full" style="margin-bottom:10px; justify-content:center;"> Mis alertas</a>
+        <a href="${toPages}perfil.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;"> Mi Perfil</a>
+        <a href="${toPages}configuracion.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;"> Configuración</a>
         ${perfil?.rol === 'admin' ? `<a href="${toPages}admin-monitorizacion.html" class="btn btn-warning btn-full" style="margin-bottom:10px; justify-content:center;">Monitorización</a>` : ''}
-        <button onclick="handleSignOut()" class="btn btn-danger btn-full" style="margin-top:10px; width:100%;">🚪 Cerrar sesión</button>
+        <button onclick="handleSignOut()" class="btn btn-danger btn-full" style="margin-top:10px; width:100%;"> Cerrar sesión</button>
       `;
     }
   }
@@ -380,7 +385,7 @@ async function initTheme() {
     btn.className = 'btn btn-ghost btn-sm';
     btn.style.marginRight = 'auto'; 
     btn.style.marginLeft = '20px';
-    btn.innerHTML = localTheme === 'light' ? '🌙' : '🌞';
+    btn.innerHTML = localTheme === 'light' ? '' : '';
     btn.title = 'Cambiar tema';
     
     // Insertar antes de actions o al final
@@ -395,7 +400,7 @@ async function initTheme() {
     btn.addEventListener('click', async () => {
       const isLight = document.body.classList.toggle('light-mode');
       const newTheme = isLight ? 'light' : 'dark';
-      btn.innerHTML = isLight ? '🌙' : '🌞';
+      btn.innerHTML = isLight ? '' : '';
       localStorage.setItem('theme', newTheme);
     });
   }
