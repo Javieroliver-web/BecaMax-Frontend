@@ -165,6 +165,7 @@ function urgenciaLabel(u, dias) {
 }
 
 function formatImporte(b) {
+  if (!b.importe) return 'Consultar';
   if (b.importe.min === b.importe.max) return `${b.importe.min.toLocaleString('es-ES')} €`;
   return `${b.importe.min.toLocaleString('es-ES')} – ${b.importe.max.toLocaleString('es-ES')} €`;
 }
@@ -189,8 +190,8 @@ function aplicarFiltros(becas) {
     if (tipo   && b.tipo !== tipo)   return false;
     if (region && b.region !== region && b.region !== 'Nacional') return false;
     if (area   && b.area !== area && b.area !== 'Cualquier área') return false;
-    if (importeMin !== null && b.importe.max < importeMin)  return false;
-    if (importeMax !== null && b.importe.min > importeMax)  return false;
+    if (importeMin !== null && b.importe && b.importe.max < importeMin)  return false;
+    if (importeMax !== null && b.importe && b.importe.min > importeMax)  return false;
 
     if (plazo === 'urgente')    return u === 'urgente';
     if (plazo === 'proximo')    return u === 'proximo';
@@ -215,8 +216,8 @@ function ordenar(becas, orden) {
     if (orden === 'deadline') {
       return new Date(a.deadline) - new Date(b.deadline);
     }
-    if (orden === 'importe_desc') return b.importe.max - a.importe.max;
-    if (orden === 'importe_asc')  return a.importe.min - b.importe.min;
+    if (orden === 'importe_desc') return (b.importe?.max ?? 0) - (a.importe?.max ?? 0);
+    if (orden === 'importe_asc')  return (a.importe?.min ?? 0) - (b.importe?.min ?? 0);
     if (orden === 'nombre')       return a.nombre.localeCompare(b.nombre);
     return 0;
   });
@@ -257,7 +258,7 @@ function renderCard(b, delay = 0) {
     </div>
     <div class="card-actions">
       <a href="pages/beca-detalle.html?id=${sanitizeHTML(b.id)}" class="btn btn-secondary btn-sm" aria-label="Ver detalles de ${sanitizeHTML(b.nombre)}">Detalles</a>
-      <a href="${sanitizeHTML(b.url)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" aria-label="Ir a web oficial de ${sanitizeHTML(b.nombre)}">Ver beca</a>
+      <a href="${safeUrl(b.url)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" aria-label="Ir a web oficial de ${sanitizeHTML(b.nombre)}">Ver beca</a>
     </div>
   </article>`;
 }
@@ -266,7 +267,7 @@ function renderCard(b, delay = 0) {
 function actualizarStats(becasFiltradas) {
   const abiertas  = BECAS.filter(b => diasRestantes(b.deadline) >= 0);
   const urgentes  = BECAS.filter(b => { const d = diasRestantes(b.deadline); return d >= 0 && d <= 7; });
-  const maxImp    = Math.max(...BECAS.map(b => b.importe.max));
+  const maxImp    = Math.max(0, ...BECAS.map(b => b.importe?.max ?? 0));
   document.getElementById('statTotal').textContent   = abiertas.length;
   document.getElementById('statUrgente').textContent = urgentes.length;
   document.getElementById('statMaxImporte').textContent = maxImp.toLocaleString('es-ES') + ' €';

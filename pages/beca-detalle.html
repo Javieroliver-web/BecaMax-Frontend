@@ -225,7 +225,7 @@
       document.getElementById('becaRegion').textContent   = beca.region || '—';
       document.getElementById('becaArea').textContent     = beca.area   || '—';
       document.getElementById('becaUrgencia').innerHTML   = `<span class="badge badge-${urg.cls}" style="font-size:.85rem;">${urg.text}</span>`;
-      document.getElementById('btnApply').href            = beca.url || '#';
+      document.getElementById('btnApply').href            = safeUrl(beca.url);
 
       const deadline = new Date(beca.deadline);
       document.getElementById('becaPlazo').textContent = deadline.toLocaleDateString('es-ES', {

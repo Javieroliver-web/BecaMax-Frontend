@@ -27,8 +27,8 @@ function contarCoincidencias(filtros) {
     if (filtros.tipo   && b.tipo !== filtros.tipo) return false;
     if (filtros.region && b.region !== filtros.region && b.region !== 'Nacional') return false;
     if (filtros.area   && b.area !== filtros.area && b.area !== 'Cualquier área') return false;
-    if (filtros.importeMin && b.importe.max < filtros.importeMin) return false;
-    if (filtros.importeMax && b.importe.min > filtros.importeMax) return false;
+    if (filtros.importeMin && b.importe && b.importe.max < filtros.importeMin) return false;
+    if (filtros.importeMax && b.importe && b.importe.min > filtros.importeMax) return false;
     if (filtros.plazo === 'abiertas' && dias < 0) return false;
     return true;
   }).length;
@@ -50,7 +50,7 @@ function renderAlerta(alerta) {
     <div class="alerta-info">
       <div class="alerta-nombre">${escapeHtml(alerta.nombre)}</div>
       <div class="alerta-tags">
-        ${tags.map(t => `<span class="alerta-tag">${t}</span>`).join('')}
+        ${tags.map(t => `<span class="alerta-tag">${escapeHtml(t)}</span>`).join('')}
       </div>
       <div class="alerta-coincidencias"> ${n} beca${n !== 1 ? 's' : ''} coincide${n !== 1 ? 'n' : ''} ahora</div>
     </div>
@@ -59,7 +59,7 @@ function renderAlerta(alerta) {
         <input type="checkbox" ${alerta.activo ? 'checked' : ''} onchange="toggleAlerta('${id}', this.checked)">
         <span class="toggle-slider"></span>
       </label>
-      <button class="btn btn-secondary btn-sm" onclick="editarAlerta('${id}', '${alerta.nombre.replace(/'/g,"\\'")}')"></button>
+      <button class="btn btn-secondary btn-sm" data-id="${id}" data-nombre="${escapeHtml(alerta.nombre)}" onclick="editarAlerta(this.dataset.id, this.dataset.nombre)"></button>
       <button class="btn btn-danger btn-sm" onclick="eliminarAlerta('${id}')"></button>
     </div>
   </div>`;
@@ -91,8 +91,8 @@ function renderBecasRecomendadas(alertas) {
       if (f.tipo   && b.tipo !== f.tipo) return;
       if (f.region && b.region !== f.region && b.region !== 'Nacional') return;
       if (f.area   && b.area !== f.area && b.area !== 'Cualquier área') return;
-      if (f.importeMin && b.importe.max < f.importeMin) return;
-      if (f.importeMax && b.importe.min > f.importeMax) return;
+      if (f.importeMin && b.importe && b.importe.max < f.importeMin) return;
+      if (f.importeMax && b.importe && b.importe.min > f.importeMax) return;
       idsVistos.add(b.id);
       recomendadas.push(b);
     });
@@ -280,6 +280,7 @@ function urgenciaLabel(u, dias) {
   return ` ${dias}d restantes`;
 }
 function formatImporte(b) {
+  if (!b.importe) return 'Consultar';
   if (b.importe.min === b.importe.max) return b.importe.min.toLocaleString('es-ES') + ' €';
   return b.importe.min.toLocaleString('es-ES') + ' – ' + b.importe.max.toLocaleString('es-ES') + ' €';
 }
@@ -309,7 +310,7 @@ function renderCard(b, delay = 0) {
     <div class="countdown-bar"><div class="countdown-fill ${u}" style="width:${pct}%"></div></div>
     <div class="card-actions">
       <a href="beca-detalle.html?id=${b.id}" class="btn btn-secondary btn-sm"> Detalles</a>
-      <a href="${b.url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Ver beca ↗</a>
+      <a href="${safeUrl(b.url)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Ver beca ↗</a>
     </div>
   </article>`;
 }

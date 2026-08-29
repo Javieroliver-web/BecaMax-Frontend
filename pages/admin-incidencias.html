@@ -110,8 +110,8 @@
       return `
       <tr>
         <td style="white-space:nowrap">${fecha}</td>
-        <td><strong>${i.tipo}</strong></td>
-        <td style="max-width:300px; white-space:normal; line-height:1.4">${i.descripcion}</td>
+        <td><strong>${escapeHtml(i.tipo)}</strong></td>
+        <td style="max-width:300px; white-space:normal; line-height:1.4">${escapeHtml(i.descripcion)}</td>
         <td>${estadoBadge}</td>
         <td>
           <button class="btn btn-ghost btn-sm" style="padding:4px 8px; font-size:0.8rem" onclick="toggleEstado('${i.id}', '${i.estado}')">

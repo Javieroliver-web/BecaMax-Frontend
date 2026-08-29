@@ -280,25 +280,25 @@ async function updateHeaderAuth() {
           <a href="${toPages}dashboard.html" class="btn btn-ghost btn-sm" style="margin-right:8px;"> Mis alertas</a>
         `;
 
-        const avatarFallback = nombre.charAt(0).toUpperCase();
-        const avatarImg = perfil?.avatar_url 
-          ? `<img src="${perfil.avatar_url}" class="dropdown-avatar-small">` 
+        const avatarFallback = escapeHtml(nombre.charAt(0).toUpperCase());
+        const avatarImg = perfil?.avatar_url
+          ? `<img src="${escapeHtml(perfil.avatar_url)}" class="dropdown-avatar-small">`
           : `<div class="dropdown-avatar-small-placeholder">${avatarFallback}</div>`;
 
-        const avatarImgLarge = perfil?.avatar_url 
-          ? `<img src="${perfil.avatar_url}" class="dropdown-avatar-large">` 
+        const avatarImgLarge = perfil?.avatar_url
+          ? `<img src="${escapeHtml(perfil.avatar_url)}" class="dropdown-avatar-large">`
           : `<div class="dropdown-avatar-large-placeholder">${avatarFallback}</div>`;
 
         const html = `
           ${misAlertasBtn}
           <div class="user-dropdown-container">
             <button class="user-dropdown-btn" onclick="toggleUserDropdown(event)">
-              <span class="user-name user-name-dropdown">${nombre}</span>
+              <span class="user-name user-name-dropdown">${escapeHtml(nombre)}</span>
               ${avatarImg}
             </button>
             <div class="user-dropdown-menu" id="userDropdownContent">
               ${avatarImgLarge}
-              <div class="dropdown-name">${nombre}</div>
+              <div class="dropdown-name">${escapeHtml(nombre)}</div>
               <div class="dropdown-role">${perfil?.rol === 'admin' ? 'Administrador' : 'Estudiante'}</div>
               <hr class="dropdown-divider">
               <div class="dropdown-links">
@@ -344,16 +344,16 @@ async function updateHeaderAuth() {
       const toRoot = isPagesDir ? '../' : './';
       const toPages = isPagesDir ? './' : 'pages/';
       
-      const avatarFallback = nombre.charAt(0).toUpperCase();
-      const avatarImgLarge = perfil?.avatar_url 
-        ? `<img src="${perfil.avatar_url}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);">` 
+      const avatarFallback = escapeHtml(nombre.charAt(0).toUpperCase());
+      const avatarImgLarge = perfil?.avatar_url
+        ? `<img src="${escapeHtml(perfil.avatar_url)}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);">`
         : `<div style="width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:bold;">${avatarFallback}</div>`;
 
       mobileMenu.innerHTML = `
         <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--glass-border);">
            ${avatarImgLarge}
            <div style="text-align:left;">
-             <div style="font-weight:bold; font-size:1.1rem; color:var(--text-primary);">${nombre}</div>
+             <div style="font-weight:bold; font-size:1.1rem; color:var(--text-primary);">${escapeHtml(nombre)}</div>
              <div style="font-size:0.8rem; text-transform:uppercase; color:var(--primary-light); font-weight:600;">${perfil?.rol === 'admin' ? 'Administrador' : 'Estudiante'}</div>
            </div>
         </div>
@@ -388,7 +388,7 @@ function tradError(msg) {
   if (msg.includes('Invalid login credentials')) return 'Email o contraseña incorrectos.';
   if (msg.includes('Email not confirmed'))       return 'Confirma tu email antes de entrar.';
   if (msg.includes('User already registered'))   return 'Este email ya tiene cuenta. Inicia sesión.';
-  if (msg.includes('Password should'))            return 'La contraseña debe tener al menos 6 caracteres.';
+  if (msg.includes('Password should'))            return 'La contraseña debe tener al menos 8 caracteres.';
   return msg;
 }
 

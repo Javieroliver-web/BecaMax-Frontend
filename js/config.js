@@ -27,3 +27,15 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+
+// Valida que una URL use http(s) antes de usarla como href (evita
+// esquemas como javascript:, que sobreviven al escapado de entidades HTML).
+// Útil para becas de fuentes externas (BDNS) cuyo campo `url` no controlamos.
+function safeUrl(url) {
+  if (!url || typeof url !== 'string') return '#';
+  try {
+    const parsed = new URL(url, window.location.href);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return escapeHtml(url);
+  } catch (e) { /* URL inválida */ }
+  return '#';
+}
