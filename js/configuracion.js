@@ -94,8 +94,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
   
-    if (password.length < 6) {
-      showToast('La contraseña debe tener al menos 6 caracteres.', 'error');
+    if (password.length < 8) {
+      showToast('La contraseña debe tener al menos 8 caracteres.', 'error');
       return;
     }
   
