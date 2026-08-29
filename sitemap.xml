@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://becamax.vercel.app/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://becamax.vercel.app/pages/guias.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://becamax.vercel.app/pages/faq.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://becamax.vercel.app/pages/incidencias.html</loc>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://becamax.vercel.app/pages/legal/privacidad.html</loc>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://becamax.vercel.app/pages/legal/aviso-legal.html</loc>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://becamax.vercel.app/pages/legal/cookies.html</loc>
+    <priority>0.3</priority>
+  </url>
+</urlset>

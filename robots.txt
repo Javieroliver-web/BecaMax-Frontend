@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /pages/admin-dashboard.html
+Disallow: /pages/admin-usuarios.html
+Disallow: /pages/admin-monitorizacion.html
+Disallow: /pages/admin-incidencias.html
+Disallow: /pages/dashboard.html
+Disallow: /pages/perfil.html
+Disallow: /pages/configuracion.html
+Disallow: /pages/auth.html
+
+Sitemap: https://becamax.vercel.app/sitemap.xml
