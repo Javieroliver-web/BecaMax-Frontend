@@ -248,8 +248,13 @@ async function updateHeaderAuth() {
   const { data: { session } } = await supabaseClient.auth.getSession();
 
   if (session) {
+    // La sección "Potencia tu futuro" de la home es un argumento de venta
+    // para quien todavía no tiene cuenta; quien ya inició sesión no la necesita.
+    const featuresSection = document.getElementById('featuresSection');
+    if (featuresSection) featuresSection.style.display = 'none';
+
     const nombre = session.user.user_metadata?.full_name || session.user.user_metadata?.nombre || session.user.email.split('@')[0];
-    
+
     let perfil = null;
     const cacheKey = `becamax_perfil_${session.user.id}`;
     const cachedPerfil = sessionStorage.getItem(cacheKey);
