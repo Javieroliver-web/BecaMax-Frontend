@@ -71,11 +71,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (toggle.checked) {
       document.body.classList.add('light-mode');
       localStorage.setItem('theme', 'light');
-      if(headerToggle) headerToggle.innerHTML = '';
+      if (headerToggle) headerToggle.innerHTML = ICON_MOON;
     } else {
       document.body.classList.remove('light-mode');
       localStorage.setItem('theme', 'dark');
-      if(headerToggle) headerToggle.innerHTML = '';
+      if (headerToggle) headerToggle.innerHTML = ICON_SUN;
     }
   }
   
