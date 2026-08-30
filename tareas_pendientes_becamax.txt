@@ -3,6 +3,53 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== ✅ CSP COMPLETA + BUG REAL "CREAR ALERTA" DESDE LA FICHA DE BECA (2026-08-30) ===
+Petición del usuario: implementar una CSP completa "con cuidado" (aún no
+se ha pedido la revisión de AdSense), y luego dos bugs reportados en
+caliente por el usuario mientras probaba la web.
+
+CSP:
+- [x] Implementada una Content-Security-Policy completa en vercel.json,
+      construida revisando el codigo real (no adivinada): Supabase,
+      backend propio, jsdelivr (supabase-js), hCaptcha, Google Fonts,
+      ipapi.co (geolocalizacion del logger) y dicebear (avatares).
+      Incluidos tambien los dominios de Google/AdSense porque el script
+      ya esta insertado en index.html a la espera de revision.
+- [x] BUG REAL causado por el primer despliegue de la CSP: img-src no
+      incluia el dominio de Supabase Storage, así que la foto de perfil
+      subida por el usuario (no los avatares de dicebear) dejó de
+      cargar. Detectado por el propio usuario justo tras el despliegue.
+      Corregido añadiendo el dominio de Supabase a img-src.
+- Limitación conocida y aceptada: script-src y style-src incluyen
+  'unsafe-inline' porque el sitio usa extensivamente onclick="..." y
+  style="..." inline. Quitarlo requeriría un refactor grande aparte,
+  fuera de alcance de este cambio.
+- Verificado tras el despliegue, sin errores de CSP en consola, en:
+  buscador, favoritos, login/registro con hCaptcha, modal de
+  notificaciones, selector de avatares (dicebear + foto subida),
+  beca-detalle e incidencias.
+
+BUG REAL -- el botón "Crear alerta" de la ficha de la beca no creaba nada:
+- [x] Reportado por el usuario ("entré en los detalles de una beca e
+      intenté crear la alerta desde ahí, dio error"). Investigado: el
+      botón SIEMPRE ha sido un simple <a href="dashboard.html">, desde
+      que se introdujo esa tarjeta -- nunca guardó nada en
+      filtros_guardados. Al llegar a "Mis alertas" sin ninguna alerta
+      nueva, parecía que el guardado había fallado.
+- [x] Implementado un guardado real: crearAlertaBeca() (beca-detalle.html)
+      guarda una alerta filtrada por el tipo de la beca actual, en el
+      mismo formato que usa el resto del sitio en filtros_guardados
+      (compatible con el cron de alerts.controller.js). Corregido
+      también el texto del sidebar para describir lo que realmente hace.
+- [x] De paso, arreglado un bug separado encontrado durante la
+      investigación: los botones de "renombrar" y "eliminar" de cada
+      alerta en el dashboard (js/dashboard.js) llevaban toda la vida sin
+      icono ni texto -- botones completamente vacíos e invisibles.
+      Añadidos iconos SVG + aria-label/title.
+- Verificado end-to-end en producción: crear alerta desde la ficha,
+  toast de éxito, redirección a Mis Alertas, fila correcta en la BD, y
+  los botones de editar/eliminar funcionando (probado el borrado real).
+
 === ✅ SEGUNDA RONDA DE PRUEBAS: ACCESIBILIDAD PARA CIEGOS + SEGURIDAD (2026-08-30) ===
 Petición del usuario: 30 minutos más de pruebas, con foco explícito en
 que la web sea apta para personas ciegas u otras discapacidades
