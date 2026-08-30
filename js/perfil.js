@@ -3,13 +3,20 @@
 // ============================================================
 
 // Supabase Storage a veces devuelve un 503 puntual al servir una foto de
-// avatar (el archivo existe, es un fallo transitorio de su CDN). Un <img>
-// no reintenta solo tras un error, así que sin esto se quedaba mostrando
-// el icono de imagen rota aunque la foto sí exista y cargue bien recargando.
+// avatar. Comprobado que el archivo existe y responde 200 vía fetch() en
+// el mismo momento en que el <img> falla: es una respuesta mala cacheada
+// en el CDN concreta para esa variante de petición, no un problema real
+// del archivo. Un <img> tampoco reintenta solo tras un error, así que sin
+// esto se quedaba mostrando el icono de imagen rota indefinidamente. En
+// cada reintento se añade un parámetro distinto para forzar una petición
+// nueva que no pueda servirse desde esa entrada de caché mala.
 function cargarImagenConReintento(img, url, intentosRestantes = 2) {
   img.onerror = () => {
     if (intentosRestantes <= 0) return;
-    setTimeout(() => cargarImagenConReintento(img, url, intentosRestantes - 1), 600);
+    setTimeout(() => {
+      const urlSinCache = url + (url.includes('?') ? '&' : '?') + '_r=' + Date.now();
+      cargarImagenConReintento(img, urlSinCache, intentosRestantes - 1);
+    }, 500);
   };
   img.src = url;
 }
