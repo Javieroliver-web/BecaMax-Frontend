@@ -413,15 +413,18 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('filtroArea').addEventListener('change',      e => { filtrosActivos.area       = e.target.value; currentPage = 1; cargarBecas(); });
   document.getElementById('filtroPlazo').addEventListener('change',     e => {
     filtrosActivos.plazo = e.target.value;
-    document.getElementById('filtroSoloAbiertas').checked = (e.target.value === 'abiertas');
+    // El desplegable ya no ofrece "abiertas" como opcion (vive solo en el
+    // checkbox de abajo), asi que cualquier cambio aqui desactiva ese filtro.
+    document.getElementById('filtroSoloAbiertas').checked = false;
     currentPage = 1;
     cargarBecas();
   });
-  // Checkbox "Ver solo becas abiertas": atajo visible para el mismo filtro
-  // que ya existia escondido dentro del desplegable "Estado del plazo".
+  // Checkbox "Ver solo becas abiertas": filtro independiente del desplegable
+  // "Estado del plazo" (antes vivian mezclados en el mismo select, algo
+  // confuso porque compartian el mismo estado interno filtrosActivos.plazo).
   document.getElementById('filtroSoloAbiertas').addEventListener('change', e => {
     filtrosActivos.plazo = e.target.checked ? 'abiertas' : '';
-    document.getElementById('filtroPlazo').value = filtrosActivos.plazo;
+    if (e.target.checked) document.getElementById('filtroPlazo').value = '';
     currentPage = 1;
     cargarBecas();
   });
