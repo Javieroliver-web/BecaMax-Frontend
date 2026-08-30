@@ -13,7 +13,12 @@ const CONFIG = {
 
   get BASE_URL() {
     return this.IS_LOCAL ? 'http://localhost:3000' : 'https://beca-max-backend.vercel.app';
-  }
+  },
+
+  // Sitekey pública de hCaptcha (sustituye a Cloudflare Turnstile). No es
+  // secreta -- se sirve tal cual en el HTML -- pero hay que registrar aquí
+  // la real desde el dashboard de hCaptcha antes de desplegar.
+  HCAPTCHA_SITEKEY: 'PENDIENTE-sustituir-por-la-sitekey-real-de-hcaptcha'
 };
 
 // Escapa texto antes de insertarlo via innerHTML (evita XSS almacenado

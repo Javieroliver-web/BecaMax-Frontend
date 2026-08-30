@@ -3,69 +3,93 @@
                  (Nivel Producción Premium)
 ==================================================
 
-=== 🚨 NUEVO SÍNTOMA: Turnstile también bloquea el REGISTRO de usuarios nuevos (2026-08-30) ===
-El usuario reporta un error de Cloudflare que impide registrar cuentas
-nuevas por fallo del captcha. Hasta ahora el fallo de Turnstile confirmado
-era solo en el navegador/móvil del ADMIN (ver sección de abajo, causa CSP
-"trusted-types" del dispositivo). Esto es distinto: si afecta al REGISTRO
-en general (no solo al admin), la causa podría no ser la misma CSP local,
-sino algo del lado de Cloudflare/Supabase (sitekey mal emparejada, dominio
-no autorizado en el widget, secret key incorrecta en Supabase, o un fallo
-temporal del servicio). Pendiente: recoger el texto/captura exacta del
-error, confirmar si ocurre en cualquier dispositivo/navegador o solo en
-el del admin, y si es en producción (becamax.vercel.app) o en local.
-Investigación abierta en la siguiente sesión.
+=== ✅ RESUELTO (diagnóstico) / 🚧 EN CURSO (migración): Turnstile → hCaptcha (2026-08-30) ===
+Turnstile bloqueaba tanto el login del admin como el registro de usuarios
+nuevos, con error de Cloudflare 300010 dentro de la propia caja del
+captcha. Investigación completa esta sesión, causa raíz encontrada y
+confirmada con una prueba aislada y decisiva:
+- Se creó una página de diagnóstico neutral (fuera de BecaMax, sin CSP
+  propia, servida desde localhost) con las sitekeys de PRUEBA OFICIALES
+  de Cloudflare (siempre-pasa / siempre-bloquea) + la sitekey real de
+  BecaMax. La de "siempre pasa" funcionó perfecto; la real de BecaMax
+  falló igual con el mismo 300010, y la consola mostró la causa exacta:
+  `Uncaught TypeError: Failed to execute 'createPolicy' on
+  'TrustedTypePolicyFactory': Policy "afc" disallowed` -- una CSP
+  `trusted-types` (permitiendo solo los nombres `Kssz2` y `default`)
+  bloqueaba la política interna que Cloudflare necesita crear.
+- Confirmado con evidencia dura que esa CSP NO la envía nuestro servidor
+  (cabeceras reales de becamax.vercel.app comprobadas por curl/PowerShell:
+  sin Content-Security-Policy alguna) ni depende de la config de
+  Cloudflare (hostname del widget correcto y único: becamax.vercel.app;
+  secret key rotada sin cambio de resultado) ni de Supabase (CAPTCHA
+  provider = Turnstile, con secret ya puesta).
+- Descartado en el PC del admin: proxy del sistema (desactivado), VPN/DNS
+  seguro, Microsoft Family Safety, políticas de empresa/Chrome/Edge
+  forzadas por registro (ninguna encontrada), certificados raíz
+  sospechosos instalados (revisados todos; los no estándar son benignos:
+  Autofirma del Gobierno, Battle.net, drivers USB -- excepto un
+  certificado "SurfEasy CA" sin explicación clara, no perseguido más a
+  fondo). Descartado también: extensiones de Chrome de escritorio (el
+  móvil reproducía el fallo real de BecaMax igual sin ellas -- aunque esa
+  parte de la investigación quedó sin repetir con la página de
+  diagnóstico neutral, así que no es 100% seguro que sea la MISMA causa
+  en el móvil).
+- PRUEBA DECISIVA: la misma página de diagnóstico neutral, abierta en
+  modo INVITADO del navegador (sin extensiones), ya NO mostró el error de
+  `trusted-types` -- la sitekey real de BecaMax solo dio el error 110200
+  (dominio no autorizado, esperado y correcto porque la prueba corría en
+  localhost, no en becamax.vercel.app). Confirma al 100% que la causa es
+  una EXTENSIÓN del navegador normal del admin, no BecaMax ni Cloudflare.
+  Candidatas más probables encontradas en su Edge: dos VPN gratuitas
+  activas a la vez (Zenmate, Urban VPN Proxy) y cinco bloqueadores de
+  anuncios simultáneos (3 "Adblock" genéricos + Video Adblocker +
+  AdGuard). No se llegó a identificar cuál exactamente por descarte --
+  el usuario decidió no invertir más tiempo en eso.
+- DECISIÓN DEL USUARIO: en vez de perseguir la extensión culpable (que
+  además solo explicaría el problema en SUS dispositivos, no
+  necesariamente en los de usuarios reales, aunque tampoco hay certeza de
+  lo contrario), migrar de Cloudflare Turnstile a hCaptcha -- opción (a)
+  que ya se había dejado apuntada. Ver sección de abajo con el estado de
+  la migración.
 
-=== 🚧 PENDIENTE: Turnstile bloqueado en el entorno del admin (2026-08-30) ===
-Investigación en curso, retomar mañana. Estado actual:
-- CAUSA RAÍZ CONFIRMADA (no es un bug de BecaMax): el navegador del admin
-  recibe una Content-Security-Policy `trusted-types Kssz2 default` que
-  bloquea a Cloudflare Turnstile crear su propia política interna ("afc"):
-  `Failed to execute 'createPolicy' ... Policy "afc" disallowed`.
-  Confirmado con evidencia dura que esa CSP NO la envía nuestro servidor
-  (cabeceras reales de becamax.vercel.app comprobadas por curl: sin
-  Content-Security-Policy alguna).
-- Se reproduce igual en PC (Edge y Chrome, incluso InPrivate) y en el
-  MÓVIL usando datos móviles (descarta wifi/router de casa).
-- Descartado: extensiones de Chrome de escritorio (el móvil no las corre
-  y falla igual), Google Family Link / control parental, cuenta de
-  Google Workspace o dispositivo gestionado por empresa/centro de
-  estudios. Antivirus de terceros: el PC solo tiene Windows Defender
-  (sin antivirus adicional instalado) — pendiente de comprobar en el
-  móvil qué apps de seguridad/VPN hay instaladas.
-  Pendiente aún: revisar Microsoft Family Safety (si hay cuenta
-  Microsoft compartida entre PC y móvil), chrome://policy / edge://policy
-  en el PC, y qué apps de seguridad/VPN corren en el móvil.
-- Arreglo temporal de acceso YA aplicado y verificado: generé un enlace
-  de recuperación de contraseña vía Supabase Admin API (sin pasar por
-  Turnstile) para que el admin pudiera fijar una contraseña nueva de 8+
-  caracteres desde Configuración. Funcionó.
-- El LOGIN normal sigue bloqueado para el admin en su PC/móvil actuales:
-  Turnstile nunca da token → Supabase responde
-  `captcha protection: request disallowed (no captcha_token found)`
-  porque la protección CAPTCHA está marcada OBLIGATORIA en el servidor
-  de Supabase (Authentication → Attack Protection). Es todo-o-nada:
-  cubre registro+login+recuperación a la vez, no se puede aplicar solo
-  a uno de los tres flujos.
-- Se probó dejar pasar el login sin captcha desde el cliente cuando
-  Turnstile no responde (commit b6eead9) -- funcionaba a medias porque
-  Supabase igualmente lo rechazaba en servidor. El usuario decidió NO
-  desactivar la protección CAPTCHA obligatoria de Supabase, así que se
-  revirtió (commit 725987b) para no mostrar un error técnico feo en su
-  lugar. Sigue el mensaje amable "espera un segundo e inténtalo de nuevo".
-- Próximos pasos a evaluar mañana (decisión pendiente del usuario):
-  a) Cambiar de proveedor de captcha en Supabase: Turnstile → hCaptcha
-     (Supabase admite ambos). Puede que la librería de hCaptcha no
-     choque con esa CSP restrictiva al no intentar crear la misma
-     política "afc" de Cloudflare. Requiere cuenta hCaptcha + cambiar
-     la config en Supabase + cambiar el widget en auth.html.
-  b) Seguir investigando qué inyecta exactamente esa CSP en ambos
-     dispositivos del admin (ver pendientes de arriba) y eliminarlo de
-     raíz, dejando Turnstile intacto.
-  c) Mientras tanto, si el admin necesita entrar con urgencia: puedo
-     generar otro enlace de recuperación vía Supabase Admin API (server
-     -side, sin Turnstile) como parche puntual -- no toca la
-     configuración de la cuenta, solo genera un enlace de un solo uso.
+=== 🚧 MIGRACIÓN EN CURSO: Cloudflare Turnstile → hCaptcha (2026-08-30) ===
+- [x] `js/auth.js`: sustituidos los helpers `getTurnstileToken` /
+      `resetTurnstile` (ahora `getCaptchaToken` / `resetCaptcha`) para usar
+      la API de hCaptcha en vez de Turnstile. A diferencia de Turnstile
+      (que aceptaba el ID del contenedor HTML directamente en
+      `getResponse`/`reset`), hCaptcha exige el widgetID real que devuelve
+      `hcaptcha.render()`, así que se cambió a renderizado explícito
+      (`onHcaptchaLoad`, guardando los IDs en `hcaptchaWidgets`) en vez del
+      auto-render por atributos HTML que usaba Turnstile. `handleLogin`,
+      `handleRegister` y `handleForgotPassword` no necesitaron cambios,
+      solo los helpers que llaman.
+- [x] `pages/auth.html`: cambiado el script de Cloudflare por
+      `js.hcaptcha.com/1/api.js?render=explicit&onload=onHcaptchaLoad`, y
+      los dos `<div class="cf-turnstile" ...>` por simples `<div
+      id="turnstile-login">`/`<div id="turnstile-register">` vacíos (se
+      mantienen esos IDs para no tener que tocar más referencias).
+- [x] `js/config.js`: añadido `CONFIG.HCAPTCHA_SITEKEY` (público, no
+      secreto) con un placeholder pendiente de sustituir.
+- [x] Patrón de renderizado explícito + `getCaptchaToken`/`resetCaptcha`
+      verificado con una página de prueba aislada usando la sitekey de
+      prueba oficial de hCaptcha (`10000000-ffff-ffff-ffff-000000000001`,
+      siempre pasa) -- funcionó a la primera, widget renderizado y
+      resuelto con token real.
+- [x] `pages/legal/privacidad.html`: sustituidas las menciones a
+      Cloudflare/Turnstile por hCaptcha en proveedores y transferencias
+      internacionales.
+- [ ] PENDIENTE DEL USUARIO: crear cuenta en hcaptcha.com, dar de alta el
+      sitio (dominio becamax.vercel.app), y pasar la Sitekey real para
+      sustituir el placeholder en `config.js`.
+- [ ] PENDIENTE DEL USUARIO: en Supabase Dashboard -> Authentication ->
+      Attack Protection -> CAPTCHA, cambiar el proveedor de "Turnstile by
+      Cloudflare" a "hCaptcha" y pegar ahí la Secret Key (esa sí es
+      privada, no hace falta dármela a mí).
+- [ ] Tras lo anterior: probar registro real en producción antes de dar
+      esto por cerrado. Considerar también, sin urgencia, limpiar las
+      extensiones duplicadas de Edge (2 VPN + 5 adblockers a la vez) --
+      no solo por este bug, es mala práctica general que puede seguir
+      causando fallos parecidos en otros sitios.
 
 === 🔐 BUG LOGIN: minlength=8 heredado bloqueaba contraseñas antiguas (2026-08-30) ===
 - [x] `pages/auth.html`: el campo `loginPassword` tenía `minlength="8"`, arrastrado

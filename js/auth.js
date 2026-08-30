@@ -67,34 +67,52 @@ function iniciarContadorRateLimit(seconds, errEl, btn) {
   timerInterval = setInterval(tick, 1000);
 }
 
-// ---- Cloudflare Turnstile helpers ----------------------------
-function getTurnstileToken(widgetId) {
-  if (typeof turnstile === 'undefined') return null;
-  // Si el widget aún no ha terminado de renderizarse (script cargado async),
-  // getResponse() puede lanzar en vez de devolver undefined -- sin este
-  // try/catch, un clic justo en ese momento rompía el handler entero en
-  // silencio (sin toast, sin error visible: parecía que el botón "no
-  // respondía").
-  try { return turnstile.getResponse(widgetId) || null; }
+// ---- hCaptcha helpers -----------------------------------------
+// Sustituye a Cloudflare Turnstile (ver tareas_pendientes_becamax.txt):
+// una extensión del navegador del admin inyectaba una CSP trusted-types
+// que rompía el widget de Turnstile en cualquier sitio, no solo BecaMax.
+// hCaptcha se renderiza explícitamente (no por auto-render vía clase HTML)
+// para poder guardar el widgetID que devuelve render() y usarlo luego en
+// getResponse()/reset() -- a diferencia de Turnstile, hCaptcha exige ese
+// ID exacto, no acepta el id del contenedor como sustituto.
+const hcaptchaWidgets = {};
+
+function onHcaptchaLoad() {
+  ['turnstile-login', 'turnstile-register'].forEach(containerId => {
+    const el = document.getElementById(containerId);
+    if (!el) return; // la página puede no tener los dos formularios (no aplica aquí, pero por si acaso)
+    hcaptchaWidgets[containerId] = hcaptcha.render(containerId, {
+      sitekey: CONFIG.HCAPTCHA_SITEKEY,
+      theme: 'dark'
+    });
+  });
+}
+
+function getCaptchaToken(widgetId) {
+  if (typeof hcaptcha === 'undefined' || hcaptchaWidgets[widgetId] === undefined) return null;
+  // Mismo blindaje que antes con Turnstile: si el widget aún no ha
+  // terminado de renderizarse, getResponse() puede lanzar en vez de
+  // devolver undefined.
+  try { return hcaptcha.getResponse(hcaptchaWidgets[widgetId]) || null; }
   catch (e) { return null; }
 }
 
-function resetTurnstile(widgetId) {
-  if (typeof turnstile === 'undefined') return;
-  try { turnstile.reset(widgetId); } catch (e) { /* noop */ }
+function resetCaptcha(widgetId) {
+  if (typeof hcaptcha === 'undefined' || hcaptchaWidgets[widgetId] === undefined) return;
+  try { hcaptcha.reset(hcaptchaWidgets[widgetId]); } catch (e) { /* noop */ }
 }
 
 // El widget resuelve su comprobación en segundo plano tras cargar la
 // página (1-3s típicamente); si se hace clic en una acción justo antes de
-// que termine, getTurnstileToken() devuelve null y Supabase rechaza la
+// que termine, getCaptchaToken() devuelve null y Supabase rechaza la
 // petición con "captcha protection: request disallowed". En vez de fallar
 // ahí, esperamos activamente (con límite) a que el token esté listo.
-async function waitForTurnstileToken(widgetId, maxWaitMs = 10000) {
+async function waitForCaptchaToken(widgetId, maxWaitMs = 10000) {
   const start = Date.now();
-  let token = getTurnstileToken(widgetId);
+  let token = getCaptchaToken(widgetId);
   while (!token && Date.now() - start < maxWaitMs) {
     await new Promise(r => setTimeout(r, 200));
-    token = getTurnstileToken(widgetId);
+    token = getCaptchaToken(widgetId);
   }
   return token;
 }
@@ -120,7 +138,7 @@ async function handleRegister(e) {
   btn.textContent = 'Creando cuenta…';
 
   try {
-    const captchaToken = await waitForTurnstileToken('turnstile-register');
+    const captchaToken = await waitForCaptchaToken('turnstile-register');
     if (!captchaToken) {
       btn.disabled = false;
       btn.textContent = 'Crear cuenta gratuita';
@@ -135,7 +153,7 @@ async function handleRegister(e) {
       options: { data: { nombre }, captchaToken }
     });
 
-    resetTurnstile('turnstile-register');
+    resetCaptcha('turnstile-register');
 
     if (error) {
       if (error.message.toLowerCase().includes('rate limit')) {
@@ -178,7 +196,7 @@ async function handleLogin(e) {
   btn.textContent = 'Entrando…';
 
   try {
-    const captchaToken = await waitForTurnstileToken('turnstile-login');
+    const captchaToken = await waitForCaptchaToken('turnstile-login');
     if (!captchaToken) {
       btn.disabled = false;
       btn.textContent = 'Iniciar sesión';
@@ -193,7 +211,7 @@ async function handleLogin(e) {
       options: { captchaToken }
     });
 
-    resetTurnstile('turnstile-login');
+    resetCaptcha('turnstile-login');
 
     btn.disabled = false;
     btn.textContent = 'Iniciar sesión';
@@ -237,13 +255,13 @@ async function handleForgotPassword(e) {
   const email = document.getElementById('loginEmail').value.trim();
   if (!email) { showToast('Introduce tu email primero', 'info'); return; }
   try {
-    const captchaToken = await waitForTurnstileToken('turnstile-login');
+    const captchaToken = await waitForCaptchaToken('turnstile-login');
     if (!captchaToken) {
       showToast('Verificación de seguridad no lista todavía, espera un segundo e inténtalo de nuevo', 'info');
       return;
     }
     const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { captchaToken });
-    resetTurnstile('turnstile-login');
+    resetCaptcha('turnstile-login');
     if (error) showToast('Error: ' + tradError(error.message), 'error');
     else showToast('Email de recuperación enviado', 'success');
   } catch (err) {

@@ -8,8 +8,8 @@
   <link rel="icon" type="image/png" href="../img/logo.png">
   <link rel="stylesheet" href="../css/styles.css">
   <script defer src="/_vercel/insights/script.js"></script>
-  <!-- Cloudflare Turnstile -->
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <!-- hCaptcha -->
+  <script src="https://js.hcaptcha.com/1/api.js?render=explicit&onload=onHcaptchaLoad" async defer></script>
 </head>
 <body>
 
@@ -55,9 +55,9 @@
         </div>
         <div class="form-error" id="loginError"></div>
       </div>
-      <!-- Cloudflare Turnstile Widget -->
+      <!-- hCaptcha Widget (renderizado explícito en auth.js -> onHcaptchaLoad) -->
       <div class="form-group" style="display:flex;justify-content:center;margin-top:20px;margin-bottom:20px">
-        <div class="cf-turnstile" id="turnstile-login" data-sitekey="0x4AAAAAAEhCuu_3A-3gntYK" data-theme="dark"></div>
+        <div id="turnstile-login"></div>
       </div>
 
       <button type="submit" class="btn btn-primary btn-full" id="btnLogin">
@@ -95,9 +95,9 @@
         </label>
       </div>
 
-      <!-- Cloudflare Turnstile Widget -->
+      <!-- hCaptcha Widget (renderizado explícito en auth.js -> onHcaptchaLoad) -->
       <div class="form-group" style="display:flex;justify-content:center;margin-top:20px;margin-bottom:20px">
-        <div class="cf-turnstile" id="turnstile-register" data-sitekey="0x4AAAAAAEhCuu_3A-3gntYK" data-theme="dark"></div>
+        <div id="turnstile-register"></div>
       </div>
 
       <button type="submit" class="btn btn-primary btn-full" id="btnRegister">
