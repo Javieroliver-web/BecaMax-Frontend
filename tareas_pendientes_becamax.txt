@@ -49,27 +49,97 @@
     `auth.html`/`auth.js` ya usan la site key real en los 3 formularios
     (login, registro y recuperación de contraseña) y pasan el token como
     `options.captchaToken` a signInWithPassword/signUp/resetPasswordForEmail.
-    PENDIENTE (acción manual del usuario, no se puede hacer desde el código):
-    pegar la Secret Key en Supabase Dashboard -> Authentication -> Attack
-    Protection / CAPTCHA -> activar Turnstile. Sin ese paso, Supabase no
-    valida el token todavía y la protección no es efectiva pese a que el
-    frontend ya lo envía.
+    Secret Key ya pegada en Supabase Dashboard -> Authentication -> Attack
+    Protection / CAPTCHA. Verificado en producción: un login sin token de
+    captcha es rechazado por Supabase ("captcha protection: request
+    disallowed"). Protección real y activa.
+
+=== 🔒 SEGUNDA AUDITORÍA DE SEGURIDAD (2026-08-29, más profunda) ===
+- [x] CRÍTICO: cualquier usuario registrado podía auto-promocionarse a admin
+      (o desbloquearse a sí mismo si estaba bloqueado) llamando directo a la
+      API de Supabase (`perfiles.update({rol:'admin'})`), porque la policy
+      RLS solo comprobaba dueño de fila, no qué columnas se podían tocar.
+      Cerrado con un trigger (`supabase/perfiles_privilege_guard.sql`) que
+      exige ser admin para cambiar `rol` o `estado`. Verificado en producción.
+- [x] XSS almacenado no autenticado vía `incidencias` (mismo patrón que el de
+      system_logs de la primera auditoría, en una tabla que no se había
+      tocado): escapado el render en admin-incidencias.html.
+- [x] Auto-XSS de amplio alcance vía nombre/avatar del propio usuario en
+      auth.js (se ejecutaba en el menú de cabecera de TODAS las páginas).
+      Escapado.
+- [x] Auto-XSS vía etiquetas de filtros guardados y vía nombre de alerta
+      (escapado incompleto en un onclick) en dashboard.js. Corregidos.
+- [x] /api/becas devolvía 0 € en todas las becas por leer columnas
+      inexistentes (esquema descartado); corregido para leer el `importe`
+      JSONB real. Null-safety añadida en app.js/dashboard.js para becas sin
+      importe verificado (las de la BDNS).
+- [x] Enlaces "Ver beca" no bloqueaban el esquema `javascript:` en URLs de
+      fuentes externas (BDNS); añadida validación de esquema (`safeUrl()`).
+- [x] CORS devolvía siempre el mismo valor fijo sin comprobar el Origin real
+      de la petición; ahora valida de verdad contra FRONTEND_URL.
+- [x] `trust proxy` añadido para que el rate-limit detecte bien la IP
+      real detrás del proxy de Vercel.
+- [x] Rate limiting real con Upstash Redis (persiste entre invocaciones
+      serverless, a diferencia del limiter en memoria anterior), con
+      fallback automático si no está configurado. Verificado en producción
+      (cabecera X-RateLimit-Backend: upstash).
+- [x] Permisos de `anon` demasiado amplios en `admin_repair.sql` (system_logs,
+      incidencias) y patrones de política RLS obsoletos en `setup.sql`
+      (perfiles/filtros_guardados/incidencias) que habrían reabierto el bug
+      de "permission denied for table perfiles" si se re-ejecutaban.
+      Corregidos para usar `public.is_admin()` de forma consistente.
+- [x] Límite de longitud añadido a `incidencias.descripcion`/`tipo` (el
+      formulario público no pasa por ningún rate-limit del backend).
+- [ ] Pendiente de decisión (no urgente, dejado tal cual a petición del
+      usuario): el mensaje "email ya registrado" en signUp permite
+      enumeración de usuarios. Es el comportamiento habitual de los grandes
+      sitios de consumo (Facebook, LinkedIn, GitHub...), así que se mantiene.
 
 === 🛠️ DESARROLLO FUTURO PENDIENTE (Siguiente Fase) ===
 [ ] Crear versión App Móvil nativa (React Native / Flutter).
 
-=== 💰 MONETIZACIÓN NO INVASIVA (Nueva fase, propuesta 2026-08-29) ===
-[ ] Slots de anuncio adicionales en dashboard.html (entre secciones del grid
-    de becas) y beca-detalle.html (debajo del contenido), nunca como
-    interstitial ni pop-up, reutilizando el patrón pauseAdRequests + .ad-slot.
-[ ] Crear ads.txt en la raíz del frontend una vez exista un Publisher ID real
-    de AdSense (contenido: google.com, pub-TU_PUBLISHER_ID, DIRECT, f08c47fec0942fa0).
-[ ] Sustituir el pub-id placeholder (ca-pub-XXXXXXXXXXXXXXXX) por el real
-    cuando Google apruebe la cuenta AdSense (necesita tráfico orgánico real).
-[ ] Reforzar contenido estático indexable (guías, FAQ) para pasar la revisión
-    de AdSense, dado que la mayor parte del contenido es dinámico.
+=== 💰 MONETIZACIÓN NO INVASIVA (2026-08-29/30) ===
+[x] Publisher ID real (pub-6819969179751671) puesto en index.html y en
+    ads.txt (ya en producción, verificado con 200 OK).
+[x] Google Funding Choices (CMP certificado con IAB TCF) configurado:
+    idioma español, "Mensaje limitado" (no bloqueante, a propósito -- se
+    prioriza la experiencia sobre maximizar ingresos), colores con
+    contraste 5:1 verificado, logo propio subido. Soluciona la limitación a
+    anuncios no personalizados en la UE sin sacrificar el "no invasivo".
+[x] Contenido estático indexable creado: pages/guias.html (guía completa de
+    tipos de becas, requisitos, documentación, errores comunes) y
+    pages/faq.html (10 preguntas reales sobre BecaMax y sobre becas en
+    general, con datos estructurados FAQPage). Enlazadas desde el footer.
+[ ] Slots de anuncio adicionales en dashboard.html y beca-detalle.html --
+    pendiente, mejor esperar a tener la cuenta aprobada antes de añadir más
+    superficie publicitaria.
+[ ] (Opcional, más adelante) Comprar dominio propio (becamax.es/.com) cuando
+    haya ingresos -- decisión ya tomada por el usuario, pendiente de fecha.
+    Migrar entonces canonical/sitemap/datos estructurados/CMP al nuevo dominio.
 [ ] (Opcional, más adelante) Google Consent Mode v2 completo si se añade
     Google Analytics además de AdSense.
+
+=== 🔍 SEO (2026-08-30) ===
+[x] `robots.txt` (bloquea páginas privadas: admin, dashboard, perfil,
+    configuracion, auth) + `sitemap.xml` con las páginas públicas, ambos en
+    producción.
+[x] Logo optimizado: 3,4 MB -> 62,8 KB (256x256, misma calidad visual) --
+    mejora real de Core Web Vitals, se sirve en cabecera de cada página.
+[x] `<link rel="canonical">` en todas las páginas públicas (home, guías,
+    FAQ, ficha de beca -- dinámico por id --, legales, incidencias).
+[x] Título/descripción de la home reoptimizados ("Andalucía y España"
+    explícito). `alt="BecaMax"` en el logo en toda la web (antes "BX").
+[x] Datos estructurados JSON-LD: Organization + WebSite en la home,
+    FAQPage en faq.html (puede generar rich snippets en resultados de
+    búsqueda), Article en guias.html.
+[x] Sección "Potencia tu futuro" de la home oculta a usuarios con sesión
+    iniciada (solo es un argumento de venta para quien no tiene cuenta).
+[x] Google Search Console: propiedad verificada (meta tag en index.html),
+    sitemap.xml enviado, indexación solicitada manualmente para home/guías/FAQ.
+[ ] Backlinks desde webs de universidades, foros de estudiantes o portales
+    educativos -- trabajo de difusión/marketing, fuera del alcance del código.
+[ ] Seguir publicando contenido nuevo (más guías, más preguntas) para
+    reforzar la señal de sitio activo ante Google.
 
 ==================================================
               TAREAS COMPLETADAS
