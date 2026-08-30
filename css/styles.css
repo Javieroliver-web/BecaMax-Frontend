@@ -336,7 +336,8 @@ input,select,textarea,button{font-family:inherit}
 .auth-footer a:hover{text-decoration:underline}
 
 /* ============================================ DASHBOARD ============================================ */
-.dashboard-page{min-height:100vh;padding-bottom:60px}
+.dashboard-page{min-height:100vh;padding-bottom:60px;display:flex;flex-direction:column}
+.dashboard-page .footer{margin-top:auto}
 .dashboard-hero{background:linear-gradient(180deg,rgba(var(--primary-rgb, 16,185,129),.08) 0%,transparent 100%);border-bottom:1px solid var(--glass-border);padding:48px 24px 36px}
 .dashboard-hero-inner{max-width:var(--max-width);margin:0 auto}
 .dashboard-hero h1{font-size:1.9rem;margin-bottom:8px}
