@@ -3,6 +3,23 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== 🔐 BUG LOGIN: minlength=8 heredado bloqueaba contraseñas antiguas (2026-08-30) ===
+- [x] `pages/auth.html`: el campo `loginPassword` tenía `minlength="8"`, arrastrado
+      del cambio de política de contraseñas (mínimo subió de 6 a 8). Esto hacía
+      que el navegador bloqueara el ENVÍO del formulario de login (validación
+      HTML5 nativa, antes de que corriera ningún JS) para cualquier cuenta ya
+      existente con contraseña más corta y válida -- incluida la del admin.
+      El mínimo de 8 solo debe aplicar al ESTABLECER una contraseña nueva
+      (registro y cambio de contraseña en Configuración), nunca al iniciar
+      sesión con una ya existente. Quitado `minlength` de `loginPassword`;
+      `regPassword` y los campos de Configuración conservan `minlength="8"`.
+      Verificado en producción (commit 49c10fe).
+- [ ] Pendiente confirmar con el usuario si esto ya resuelve su login, o si
+      el widget de Turnstile en login también falla en su máquina (el fallo
+      de Turnstile confirmado hasta ahora fue solo en "¿Olvidaste tu
+      contraseña?", por el conflicto de Trusted Types no originado en el
+      código de BecaMax -- ver sección de auditoría de navegación más abajo).
+
 === 🧭 AUDITORÍA DE NAVEGACIÓN (2026-08-30) ===
 La extensión de Chrome no conectó en toda esta pasada, así que se hizo por
 revisión de código sistemática (scripts propios, no solo lectura manual)
