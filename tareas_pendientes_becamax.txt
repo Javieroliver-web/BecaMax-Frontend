@@ -262,6 +262,18 @@ vacíos (`innerHTML = ''`) en vez de sustituir por iconos reales.
     activarlo por ahora, se mantiene el límite bajo por defecto de Supabase
     para los emails de autenticación (registro, reset), suficiente con pocos
     usuarios. Retomar cuando se compre el dominio propio.
+    (2026-08-30) CONFIRMADO EL COSTE DE ESTA DECISIÓN: haciendo pruebas de
+    registro/reenvío esta sesión se agotó la cuota horaria COMPARTIDA del
+    SMTP por defecto de Supabase (entre todos los proyectos gratuitos,
+    pensada solo para pruebas, no producción -- documentación oficial:
+    `auth.rate_limits.email.inbuilt_smtp_per_hour`). Efecto real: registro
+    y reenvío bloqueados hasta una hora sin aviso claro de por qué. Aparte,
+    el límite propio de `/auth/v1/signup` es de solo 60s por defecto (no
+    1h) -- el código tenía un bug asumiendo 1h fija para CUALQUIER error de
+    "rate limit" sin mirar lo que Supabase decía; corregido para usar el
+    tiempo real cuando Supabase lo indica, cayendo a 1h solo cuando no lo
+    indica (probable cuota de SMTP agotada). Ver también el botón de
+    reenvío (auth.html), que tenía el mismo bug con un 60s inventado.
 [ ] IMPORTANTE, no confundir con lo anterior: las ALERTAS DE BECAS por email
     (`alerts.controller.js`, vía API de Resend, NO pasa por Supabase Auth)
     NO llegan a usuarios reales ahora mismo. La cuenta de Resend está recién
