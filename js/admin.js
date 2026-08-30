@@ -2,6 +2,12 @@
 //  ADMIN.JS – Lógica protegida para las vistas de Administrador
 // ============================================================
 
+// Iconos de las acciones de moderación (mismo patrón que ICON_EYE en
+// config.js: currentColor para heredar el color de .btn-warning/.btn-danger).
+const ICON_LOCK   = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+const ICON_UNLOCK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.6-1.8"/></svg>';
+const ICON_TRASH  = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+
 async function requireAdmin() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   
@@ -62,11 +68,11 @@ async function cargarDatosDashboard() {
             <td>${new Date(u.updated_at).toLocaleDateString()}</td>
             <td>
               <div class="action-group">
-                ${isBlocked 
-                  ? `<button class="btn btn-secondary btn-sm" onclick="cambiarEstadoUsuario('${u.user_id}', 'activo')" title="Activar Permisos"></button>`
-                  : `<button class="btn btn-warning btn-sm" onclick="cambiarEstadoUsuario('${u.user_id}', 'bloqueado')" title="Bloquear Acceso" ${isAdmin ? 'disabled' : ''}></button>`
+                ${isBlocked
+                  ? `<button class="btn btn-secondary btn-sm" onclick="cambiarEstadoUsuario('${u.user_id}', 'activo')" title="Activar Permisos" aria-label="Activar Permisos">${ICON_UNLOCK}</button>`
+                  : `<button class="btn btn-warning btn-sm" onclick="cambiarEstadoUsuario('${u.user_id}', 'bloqueado')" title="Bloquear Acceso" aria-label="Bloquear Acceso" ${isAdmin ? 'disabled' : ''}>${ICON_LOCK}</button>`
                 }
-                <button class="btn btn-danger btn-sm" onclick="eliminarUsuarioDefinitivo('${u.user_id}')" title="Borrado físico de la base de datos" ${isAdmin ? 'disabled' : ''}></button>
+                <button class="btn btn-danger btn-sm" onclick="eliminarUsuarioDefinitivo('${u.user_id}')" title="Borrado físico de la base de datos" aria-label="Eliminar usuario" ${isAdmin ? 'disabled' : ''}>${ICON_TRASH}</button>
               </div>
             </td>
           </tr>
