@@ -3,6 +3,85 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== ✅ AUDITORÍA UI/UX + BUGS GRAVES DE FAVORITOS Y NOTIFICACIONES (2026-08-30) ===
+Petición del usuario: revisar interfaz, UI/UX, contraste de temas y
+funcionamiento real navegando logueado como usuario normal (no admin)
+por primera vez esta sesión -- eso fue clave para destapar lo siguiente.
+
+BUG GRAVE 1 -- Favoritos no funcionaba fuera del dashboard:
+- [x] initFavorites() solo se llamaba desde dashboard.js. En cualquier
+      otra página (buscador, ficha de beca) el botón de estrella
+      redirigía al login aunque hubiera sesión, porque _userId nunca se
+      asignaba. Centralizado en updateHeaderAuth() (auth.js).
+- [x] Ese primer arreglo no funcionó a la primera: auth.js carga ANTES
+      que favorites.js en el HTML, y getSession() resuelve via
+      microtask (sesión en caché) antes de que favorites.js llegue a
+      ejecutarse. Corregido con un chequeo de document.readyState en
+      vez de depender del orden de los <script>.
+
+BUG GRAVE 2 -- Favoritos y notificaciones NUNCA escribieron de verdad en
+producción, desde que se crearon esas tablas:
+- [x] Con el bug 1 ya arreglado, el toast decía "Beca añadida a
+      favoritos" pero la tabla seguía vacía (verificado por SQL
+      directo). Causa real: a la tabla `favoritos` le faltaba la
+      política RLS de UPDATE (necesaria porque el código usa upsert(),
+      que en Postgres exige permiso de UPDATE para la cláusula
+      ON CONFLICT aunque no haya fila que actualizar).
+- [x] Arreglada esa política, el error cambió a "permission denied for
+      table favoritos" -- un problema mucho más de fondo: a la tabla le
+      faltaba el GRANT base a `authenticated` (solo tenía
+      TRIGGER/REFERENCES/TRUNCATE, ni rastro de SELECT/INSERT/UPDATE/
+      DELETE). RLS nunca llega a evaluarse sin el GRANT.
+- [x] Revisando el resto de tablas se encontró el MISMO hueco en
+      `notificaciones` (RLS completo y correcto, pero sin GRANT base) --
+      la campana de notificaciones tampoco pudo funcionar nunca de
+      verdad. Corregido igual, y verificado insertando y leyendo/
+      marcando como leída una notificación de prueba real.
+- [x] favorites.js tampoco comprobaba el campo `error` que devuelven
+      las llamadas a Supabase (supabase-js no lanza excepción en
+      errores de base de datos) -- por eso el fallo real quedaba oculto
+      tras un toast de éxito falso. Corregido para comprobarlo siempre.
+- [x] Todo aplicado en producción vía migraciones Y documentado en
+      `supabase/favoritos_setup.sql`, `notificaciones_setup.sql` y
+      `grant_permissions.sql` para que no se repita en un futuro reset
+      de la base de datos.
+- Lección para el futuro: cuando se cree una tabla nueva con RLS, hay
+  que añadir también el GRANT base en `grant_permissions.sql` -- RLS
+  sin GRANT no sirve de nada, falla en silencio si el código no
+  comprueba el `error` de cada llamada a Supabase.
+
+LIMPIEZA UI/UX (emojis sueltos y espacios huérfanos, patrón visto varias
+veces ya esta sesión, barrido sistemático por fin completo):
+- [x] Icono de búsqueda de la home: era un emoji 🔍 que ADEMÁS ignoraba
+      var(--text-muted) en ambos temas (mismo problema que el emoji de
+      favoritos de una auditoría anterior) -- cambiado a SVG.
+- [x] Campana de "Guardar alerta con estos filtros", estrella de "Mis
+      favoritos", triángulo del aviso legal de la home: emojis → SVG.
+- [x] Escudo del enlace de Monitorización en menús móviles: quitado sin
+      reemplazo (sus vecinos tampoco llevan icono).
+- [x] ~20 espacios sueltos delante de texto (huella de emojis purgados
+      en sesiones muy anteriores, nunca completada del todo) limpiados
+      en auth.js, admin.js, configuracion.js, dashboard.js, perfil.js,
+      logger.js, y en HTML estático de beca-detalle.html,
+      configuracion.html, dashboard.html, incidencias.html, index.html.
+
+SEGURIDAD DE BASE DE DATOS (revisado de paso al estar ya dentro):
+- [x] 4 funciones SECURITY DEFINER sin search_path fijo (vector teórico
+      de "search path hijacking"): delete_my_account, is_admin,
+      prevent_privilege_escalation, handle_new_user. Arreglado con
+      ALTER FUNCTION ... SET search_path, sin cambiar su comportamiento.
+- [ ] Esas mismas 4 funciones son invocables directamente vía API
+      (/rest/v1/rpc/is_admin, etc.) por anon/authenticated. NO tocado:
+      is_admin() lo usan políticas RLS de otras tablas (system_logs
+      entre otras) -- revocar el EXECUTE sin auditar antes cada uso
+      podría romper el panel de admin entero. Pendiente de revisión
+      aparte, con más calma.
+- [ ] "Leaked Password Protection" desactivada en Supabase Auth
+      (comprueba contra HaveIBeenPwned) -- gratis y sin riesgo activarla,
+      pero es un interruptor en Authentication -> Attack Protection del
+      dashboard, no algo aplicable por SQL. Pendiente de que el usuario
+      lo active cuando quiera.
+
 === ✅ CERRADO: email de confirmación de registro "no responde" (2026-08-30) ===
 - [x] Causa raíz encontrada: Site URL en Supabase (Authentication -> URL
       Configuration) apuntaba a `https://beca-max-frontend.vercel.app`
