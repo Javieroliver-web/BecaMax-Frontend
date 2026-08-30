@@ -9,6 +9,14 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://becamax.vercel.app/pages/guia-beca-mec.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://becamax.vercel.app/pages/guia-fp-andalucia.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://becamax.vercel.app/pages/faq.html</loc>
     <priority>0.8</priority>
   </url>
