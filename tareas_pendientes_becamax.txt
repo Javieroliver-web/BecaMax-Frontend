@@ -52,7 +52,7 @@ confirmada con una prueba aislada y decisiva:
   que ya se había dejado apuntada. Ver sección de abajo con el estado de
   la migración.
 
-=== 🚧 MIGRACIÓN EN CURSO: Cloudflare Turnstile → hCaptcha (2026-08-30) ===
+=== ✅ CERRADO: Migración Cloudflare Turnstile → hCaptcha (2026-08-30) ===
 - [x] `js/auth.js`: sustituidos los helpers `getTurnstileToken` /
       `resetTurnstile` (ahora `getCaptchaToken` / `resetCaptcha`) para usar
       la API de hCaptcha en vez de Turnstile. A diferencia de Turnstile
@@ -78,18 +78,22 @@ confirmada con una prueba aislada y decisiva:
 - [x] `pages/legal/privacidad.html`: sustituidas las menciones a
       Cloudflare/Turnstile por hCaptcha en proveedores y transferencias
       internacionales.
-- [ ] PENDIENTE DEL USUARIO: crear cuenta en hcaptcha.com, dar de alta el
-      sitio (dominio becamax.vercel.app), y pasar la Sitekey real para
-      sustituir el placeholder en `config.js`.
-- [ ] PENDIENTE DEL USUARIO: en Supabase Dashboard -> Authentication ->
-      Attack Protection -> CAPTCHA, cambiar el proveedor de "Turnstile by
-      Cloudflare" a "hCaptcha" y pegar ahí la Secret Key (esa sí es
-      privada, no hace falta dármela a mí).
-- [ ] Tras lo anterior: probar registro real en producción antes de dar
-      esto por cerrado. Considerar también, sin urgencia, limpiar las
-      extensiones duplicadas de Edge (2 VPN + 5 adblockers a la vez) --
-      no solo por este bug, es mala práctica general que puede seguir
-      causando fallos parecidos en otros sitios.
+- [x] Usuario creó la cuenta en hcaptcha.com, dio de alta el sitio y pasó
+      la Sitekey real (`1e3ceb4a-cf28-41b6-ba78-c456e0586a34`), sustituida
+      en `config.js` (commit 35ae1c6).
+- [x] Usuario cambió el proveedor de CAPTCHA en Supabase Dashboard ->
+      Authentication -> Attack Protection de Turnstile a hCaptcha, con su
+      Secret Key.
+- [x] Desplegado a producción (frontend commits 720ac2d..35ae1c6 a main,
+      backend commit 14d34ab a master) y verificado con curl que
+      auth.html/config.js ya sirven hCaptcha antes de probar.
+- [x] REGISTRO REAL PROBADO EN PRODUCCIÓN: completado sin errores. El
+      bloqueante que motivó toda esta investigación queda resuelto.
+- [ ] Sin urgencia, pendiente y no bloqueante: limpiar las extensiones
+      duplicadas de Edge del admin (2 VPN + 5 adblockers a la vez) -- no
+      es necesario para BecaMax (ya no depende de Turnstile), pero es
+      mala práctica general que puede seguir causando fallos parecidos
+      en otros sitios que si usen trusted-types.
 
 === 🔐 BUG LOGIN: minlength=8 heredado bloqueaba contraseñas antiguas (2026-08-30) ===
 - [x] `pages/auth.html`: el campo `loginPassword` tenía `minlength="8"`, arrastrado
@@ -415,11 +419,11 @@ Cookies, el registro público de la web y el formulario de registro.
 - Commits locales, sin subir a remoto todavía (frontend: 720ac2d,
   361869b, d18a748; backend: 14d34ab).
 
-=== ✅ ESTADO ACTUAL (2026-08-30): AdSense listo, bloqueado por Turnstile en registro ===
-Auditoría legal y de código cerradas. El bloqueante activo ahora mismo es
-el nuevo síntoma de Turnstile impidiendo registrar usuarios nuevos (ver
-sección al principio del archivo) -- máxima prioridad antes de seguir con
-cualquier otra cosa. Aparte de eso, solo quedan abiertas a propósito:
+=== ✅ ESTADO ACTUAL (2026-08-30): sin bloqueantes activos ===
+Auditoría legal, checkbox de registro y migración de captcha (Turnstile ->
+hCaptcha) cerradas y verificadas en producción con un registro real
+completado sin errores. No queda ningún bloqueante de código pendiente.
+Solo quedan abiertas a propósito:
 comprar dominio propio (ligado a monetización futura), SMTP/Resend (ligado
 a lo mismo), backlinks (marketing externo) y seguir publicando contenido
 (labor continua, no una tarea con fin).
