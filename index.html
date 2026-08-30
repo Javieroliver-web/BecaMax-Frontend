@@ -83,7 +83,7 @@
 
 <!-- ===== HERO ===== -->
 <section class="hero">
-  <div class="dev-banner">Versión beta — algunos datos son de muestra</div>
+  <div class="dev-banner">Versión beta</div>
   <h1 class="hero-title">No te pierdas ninguna beca</h1>
   <p class="hero-subtitle" style="max-width:600px;margin:0 auto;">Filtra las becas disponibles en Andalucía, guarda tus búsquedas y recibe alertas por email antes de que acabe el plazo.</p>
   <div class="search-bar" role="search">
@@ -143,8 +143,13 @@
 
 
 <!-- ===== AD SLOT (top) ===== -->
-<!-- El siguiente bloque mostrará los anuncios una vez que Google apruebe el sitio. -->
-<div class="ad-container" style="max-width:var(--max-width);margin:16px auto;padding:0 24px;min-height:90px;" aria-hidden="true">
+<!-- Oculto hasta que se solicite y apruebe la revision de AdSense: mientras
+     tanto no muestra ningun anuncio real, solo dejaba una caja vacia con
+     borde discontinuo, muy visible en movil justo debajo de las 3
+     estadisticas para usuarios ya logueados (sin la seccion "Potencia tu
+     futuro" alrededor que la disimulaba). Quitar el "display:none" en
+     cuanto se solicite la revision. -->
+<div class="ad-container" style="max-width:var(--max-width);margin:16px auto;padding:0 24px;min-height:90px;display:none;" aria-hidden="true">
   <ins class="adsbygoogle ad-slot" style="display:block" data-ad-client="ca-pub-6819969179751671" data-ad-slot="3690503265" data-ad-format="auto" data-full-width-responsive="true"></ins>
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 </div>
