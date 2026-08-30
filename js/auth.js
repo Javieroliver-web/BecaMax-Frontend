@@ -144,10 +144,17 @@ async function handleRegister(e) {
 
     if (error) {
       if (error.message.toLowerCase().includes('rate limit')) {
-        // Supabase por defecto bloquea durante 1 HORA (3600 segundos) tras varios intentos fallidos
-        const lockUntil = Date.now() + 3600000;
+        // Supabase indica el tiempo exacto de espera cuando lo conoce
+        // ("...after N seconds", límite propio de /auth/v1/signup, 60s por
+        // defecto). Si no lo indica, es probable que sea la cuota horaria
+        // compartida del SMTP por defecto de Supabase (bajísima, pensada
+        // solo para pruebas) -- ahí sí toca esperar hasta una hora, sin
+        // forma de saber el resto exacto desde el cliente.
+        const espera = error.message.match(/after (\d+) second/i);
+        const segundos = espera ? parseInt(espera[1], 10) : 3600;
+        const lockUntil = Date.now() + segundos * 1000;
         localStorage.setItem('rateLimitUnlock', lockUntil);
-        iniciarContadorRateLimit(3600, errEl, btn);
+        iniciarContadorRateLimit(segundos, errEl, btn);
       } else {
         btn.disabled = false;
         btn.textContent = 'Crear cuenta gratuita';
