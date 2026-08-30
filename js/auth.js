@@ -161,7 +161,6 @@ async function handleRegister(e) {
       document.querySelector('.auth-tabs').style.display = 'none';
       document.getElementById('authSuccess').classList.add('visible');
       resendEmail = email;
-      iniciarCooldownReenvio(60);
     }
   } catch (err) {
     // Nunca dejar el botón bloqueado en silencio ante un fallo inesperado.
@@ -216,13 +215,27 @@ async function handleResendConfirmation() {
     const { error } = await supabaseClient.auth.resend({ type: 'signup', email: resendEmail, options: { captchaToken } });
     resetCaptcha('turnstile-resend');
     if (error) {
-      btn.disabled = false;
-      btn.textContent = 'Reenviar email';
-      errEl.textContent = tradError(error.message);
-      errEl.classList.add('visible');
+      // Supabase ya aplica su propio límite de envíos y nos dice cuánto
+      // falta exactamente ("...you can only request this after 58
+      // seconds"). Usamos ese número real en vez de inventar un cooldown
+      // nuestro que podría no coincidir con el límite configurado en el
+      // proyecto (y confundir, como ya pasó con el bloqueo de 1h del
+      // registro).
+      const espera = error.message.match(/after (\d+) second/i);
+      if (espera) {
+        errEl.textContent = `Ya se envió un email hace poco. Podrás reenviar en ${espera[1]}s.`;
+        errEl.classList.add('visible');
+        iniciarCooldownReenvio(parseInt(espera[1], 10));
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Reenviar email';
+        errEl.textContent = tradError(error.message);
+        errEl.classList.add('visible');
+      }
     } else {
       showToast('Email reenviado, revisa tu bandeja de entrada', 'success');
-      iniciarCooldownReenvio(60);
+      btn.disabled = false;
+      btn.textContent = 'Reenviar email';
     }
   } catch (err) {
     btn.disabled = false;
