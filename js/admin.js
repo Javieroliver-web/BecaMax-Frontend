@@ -196,7 +196,7 @@ async function publicarNoticia() {
 
   try {
     btn.disabled = true;
-    btn.textContent = ' Publicando...';
+    btn.textContent = 'Publicando...';
 
     const backendUrl = CONFIG.BASE_URL;
       
@@ -218,7 +218,7 @@ async function publicarNoticia() {
       throw new Error(result.message || 'Error al publicar noticia');
     }
 
-    showToast(' Noticia publicada exitosamente', 'success');
+    showToast('Noticia publicada exitosamente', 'success');
     document.getElementById('newsContent').value = '';
     
   } catch (error) {
@@ -226,7 +226,7 @@ async function publicarNoticia() {
     showToast(error.message, 'error');
   } finally {
     btn.disabled = false;
-    btn.textContent = ' Publicar Noticia Ahora';
+    btn.textContent = 'Publicar Noticia Ahora';
   }
 }
 

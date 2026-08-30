@@ -353,7 +353,7 @@ function abrirModalAlerta() {
   if (busqueda)   partes.push('Búsqueda: "' + busqueda + '"');
 
   const modal = document.getElementById('modalAlerta');
-  modal.querySelector('.modal-title').textContent    = ' Guardar alerta';
+  modal.querySelector('.modal-title').textContent    = 'Guardar alerta';
   modal.querySelector('.modal-subtitle').textContent = 'Te avisaremos por email cuando haya becas nuevas que encajen con estos filtros.';
   document.getElementById('alertaFiltrosResumen').innerHTML =
     partes.length ? partes.join(' · ') : 'Sin filtros (todas las becas)';
@@ -379,7 +379,7 @@ async function confirmarAlerta() {
   document.getElementById('modalAlerta').classList.remove('active');
 
   if (error) showToast('Error al guardar la alerta', 'error');
-  else       showToast(' Alerta guardada correctamente', 'success');
+  else       showToast('Alerta guardada correctamente', 'success');
 }
 
 // ---- Event listeners ---------------------------------------

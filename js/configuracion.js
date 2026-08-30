@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.error('Error al cambiar contraseña:', error);
       showToast('Error al cambiar la contraseña. ' + error.message, 'error');
     } else {
-      showToast(' Contraseña actualizada correctamente.', 'success');
+      showToast('Contraseña actualizada correctamente.', 'success');
       document.getElementById('confPassword').value = '';
       document.getElementById('confPasswordConfirm').value = '';
     }

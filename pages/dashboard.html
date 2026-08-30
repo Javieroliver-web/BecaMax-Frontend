@@ -41,9 +41,9 @@
     </button>
   </div>
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
-    <a href="admin-monitorizacion.html" class="btn btn-warning btn-full" id="adminLinkMobile" style="display:none;"> Monitorización</a>
-    <a href="../index.html" class="btn btn-ghost btn-full"> Buscar becas</a>
-    <a href="perfil.html" class="btn btn-secondary btn-full"> Mi perfil</a>
+    <a href="admin-monitorizacion.html" class="btn btn-warning btn-full" id="adminLinkMobile" style="display:none;">Monitorización</a>
+    <a href="../index.html" class="btn btn-ghost btn-full">Buscar becas</a>
+    <a href="perfil.html" class="btn btn-secondary btn-full">Mi perfil</a>
     <button class="btn btn-danger btn-full" onclick="handleSignOut()">Cerrar sesión</button>
   </div>
 </header>
@@ -73,7 +73,7 @@
   <!-- Favoritos -->
   <div class="dashboard-section">
     <div class="section-header">
-      <h2 class="section-title font-heading">⭐ Mis favoritos</h2>
+      <h2 class="section-title font-heading" style="display:flex;align-items:center;gap:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Mis favoritos</h2>
     </div>
     <div class="becas-grid" id="becasFavoritos">
       <!-- Inyectado por favorites.js -->
@@ -109,7 +109,7 @@
 <div class="modal-overlay" id="modalNotificaciones">
   <div class="modal modal-wide">
     <div class="modal-header">
-      <h2 class="modal-title"> Notificaciones</h2>
+      <h2 class="modal-title">Notificaciones</h2>
       <button class="btn-text" id="btnMarcarTodoLeido">Marcar todo como leído</button>
     </div>
     <div class="notifications-list" id="notificationsList">
@@ -124,7 +124,7 @@
 <!-- MODAL EDITAR NOMBRE ALERTA -->
 <div class="modal-overlay" id="modalEditarAlerta">
   <div class="modal">
-    <h2 class="modal-title"> Renombrar alerta</h2>
+    <h2 class="modal-title">Renombrar alerta</h2>
     <div class="form-group" style="margin-top:16px">
       <label for="editAlertaNombre">Nuevo nombre</label>
       <input type="text" class="form-input" id="editAlertaNombre" maxlength="60">

@@ -28,7 +28,7 @@
   var ts       = new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid', hour12: false });
 
   // Detectar tipo de dispositivo
-  var device = /Mobi|Android/i.test(ua) ? ' Móvil' : ' Escritorio';
+  var device = /Mobi|Android/i.test(ua) ? 'Móvil' : 'Escritorio';
 
   // Obtener IP y país (api gratuita, sin clave)
   fetch('https://ipapi.co/json/')

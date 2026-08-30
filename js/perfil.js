@@ -69,7 +69,7 @@ async function guardarDatosPersonales(e) {
     console.error('Error al actualizar datos personales:', error);
     showToast('Error al actualizar nombre.', 'error');
   } else {
-    showToast(' Datos personales actualizados correctamente.', 'success');
+    showToast('Datos personales actualizados correctamente.', 'success');
     // Actualizar nombre en el header si existe
     const headerName = document.getElementById('headerUserName');
     if (headerName) headerName.textContent = nombre;
@@ -110,7 +110,7 @@ async function guardarPerfilAcademico(e) {
     console.error('Error al guardar perfil académico:', error);
     showToast('Error al actualizar perfil.', 'error');
   } else {
-    showToast(' Perfil académico guardado. Tus recomendaciones se han actualizado.', 'success');
+    showToast('Perfil académico guardado. Tus recomendaciones se han actualizado.', 'success');
   }
 }
 
@@ -211,7 +211,7 @@ async function guardarAvatar(url) {
     console.error('Error al guardar avatar:', error);
     showToast('Error al actualizar el avatar.', 'error');
   } else {
-    showToast(' Foto de perfil actualizada.', 'success');
+    showToast('Foto de perfil actualizada.', 'success');
     // Actualizar nombre en el header si existe (para refrescar imagen global)
     if (typeof updateHeaderAuth === 'function') updateHeaderAuth();
   }

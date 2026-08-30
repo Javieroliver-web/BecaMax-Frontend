@@ -214,7 +214,7 @@ async function toggleAlerta(id, activo) {
     .update({ activo })
     .eq('id', id);
   if (error) showToast('Error al actualizar la alerta', 'error');
-  else showToast(activo ? ' Alerta activada' : ' Alerta pausada', 'info');
+  else showToast(activo ? 'Alerta activada' : 'Alerta pausada', 'info');
 }
 
 function editarAlerta(id, nombreActual) {
@@ -236,7 +236,7 @@ async function guardarEditAlerta() {
   alertaSeleccionadaId = null;
 
   if (error) showToast('Error al renombrar', 'error');
-  else { showToast(' Alerta renombrada', 'success'); await cargarAlertas(); }
+  else { showToast('Alerta renombrada', 'success'); await cargarAlertas(); }
 }
 
 async function eliminarAlerta(id) {
@@ -258,7 +258,7 @@ async function eliminarAlerta(id) {
     t.remove();
     const { error } = await supabaseClient.from('filtros_guardados').delete().eq('id', id);
     if (error) showToast('Error al eliminar', 'error');
-    else { showToast(' Alerta eliminada', 'info'); await cargarAlertas(); }
+    else { showToast('Alerta eliminada', 'info'); await cargarAlertas(); }
   });
 }
 
@@ -383,7 +383,7 @@ async function marcarTodasLeidas() {
   // Optimista
   NOTIFICACIONES.forEach(n => n.leida = true);
   renderNotificaciones();
-  showToast(' Todas las notificaciones leídas', 'success');
+  showToast('Todas las notificaciones leídas', 'success');
 
   // Background sync
   const { data: { session } } = await supabaseClient.auth.getSession();
