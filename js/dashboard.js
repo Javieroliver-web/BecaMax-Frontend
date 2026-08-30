@@ -293,13 +293,13 @@ function renderCard(b, delay = 0) {
   return `
   <article class="beca-card ${u === 'cerrada' ? 'cerrada' : ''}" style="animation-delay:${delay}ms">
     <div class="card-top"><div class="card-badges">
-      <span class="badge badge-tipo">${tipoLabel(b.tipo)}</span>
-      <span class="badge badge-${u}">${urgenciaLabel(u, dias)}</span>
+      <span class="badge badge-tipo">${escapeHtml(tipoLabel(b.tipo))}</span>
+      <span class="badge badge-${u}">${escapeHtml(urgenciaLabel(u, dias))}</span>
     </div></div>
     <div class="card-body">
-      <div class="card-nombre">${b.nombre}</div>
-      <div class="card-entidad">${b.entidad}</div>
-      <p class="card-desc">${b.descripcion}</p>
+      <div class="card-nombre">${escapeHtml(b.nombre)}</div>
+      <div class="card-entidad">${escapeHtml(b.entidad)}</div>
+      <p class="card-desc">${escapeHtml(b.descripcion)}</p>
     </div>
     <div class="card-meta">
       <div class="meta-item"><div class="meta-label">Importe</div><div class="meta-value">${formatImporte(b)}</div></div>
@@ -307,7 +307,7 @@ function renderCard(b, delay = 0) {
     </div>
     <div class="countdown-bar"><div class="countdown-fill ${u}" style="width:${pct}%"></div></div>
     <div class="card-actions">
-      <a href="beca-detalle.html?id=${b.id}" class="btn btn-secondary btn-sm">Detalles</a>
+      <a href="beca-detalle.html?id=${escapeHtml(b.id)}" class="btn btn-secondary btn-sm">Detalles</a>
       <a href="${safeUrl(b.url)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Ver beca ↗</a>
     </div>
   </article>`;

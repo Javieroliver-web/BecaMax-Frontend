@@ -226,6 +226,8 @@ function renderCard(b, delay = 0) {
   const dias = diasRestantes(b.deadline);
   const u    = urgencia(dias);
   const pct  = u === 'cerrada' ? 100 : Math.max(0, Math.min(100, 100 - (dias / 365) * 100));
+  const yaFavorita = typeof isFavorite === 'function' && isFavorite(b.id);
+  const favLabel = yaFavorita ? 'Quitar de favoritos' : 'Añadir a favoritos';
 
   return `
   <article class="beca-card ${u === 'cerrada' ? 'cerrada' : ''}" style="animation-delay:${delay}ms" tabindex="0">
@@ -234,7 +236,7 @@ function renderCard(b, delay = 0) {
         <span class="badge badge-tipo">${sanitizeHTML(tipoLabel(b.tipo))}</span>
         <span class="badge badge-${u}">${sanitizeHTML(urgenciaLabel(u, dias))}</span>
       </div>
-      <button class="btn-fav ${typeof isFavorite === 'function' && isFavorite(b.id) ? 'active' : ''}" onclick="typeof toggleFavorite === 'function' ? toggleFavorite('${sanitizeHTML(b.id)}', this) : null" aria-label="Añadir a favoritos" title="Guardar beca"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+      <button class="btn-fav ${yaFavorita ? 'active' : ''}" onclick="typeof toggleFavorite === 'function' ? toggleFavorite('${sanitizeHTML(b.id)}', this) : null" aria-label="${favLabel}" title="${favLabel}"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
     </div>
     <div class="card-body">
       <div class="card-nombre font-heading">${sanitizeHTML(b.nombre)}</div>
