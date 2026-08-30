@@ -3,6 +3,19 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== 🚨 NUEVO SÍNTOMA: Turnstile también bloquea el REGISTRO de usuarios nuevos (2026-08-30) ===
+El usuario reporta un error de Cloudflare que impide registrar cuentas
+nuevas por fallo del captcha. Hasta ahora el fallo de Turnstile confirmado
+era solo en el navegador/móvil del ADMIN (ver sección de abajo, causa CSP
+"trusted-types" del dispositivo). Esto es distinto: si afecta al REGISTRO
+en general (no solo al admin), la causa podría no ser la misma CSP local,
+sino algo del lado de Cloudflare/Supabase (sitekey mal emparejada, dominio
+no autorizado en el widget, secret key incorrecta en Supabase, o un fallo
+temporal del servicio). Pendiente: recoger el texto/captura exacta del
+error, confirmar si ocurre en cualquier dispositivo/navegador o solo en
+el del admin, y si es en producción (becamax.vercel.app) o en local.
+Investigación abierta en la siguiente sesión.
+
 === 🚧 PENDIENTE: Turnstile bloqueado en el entorno del admin (2026-08-30) ===
 Investigación en curso, retomar mañana. Estado actual:
 - CAUSA RAÍZ CONFIRMADA (no es un bug de BecaMax): el navegador del admin
@@ -333,11 +346,59 @@ vacíos (`innerHTML = ''`) en vez de sustituir por iconos reales.
 [ ] Seguir publicando contenido nuevo (más guías, más preguntas) para
     reforzar la señal de sitio activo ante Google.
 
-=== ✅ ESTADO ACTUAL (2026-08-30): listo para solicitar la revisión de AdSense ===
-Todas las tareas pendientes que dependían del código están cerradas. Solo
-quedan abiertas, a propósito: comprar dominio propio (ligado a monetización
-futura), SMTP/Resend (ligado a lo mismo), backlinks (marketing externo) y
-seguir publicando contenido (labor continua, no una tarea con fin).
+=== ⚖️ AUDITORÍA LEGAL: LSSICE/RGPD, para evitar demandas (2026-08-30) ===
+Petición del usuario: revisar que la web esté al día en obligaciones
+legales. Revisados Aviso Legal, Política de Privacidad, Política de
+Cookies, el registro público de la web y el formulario de registro.
+- [x] Añadido el NIF/DNI del titular en el Aviso Legal (31896389N),
+      exigido por el Art. 10 LSSICE al haber actividad económica real
+      (Google AdSense). Antes solo figuraba el nombre. Commit 361869b.
+- [x] Ampliada la sección de proveedores de la Política de Privacidad:
+      faltaban Cloudflare Turnstile, Resend e ipapi.co (solo estaban
+      Supabase, Vercel y AdSense). Commit 720ac2d.
+- [x] Añadida una sección nueva de "Transferencias internacionales de
+      datos" (ausente por completo), cubriendo Google/AdSense (marco de
+      adecuación UE-EE.UU.), Resend/Cloudflare (Cláusulas Contractuales
+      Tipo) e ipapi.co. Commit 720ac2d.
+- [x] Quitadas de la tabla de cookies las cookies de Google Analytics
+      (_ga/_gid): documentaban una herramienta que nunca se llegó a
+      instalar en el sitio (solo está AdSense). Commit 720ac2d.
+- [x] Sustituido el logger de accesos que enviaba IP+geolocalización de
+      cada visita a un canal de Discord por webhook: Discord no es un
+      encargado del tratamiento con DPA real. Ahora `/api/logs` escribe
+      en `system_logs` (Supabase, ya documentado como proveedor),
+      visible solo desde el panel admin (admin-monitorizacion.html) vía
+      la policy `admin_all_logs` ya existente. Acción manual pendiente
+      del usuario: borrar la variable de entorno `DISCORD_WEBHOOK_URL`
+      en Vercel, ya no se usa. Commit backend 14d34ab, frontend 720ac2d.
+      Nota: si el tráfico de la home crece, las visitas (acción
+      SITE_VISIT) podrían desplazar del panel logs de acciones de admin
+      más antiguos, porque la consulta trae solo las últimas 50 filas
+      sin filtrar por tipo -- pendiente añadir un filtro si hace falta.
+- [x] Añadido al formulario de registro (`auth.html`) un checkbox
+      obligatorio (validación nativa HTML5, mismo patrón que el
+      `minlength` de `regPassword`) que cubre a la vez la aceptación
+      explícita de Privacidad/Aviso Legal (antes no se enlazaban desde
+      el registro) y la confirmación de edad mínima de consentimiento
+      propio en España (14 años, LOPDGDD art. 7). Commit d18a748.
+      No verificado visualmente en navegador (extensión de Chrome sin
+      conectar de nuevo).
+- Verificado de paso: `delete_my_account()` (supabase/delete_account_setup.sql)
+  sí está versionada -- una nota anterior decía lo contrario por error --
+  y sí hace `DELETE FROM auth.users` con cascada real a perfiles,
+  filtros_guardados, incidencias, favoritos y notificaciones. El borrado
+  de cuenta es inmediato y completo, no quedan datos huérfanos.
+- Commits locales, sin subir a remoto todavía (frontend: 720ac2d,
+  361869b, d18a748; backend: 14d34ab).
+
+=== ✅ ESTADO ACTUAL (2026-08-30): AdSense listo, bloqueado por Turnstile en registro ===
+Auditoría legal y de código cerradas. El bloqueante activo ahora mismo es
+el nuevo síntoma de Turnstile impidiendo registrar usuarios nuevos (ver
+sección al principio del archivo) -- máxima prioridad antes de seguir con
+cualquier otra cosa. Aparte de eso, solo quedan abiertas a propósito:
+comprar dominio propio (ligado a monetización futura), SMTP/Resend (ligado
+a lo mismo), backlinks (marketing externo) y seguir publicando contenido
+(labor continua, no una tarea con fin).
 
 ==================================================
               TAREAS COMPLETADAS
