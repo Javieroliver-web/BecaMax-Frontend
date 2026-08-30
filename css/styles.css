@@ -338,12 +338,14 @@ input,select,textarea,button{font-family:inherit}
 /* ============================================ DASHBOARD ============================================ */
 .dashboard-page{min-height:100vh;padding-bottom:60px}
 
-/* Sticky footer solo en el panel admin (#adminBody): las paginas publicas
-   que comparten .dashboard-page tienen suficiente contenido para no
-   necesitarlo, y hacer flex la clase compartida rompia su grid de becas
-   (los flex items se encogian a una sola columna). */
-#adminBody{display:flex;flex-direction:column}
-#adminBody .footer{margin-top:auto}
+/* Sticky footer solo en el panel admin (#adminBody). Nota: se probo con
+   flex-direction:column + margin-top:auto en el footer, pero un flex item
+   con margin:0 auto en el eje cruzado (el patron que usan .main-layout y
+   .admin-container para centrarse) deja de estirarse y se encoge a su
+   ancho de contenido -- colapsaba el grid de tarjetas a una columna.
+   Con position:absolute no se toca el display de nada por dentro. */
+#adminBody{position:relative;min-height:100vh}
+#adminBody .footer{position:absolute;left:0;right:0;bottom:0}
 .dashboard-hero{background:linear-gradient(180deg,rgba(var(--primary-rgb, 16,185,129),.08) 0%,transparent 100%);border-bottom:1px solid var(--glass-border);padding:48px 24px 36px}
 .dashboard-hero-inner{max-width:var(--max-width);margin:0 auto}
 .dashboard-hero h1{font-size:1.9rem;margin-bottom:8px}
