@@ -845,6 +845,105 @@ comprar dominio propio (ligado a monetización futura), SMTP/Resend (ligado
 a lo mismo), backlinks (marketing externo) y seguir publicando contenido
 (labor continua, no una tarea con fin).
 
+=== 🔒🐛 RONDA FINAL: CSP, BUGS FUNCIONALES, DATOS Y LIMPIEZA (2026-08-31) ===
+Sesión de pruebas de seguridad/UX/accesibilidad de 30 min más una tanda
+larga de peticiones puntuales del usuario. Resumen consolidado:
+
+Seguridad:
+- [x] Content-Security-Policy completa en `vercel.json` (script-src,
+      style-src, img-src, connect-src, font-src, frame-src, object-src),
+      sustituyendo la ausencia total de CSP anterior. Mantiene
+      'unsafe-inline' en script/style-src por los ~21 `onclick=""` y
+      estilos inline aún presentes en el HTML -- quitarlo exigiría un
+      refactor aparte (mover todo a addEventListener/clases CSS).
+      AdSense aún no tiene la revisión solicitada, ya contemplado en la
+      política (dominios de Google ya incluidos para cuando se active).
+- [x] Bug introducido por la CSP: `img-src` no incluía el dominio de
+      Supabase Storage, así que la foto de perfil (subida por el
+      usuario, servida desde ese dominio) se bloqueaba. Corregido
+      añadiendo el dominio al `img-src`.
+- [x] Referrer-Policy y Permissions-Policy añadidas junto a la CSP.
+- [x] Eliminados `fix_logo.js` e `inject_config.js` del frontend: scripts
+      puntuales de un solo uso ya ejecutados (commit "Correcciones",
+      2026-08-18), con rutas absolutas rotas apuntando a una carpeta que
+      ya no existe y a una página eliminada. Nada los referenciaba.
+- [x] Eliminado del backend el controlador y las rutas de `/api/favorites`
+      (`favorites.controller.js`, `favorites.routes.js`): código muerto,
+      el frontend siempre gestionó favoritos hablando directo con
+      Supabase (tabla `favoritos`), nunca llamó a este endpoint. Menos
+      superficie de API expuesta sin necesidad.
+      Acción manual pendiente del usuario: borrar en Vercel la variable
+      de entorno `DISCORD_WEBHOOK_URL` (Backend-BecaMax) -- ya no se usa
+      desde que el logger de accesos se migró a `system_logs`.
+
+Bugs funcionales corregidos:
+- [x] "Crear alerta" desde la ficha de una beca (`beca-detalle.html`)
+      nunca funcionó: era un enlace `<a>` estático simulando un botón,
+      sin lógica real detrás desde que se introdujo. Implementada la
+      función que sí guarda la alerta en Supabase.
+- [x] Botones de editar/eliminar alerta en el dashboard estaban vacíos
+      (sin icono ni texto) desde siempre -- añadidos los iconos SVG
+      correspondientes con `aria-label`/`title` para accesibilidad.
+- [x] Campana de notificaciones duplicada en móvil: un empate de
+      especificidad CSS entre dos reglas `.btn` hacía que la campana de
+      escritorio se mostrara también en móvil superpuesta a la propia.
+      Corregido con las reglas correctas.
+- [x] Hueco vacío en móvil entre las estadísticas y el listado de becas
+      del dashboard, para usuarios logueados: causado por un slot de
+      anuncio de AdSense vacío que quedaba visible al ocultarse la
+      sección de "features" de la home. Slot ocultado con `display:none`
+      mientras no haya cuenta de AdSense aprobada.
+- [x] Foto de perfil "rota" reportada varias veces: investigada a fondo
+      (caché de CDN, cabeceras Accept, CORS, Range requests, timing,
+      service workers, blob local, `createImageBitmap`, comparación con
+      otro dominio de imágenes). Confirmado con evidencia que el archivo
+      es un JPEG válido y se sirve correctamente (200 OK vía fetch/
+      navegación directa) -- el fallo es específico de cargar `<img>`
+      hacia ese dominio de Supabase dentro del navegador de pruebas
+      automatizado, no un bug real de producción. Se mantiene el
+      reintento con cache-busting como red de seguridad razonable. Los
+      errores de consola que sí eran reales (CSP con caché de navegador
+      desactualizada) se confirmaron resueltos con hard-refresh.
+- [x] Avatares de usuario sin comprimir: las fotos subidas desde el
+      móvil llegaban tal cual (hasta 2160x3840px, +1MB), muy por encima
+      de lo necesario para un avatar circular pequeño. Añadida
+      redimensión + recompresión a JPEG (máx. 512px, calidad 0.85) en el
+      propio navegador antes de subir a Supabase Storage.
+
+Contenido y datos:
+- [x] Nombres de becas y entidades con texto crudo/mal formado
+      provenientes de la sincronización con la BDNS (recorte directo de
+      la descripción larga sin limpiar). Añadida `limpiarNombre()` en
+      `bdnsSync.service.js` (aplicada a futuras sincronizaciones) y
+      corregidos a mano los 3 registros ya existentes con datos sucios.
+- [x] Revisión completa de la base de datos: las 8 tablas públicas y sus
+      relaciones (claves foráneas, ON DELETE CASCADE/SET NULL) y
+      políticas RLS verificadas una a una contra `pg_constraint`/
+      `pg_policies`. Detectadas dos políticas SELECT redundantes en
+      `becas` ("Lectura publica_becas" y "Becas are publicly readable") --
+      no rompen nada, limpieza opcional pendiente.
+
+Mejoras de UX:
+- [x] Checkbox dedicado "Ver solo becas abiertas" en el buscador,
+      sustituyendo la opción equivalente que solo existía escondida en
+      el desplegable de plazo (que además se ha eliminado del todo para
+      no duplicar el mismo filtro de dos formas distintas).
+- [x] Tarjeta de estadística "100% gratis y sin límites" (sin
+      información útil) sustituida por "Cierran en 7 o menos días", con
+      el conteo real de becas urgentes.
+- [x] Texto "Versión beta — algunos datos son de muestra" acortado a
+      "Versión beta" (ya no aplica lo de datos de muestra, todo viene de
+      la BDNS real).
+- [x] Panel de noticias del admin: añadido botón de cerrar (X) para que
+      el usuario pueda descartar el mensaje (con recuerdo por
+      `localStorage`, reaparece solo si hay un mensaje nuevo), y añadida
+      en `admin-monitorizacion.html` la opción de eliminar la noticia
+      publicada actualmente (`DELETE /api/admin/news`, sin probar aún
+      end-to-end con credenciales de admin reales).
+- [x] README.md del frontend actualizado: reflejaba una estructura de
+      2020 muy distinta a la actual (páginas movidas a `pages/`, backend
+      separado, datos desde la BDNS en vez de un dataset estático).
+
 ==================================================
               TAREAS COMPLETADAS
 ==================================================

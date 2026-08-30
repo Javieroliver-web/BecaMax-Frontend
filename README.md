@@ -1,88 +1,91 @@
 # BecaMax 🎓
 
-Gestor de becas con filtros, alertas de plazo y notificaciones por email. Orientado inicialmente a Andalucía, escalable a nivel nacional.
+Buscador y gestor de becas y ayudas para estudiantes: filtros por tipo de estudio/región, alertas de plazo, favoritos, panel de perfil académico y panel de administración. Datos sincronizados desde la BDNS (Base de Datos Nacional de Subvenciones).
+
+Proyecto dividido en dos repositorios, ambos desplegados en Vercel:
+
+- **Frontend-BecaMax** (este repo) — sitio estático (HTML/CSS/JS vanilla), en [becamax.vercel.app](https://becamax.vercel.app)
+- **Backend-BecaMax** — API Express (Node.js) que expone becas, alertas, panel admin y sincronización BDNS
+
+Toda la persistencia (usuarios, becas, alertas, favoritos, avatares, noticias, logs) vive en **Supabase** (Postgres + Auth + Storage), con Row Level Security activada en todas las tablas de usuario.
 
 ---
 
 ## Estructura del proyecto
 
 ```
-index.html          ← Buscador principal
-auth.html           ← Registro / Login
-dashboard.html      ← Panel de alertas del usuario
-styles.css          ← Design system completo
-app.js              ← Motor de filtrado y render
-auth.js             ← Lógica Supabase Auth (compartida)
-dashboard.js        ← Gestión CRUD de alertas
-supabase.js         ← Configuración del cliente Supabase
-data/becas.js       ← Dataset de becas (~20 entradas iniciales)
+index.html                 ← Buscador principal / dashboard público
+pages/
+  auth.html                 ← Registro / Login
+  dashboard.html             ← Panel de alertas del usuario logueado
+  perfil.html                ← Perfil académico + foto de avatar
+  configuracion.html         ← Ajustes de cuenta
+  beca-detalle.html          ← Ficha de una beca + creación de alertas
+  incidencias.html            ← Reporte de incidencias del usuario
+  guias.html, guia-*.html     ← Guías informativas
+  faq.html                    ← Preguntas frecuentes
+  legal/                       ← Aviso legal, privacidad, cookies
+  admin-dashboard.html         ← Panel admin (noticias, métricas)
+  admin-monitorizacion.html    ← Panel admin (logs, salud del sistema)
+  admin-incidencias.html       ← Panel admin (incidencias reportadas)
+js/
+  supabase.js, config.js       ← Cliente y configuración de Supabase
+  app.js                        ← Motor de filtrado/render del buscador
+  auth.js                       ← Lógica de sesión Supabase (compartida)
+  dashboard.js                  ← CRUD de alertas del usuario
+  favorites.js                  ← Sistema de favoritos (tabla `favoritos`)
+  perfil.js                     ← Perfil académico y avatar
+  configuracion.js               ← Ajustes de cuenta
+  admin.js                       ← Lógica de los paneles de admin
+  incidencias.js, cookies.js, adblock.js, logger.js
+data/becas.js                  ← Dataset de respaldo (las becas reales vienen de Supabase, sincronizadas desde la BDNS)
+vercel.json                    ← Cabeceras de seguridad (CSP, Referrer-Policy, Permissions-Policy)
 ```
 
 ---
 
-## Setup en 3 pasos
+## Setup en local
 
-### 1. Supabase (Auth + Base de datos)
+### 1. Supabase (Auth + Base de datos + Storage)
 
-1. Crea cuenta gratuita en [supabase.com](https://supabase.com)
-2. Crea un nuevo proyecto
-3. Ve a **Project Settings → API** y copia:
-   - `Project URL` → pégala en `supabase.js` como `SUPABASE_URL`
-   - `anon/public key` → pégala como `SUPABASE_ANON_KEY`
+1. Crea cuenta en [supabase.com](https://supabase.com) y un proyecto.
+2. En **Project Settings → API**, copia `Project URL` y `anon/public key` a `js/config.js`.
+3. Crea las tablas necesarias (`becas`, `perfiles`, `filtros_guardados`/alertas, `favoritos`, `noticias`, `system_logs`, `incidencias`) con RLS activada — ver el esquema vivo del proyecto en el dashboard de Supabase, no hay un `setup.sql` único ya que el esquema evolucionó de forma incremental.
+4. Crea un bucket público **`avatars`** en Storage para las fotos de perfil.
+5. En **Authentication → Settings**, configura la URL de confirmación de email.
 
-4. En el **SQL Editor** de Supabase, ejecuta el script `supabase/setup.sql`:
+### 2. Backend (API)
 
-```sql
--- Tabla de filtros guardados
-CREATE TABLE filtros_guardados (
-  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id    UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  nombre     TEXT NOT NULL,
-  filtros    JSONB NOT NULL DEFAULT '{}',
-  activo     BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+El repo `Backend-BecaMax` expone `/api/becas`, `/api/alerts`, `/api/admin`, `/api/logs` y `/api/bdns`. Necesita sus propias variables de entorno (`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `FRONTEND_URL`, etc.) — ver ese repo para el detalle.
 
--- Seguridad: cada usuario solo ve sus alertas
-ALTER TABLE filtros_guardados ENABLE ROW LEVEL SECURITY;
+### 3. Abrir el frontend en local
 
-CREATE POLICY "Usuarios ven sus propias alertas" ON filtros_guardados
-  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-```
-
-5. En **Authentication → Settings**:
-   - Configura la URL de confirmación de email (tu dominio o `http://localhost:5500`)
-   - Activa "Email confirmations" si quieres confirmar el email antes de entrar
-
-### 2. Resend (emails de alerta) — Fase futura
-
-1. Crea cuenta gratuita en [resend.com](https://resend.com) (3.000 emails/mes gratis)
-2. Obtén tu API key
-3. La Edge Function de Supabase (`supabase/functions/`) la configuraremos en la siguiente fase
-
-### 3. Abrir en local
-
-Abre con **VS Code + Live Server** (botón "Go Live" abajo a la derecha), o:
 ```
 npx serve .
 ```
-Navega a `http://localhost:5500`
+
+Navega a `http://localhost:3000` (o el puerto que indique `serve`).
 
 ---
 
-## Google AdSense (cuando tengas cuenta aprobada)
+## Seguridad
 
-Busca en `index.html` el comentario `<!-- ADSENSE:` y descomenta el bloque `<ins>`.
+- Content-Security-Policy, Referrer-Policy y Permissions-Policy configuradas en `vercel.json`.
+- RLS en todas las tablas de Supabase con datos de usuario.
+- Rate limiting y CORS restringido en el backend (ver `Backend-BecaMax/src/app.js`).
+
+## Google AdSense
+
+Activado en `index.html`. Pendiente de solicitar la revisión de AdSense para los anuncios.
 
 ---
 
 ## Roadmap
 
-- [x] MVP: filtros, countdown, cards, dataset inicial
-- [x] Auth: registro, login, logout (Supabase)
-- [x] Alertas: guardar/activar/desactivar/eliminar desde dashboard
-- [ ] Fase 2: Integración BDNS API (Hacienda) para becas en tiempo real
-- [ ] Fase 2: Edge Function Supabase + Resend para envío de emails
-- [ ] Fase 3: Scraper de convocatorias abiertas de la Junta y MEC
-- [ ] Fase 3: Panel de administración para añadir becas manualmente
-- [ ] Google AdSense activado
+- [x] MVP: filtros, countdown, cards, buscador
+- [x] Auth, alertas, favoritos y perfil académico (Supabase)
+- [x] Sincronización automática con la BDNS (Hacienda)
+- [x] Panel de administración (noticias, monitorización, incidencias)
+- [x] Content-Security-Policy completa
+- [ ] Edge Function + envío de emails para alertas de plazo
+- [ ] Revisión de Google AdSense

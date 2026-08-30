@@ -21,6 +21,25 @@ function cargarImagenConReintento(img, url, intentosRestantes = 2) {
   img.src = url;
 }
 
+// Las fotos que suben los usuarios vienen tal cual las hace el móvil (pueden
+// superar los 4000px de lado y varios MB), muy por encima de lo que necesita
+// un avatar circular pequeño. Redimensionamos a un máximo de 512px y
+// recomprimimos a JPEG en el propio navegador antes de subir, para no gastar
+// almacenamiento ni ancho de banda de más en cada carga del perfil.
+async function redimensionarImagen(file, maxLado = 512, calidad = 0.85) {
+  const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  const escala = Math.min(1, maxLado / Math.max(bitmap.width, bitmap.height));
+  const w = Math.round(bitmap.width * escala);
+  const h = Math.round(bitmap.height * escala);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  canvas.getContext('2d').drawImage(bitmap, 0, 0, w, h);
+
+  return await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', calidad));
+}
+
 async function cargarPerfil() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) return;
@@ -256,15 +275,16 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('modalAvatares').classList.remove('active');
       showToast('Subiendo imagen...', 'info');
 
-      // Nombre de archivo único
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${session.user.id}-${Math.random()}.${fileExt}`;
+      // Nombre de archivo único (siempre .jpeg: redimensionarImagen recomprime a JPEG)
+      const fileName = `${session.user.id}-${Math.random()}.jpeg`;
       const filePath = `${session.user.id}/${fileName}`;
+
+      const archivoRedimensionado = await redimensionarImagen(file);
 
       // Subir al bucket
       const { error: uploadError } = await supabaseClient.storage
         .from('avatars')
-        .upload(filePath, file, { cacheControl: '3600', upsert: true });
+        .upload(filePath, archivoRedimensionado, { cacheControl: '3600', upsert: true, contentType: 'image/jpeg' });
 
       if (uploadError) {
         console.error('Upload Error:', uploadError);
