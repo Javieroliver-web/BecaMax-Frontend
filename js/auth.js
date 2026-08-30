@@ -89,7 +89,7 @@ function resetTurnstile(widgetId) {
 // que termine, getTurnstileToken() devuelve null y Supabase rechaza la
 // petición con "captcha protection: request disallowed". En vez de fallar
 // ahí, esperamos activamente (con límite) a que el token esté listo.
-async function waitForTurnstileToken(widgetId, maxWaitMs = 4000) {
+async function waitForTurnstileToken(widgetId, maxWaitMs = 10000) {
   const start = Date.now();
   let token = getTurnstileToken(widgetId);
   while (!token && Date.now() - start < maxWaitMs) {
