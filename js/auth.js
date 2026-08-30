@@ -405,8 +405,17 @@ async function updateHeaderAuth() {
     // encontraba _userId sin asignar y redirigía al login aunque hubiera
     // sesión iniciada. Se centraliza aquí porque updateHeaderAuth() corre
     // en todas las páginas que cargan auth.js.
-    if (typeof initFavorites === 'function') {
-      initFavorites(session.user.id);
+    // getSession() puede resolver via microtask (sesión ya en caché) antes
+    // de que el <script> de favorites.js, que va después en el HTML, llegue
+    // a ejecutarse -- de ahí el chequeo de document.readyState en vez de
+    // llamar directo, para no depender del orden de los <script>.
+    const tryInitFavorites = () => {
+      if (typeof initFavorites === 'function') initFavorites(session.user.id);
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', tryInitFavorites, { once: true });
+    } else {
+      tryInitFavorites();
     }
 
     const nombre = session.user.user_metadata?.full_name || session.user.user_metadata?.nombre || session.user.email.split('@')[0];
