@@ -178,17 +178,20 @@ async function handleLogin(e) {
   btn.textContent = 'Entrando…';
 
   try {
-    // Si Turnstile no llega a dar token (bloqueado por software externo al
-    // navegador, red lenta, etc.) dejamos pasar el login igualmente en vez
-    // de bloquear a un usuario legítimo: el rate-limiting de Upstash sigue
-    // protegiendo contra fuerza bruta aunque falte el captcha.
     const captchaToken = await waitForTurnstileToken('turnstile-login');
+    if (!captchaToken) {
+      btn.disabled = false;
+      btn.textContent = 'Iniciar sesión';
+      errEl.textContent = 'Verificación de seguridad no lista todavía, espera un segundo e inténtalo de nuevo';
+      errEl.classList.add('visible');
+      return;
+    }
 
-    const { data, error } = await supabaseClient.auth.signInWithPassword(
-      captchaToken
-        ? { email, password: pass, options: { captchaToken } }
-        : { email, password: pass }
-    );
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password: pass,
+      options: { captchaToken }
+    });
 
     resetTurnstile('turnstile-login');
 
