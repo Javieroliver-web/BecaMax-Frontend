@@ -614,5 +614,11 @@ async function initTheme() {
 
 document.addEventListener('DOMContentLoaded', initTheme);
 
+// ---- Cerrar cualquier modal .active con Escape --------------
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  document.querySelectorAll('.modal.active').forEach(m => m.classList.remove('active'));
+});
+
 // ---- Init on every page ------------------------------------
 updateHeaderAuth();
