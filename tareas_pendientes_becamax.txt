@@ -3,6 +3,49 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== 🧭 AUDITORÍA DE NAVEGACIÓN (2026-08-30) ===
+La extensión de Chrome no conectó en toda esta pasada, así que se hizo por
+revisión de código sistemática (scripts propios, no solo lectura manual)
+en vez de navegador real.
+- [x] Botón "¿Olvidaste tu contraseña?" no respondía: `getTurnstileToken()`
+      podía lanzar sin capturar si el widget de Turnstile aún no había
+      terminado de renderizar (script async). Blindado con try/catch, y
+      login/registro/recuperar-contraseña ahora SIEMPRE dan alguna
+      respuesta visible (nunca vuelven a fallar en silencio).
+- [x] admin-dashboard.html, admin-incidencias.html y admin-monitorizacion.html
+      usaban variables CSS (`--card-bg`, `--border-color`, `--warning-color`,
+      `--success-color`, `--border-radius-md`) que nunca se definieron en
+      styles.css -- tarjetas de estadísticas, tabla de incidencias y badges
+      de estado sin fondo/borde visible. Corregido con las variables reales
+      del proyecto (`--bg-secondary`, `--glass-border`, `--warning`, `--success`,
+      `--border-radius`). Comprobación sistemática de TODAS las variables CSS
+      usadas vs. definidas en todo el proyecto (HTML+CSS+JS): sin ninguna
+      más suelta (la única restante, `--primary-rgb`, tiene su propio
+      fallback integrado, no es un bug).
+- [x] BUG DE RESILIENCIA REAL: `index.html`, `beca-detalle.html` y
+      `dashboard.html` esperaban un archivo `data/becas.js` (dataset
+      estático de reserva) que nunca existió en el frontend -- solo existía
+      en el backend. Los `typeof BECAS_ESTATICAS !== 'undefined'` evitaban
+      que esto rompiera nada visiblemente, pero significaba que si el
+      backend/Supabase fallaba alguna vez, la web entera (incluida la home)
+      se quedaba sin ninguna beca que mostrar, sin red de seguridad. Se
+      confirmó además que `index.html` sí llama de verdad a `/api/becas`
+      (una conclusión anterior de esta sesión que decía lo contrario era
+      incorrecta -- el grep de entonces no detectaba la URL porque se
+      construye con una plantilla de JS, `${API_URL}/becas`, no como texto
+      literal). Creado `data/becas.js` en el frontend con el mismo dataset
+      que ya tenía el backend, y añadido el `<script>` que faltaba en
+      index.html.
+- Comprobación sistemática de TODOS los enlaces/rutas del sitio (href, src
+  de scripts, imágenes y hojas de estilo, en las 18 páginas): 0 rutas rotas
+  tras los fixes anteriores. También se comprobó que ninguna función usada
+  en `onclick="..."` esté indefinida en los scripts que carga cada página:
+  ninguna encontrada. Menú hamburguesa/móvil consistente en todas las
+  páginas que lo usan.
+- [ ] Pendiente: verificación visual real en navegador (colores, layout,
+      responsive) en cuanto se pueda reconectar la extensión de Chrome --
+      esta pasada fue 100% a nivel de código.
+
 === 🎨 AUDITORÍA UI/UX Y BUGS (2026-08-30) ===
 Origen: el usuario vio el icono de tema claro/oscuro vacío. Causa raíz
 encontrada: en algún momento se "purgó" el proyecto de emojis (nota propia
