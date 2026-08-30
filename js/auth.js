@@ -84,6 +84,21 @@ function resetTurnstile(widgetId) {
   try { turnstile.reset(widgetId); } catch (e) { /* noop */ }
 }
 
+// El widget resuelve su comprobación en segundo plano tras cargar la
+// página (1-3s típicamente); si se hace clic en una acción justo antes de
+// que termine, getTurnstileToken() devuelve null y Supabase rechaza la
+// petición con "captcha protection: request disallowed". En vez de fallar
+// ahí, esperamos activamente (con límite) a que el token esté listo.
+async function waitForTurnstileToken(widgetId, maxWaitMs = 4000) {
+  const start = Date.now();
+  let token = getTurnstileToken(widgetId);
+  while (!token && Date.now() - start < maxWaitMs) {
+    await new Promise(r => setTimeout(r, 200));
+    token = getTurnstileToken(widgetId);
+  }
+  return token;
+}
+
 async function handleRegister(e) {
   e.preventDefault();
   const nombre = document.getElementById('regNombre').value.trim();
@@ -105,7 +120,14 @@ async function handleRegister(e) {
   btn.textContent = 'Creando cuenta…';
 
   try {
-    const captchaToken = getTurnstileToken('turnstile-register');
+    const captchaToken = await waitForTurnstileToken('turnstile-register');
+    if (!captchaToken) {
+      btn.disabled = false;
+      btn.textContent = 'Crear cuenta gratuita';
+      errEl.textContent = 'Verificación de seguridad no lista todavía, espera un segundo e inténtalo de nuevo';
+      errEl.classList.add('visible');
+      return;
+    }
 
     const { error } = await supabaseClient.auth.signUp({
       email,
@@ -156,7 +178,14 @@ async function handleLogin(e) {
   btn.textContent = 'Entrando…';
 
   try {
-    const captchaToken = getTurnstileToken('turnstile-login');
+    const captchaToken = await waitForTurnstileToken('turnstile-login');
+    if (!captchaToken) {
+      btn.disabled = false;
+      btn.textContent = 'Iniciar sesión';
+      errEl.textContent = 'Verificación de seguridad no lista todavía, espera un segundo e inténtalo de nuevo';
+      errEl.classList.add('visible');
+      return;
+    }
 
     const { data, error } = await supabaseClient.auth.signInWithPassword({
       email,
@@ -208,7 +237,11 @@ async function handleForgotPassword(e) {
   const email = document.getElementById('loginEmail').value.trim();
   if (!email) { showToast('Introduce tu email primero', 'info'); return; }
   try {
-    const captchaToken = getTurnstileToken('turnstile-login');
+    const captchaToken = await waitForTurnstileToken('turnstile-login');
+    if (!captchaToken) {
+      showToast('Verificación de seguridad no lista todavía, espera un segundo e inténtalo de nuevo', 'info');
+      return;
+    }
     const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { captchaToken });
     resetTurnstile('turnstile-login');
     if (error) showToast('Error: ' + tradError(error.message), 'error');
