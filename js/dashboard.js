@@ -328,15 +328,17 @@ async function renderNotificaciones() {
   if (!error && data) NOTIFICACIONES = data;
 
   const lista = document.getElementById('notificationsList');
-  const badge = document.getElementById('notifBadge');
+  const badges = [document.getElementById('notifBadge'), document.getElementById('notifBadgeMobile')];
   const sinLeer = NOTIFICACIONES.filter(n => !n.leida).length;
 
-  if (sinLeer > 0) {
-    badge.textContent = sinLeer;
-    badge.classList.add('active');
-  } else {
-    badge.classList.remove('active');
-  }
+  badges.forEach(badge => {
+    if (sinLeer > 0) {
+      badge.textContent = sinLeer;
+      badge.classList.add('active');
+    } else {
+      badge.classList.remove('active');
+    }
+  });
 
   if (NOTIFICACIONES.length === 0) {
     lista.innerHTML = `<p style="text-align:center;color:var(--text-muted);padding:40px 0;">No tienes notificaciones.</p>`;
@@ -440,9 +442,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Eventos Notificaciones
-  document.getElementById('btnNotifications').addEventListener('click', () => {
-    document.getElementById('modalNotificaciones').classList.add('active');
-  });
+  const abrirNotificaciones = () => document.getElementById('modalNotificaciones').classList.add('active');
+  document.getElementById('btnNotifications').addEventListener('click', abrirNotificaciones);
+  document.getElementById('btnNotificationsMobile').addEventListener('click', abrirNotificaciones);
   document.getElementById('btnCerrarNotifModal').addEventListener('click', () => {
     document.getElementById('modalNotificaciones').classList.remove('active');
   });

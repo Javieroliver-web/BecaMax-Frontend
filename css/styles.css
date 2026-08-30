@@ -93,6 +93,7 @@ input,select,textarea,button{font-family:inherit}
 .user-menu{display:flex;align-items:center;gap:10px}
 .user-name{font-size:.85rem;color:var(--text-secondary);font-weight:500}
 .btn-notifications{position:relative;font-size:1.1rem!important;padding:8px!important}
+.btn-notifications-mobile{display:none}
 .badge-count{position:absolute;top:2px;right:2px;background:var(--danger);color:#fff;font-size:.65rem;min-width:16px;height:16px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;border:2px solid var(--bg-secondary);opacity:0;transition:opacity .3s ease}
 .badge-count.active{opacity:1}
 
@@ -465,6 +466,7 @@ body.light-mode .badge-cerrada{opacity:1;color:#334155;border-color:#cbd5e1}
   .alerta-card{flex-direction:column;align-items:flex-start}
   .alerta-actions{width:100%;justify-content:flex-end}
   .header-actions{display:none!important}
+  .btn-notifications-mobile{display:inline-flex}
   .hamburger-btn{display:flex}
   .mobile-menu.open{display:flex}
   /* Reducir padding features en móvil */
