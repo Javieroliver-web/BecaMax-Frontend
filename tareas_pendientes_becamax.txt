@@ -106,10 +106,10 @@ confirmada con una prueba aislada y decisiva:
       sesión con una ya existente. Quitado `minlength` de `loginPassword`;
       `regPassword` y los campos de Configuración conservan `minlength="8"`.
       Verificado en producción (commit 49c10fe).
-- [ ] Pendiente confirmar con el usuario si esto ya resuelve su login, o si
-      el widget de Turnstile en login también falla en su máquina (el fallo
-      de Turnstile confirmado hasta ahora fue solo en "¿Olvidaste tu
-      contraseña?", por el conflicto de Trusted Types no originado en el
+- [x] Superado por la migración a hCaptcha (ver sección correspondiente
+      más abajo): el widget de Turnstile en login también fallaba en la
+      máquina del admin por un conflicto de Trusted Types no originado en
+      el código de BecaMax. Resuelto al cambiar de proveedor de captcha.
       código de BecaMax -- ver sección de auditoría de navegación más abajo).
 
 === 🧭 AUDITORÍA DE NAVEGACIÓN (2026-08-30) ===
