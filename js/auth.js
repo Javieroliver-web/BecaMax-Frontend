@@ -70,7 +70,13 @@ function iniciarContadorRateLimit(seconds, errEl, btn) {
 // ---- Cloudflare Turnstile helpers ----------------------------
 function getTurnstileToken(widgetId) {
   if (typeof turnstile === 'undefined') return null;
-  return turnstile.getResponse(widgetId) || null;
+  // Si el widget aún no ha terminado de renderizarse (script cargado async),
+  // getResponse() puede lanzar en vez de devolver undefined -- sin este
+  // try/catch, un clic justo en ese momento rompía el handler entero en
+  // silencio (sin toast, sin error visible: parecía que el botón "no
+  // respondía").
+  try { return turnstile.getResponse(widgetId) || null; }
+  catch (e) { return null; }
 }
 
 function resetTurnstile(widgetId) {
@@ -98,34 +104,42 @@ async function handleRegister(e) {
   btn.disabled = true;
   btn.textContent = 'Creando cuenta…';
 
-  const captchaToken = getTurnstileToken('turnstile-register');
+  try {
+    const captchaToken = getTurnstileToken('turnstile-register');
 
-  const { error } = await supabaseClient.auth.signUp({
-    email,
-    password: pass,
-    options: { data: { nombre }, captchaToken }
-  });
+    const { error } = await supabaseClient.auth.signUp({
+      email,
+      password: pass,
+      options: { data: { nombre }, captchaToken }
+    });
 
-  resetTurnstile('turnstile-register');
+    resetTurnstile('turnstile-register');
 
-  if (error) {
-    if (error.message.toLowerCase().includes('rate limit')) {
-      // Supabase por defecto bloquea durante 1 HORA (3600 segundos) tras varios intentos fallidos
-      const lockUntil = Date.now() + 3600000;
-      localStorage.setItem('rateLimitUnlock', lockUntil);
-      iniciarContadorRateLimit(3600, errEl, btn);
+    if (error) {
+      if (error.message.toLowerCase().includes('rate limit')) {
+        // Supabase por defecto bloquea durante 1 HORA (3600 segundos) tras varios intentos fallidos
+        const lockUntil = Date.now() + 3600000;
+        localStorage.setItem('rateLimitUnlock', lockUntil);
+        iniciarContadorRateLimit(3600, errEl, btn);
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Crear cuenta gratuita';
+        errEl.textContent = tradError(error.message);
+        errEl.classList.add('visible');
+      }
     } else {
       btn.disabled = false;
       btn.textContent = 'Crear cuenta gratuita';
-      errEl.textContent = tradError(error.message);
-      errEl.classList.add('visible');
+      document.getElementById('formRegistro').style.display = 'none';
+      document.querySelector('.auth-tabs').style.display = 'none';
+      document.getElementById('authSuccess').classList.add('visible');
     }
-  } else {
+  } catch (err) {
+    // Nunca dejar el botón bloqueado en silencio ante un fallo inesperado.
     btn.disabled = false;
     btn.textContent = 'Crear cuenta gratuita';
-    document.getElementById('formRegistro').style.display = 'none';
-    document.querySelector('.auth-tabs').style.display = 'none';
-    document.getElementById('authSuccess').classList.add('visible');
+    errEl.textContent = 'No se pudo procesar el registro, inténtalo de nuevo';
+    errEl.classList.add('visible');
   }
 }
 
@@ -141,42 +155,50 @@ async function handleLogin(e) {
   btn.disabled = true;
   btn.textContent = 'Entrando…';
 
-  const captchaToken = getTurnstileToken('turnstile-login');
+  try {
+    const captchaToken = getTurnstileToken('turnstile-login');
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password: pass,
-    options: { captchaToken }
-  });
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password: pass,
+      options: { captchaToken }
+    });
 
-  resetTurnstile('turnstile-login');
+    resetTurnstile('turnstile-login');
 
-  btn.disabled = false;
-  btn.textContent = 'Iniciar sesión';
+    btn.disabled = false;
+    btn.textContent = 'Iniciar sesión';
 
-  if (error) {
-    errEl.textContent = tradError(error.message);
-    errEl.classList.add('visible');
-  } else {
-    // Verificación de Bloqueo
-    const { data: perfil } = await supabaseClient
-      .from('perfiles')
-      .select('estado')
-      .eq('user_id', data.session.user.id)
-      .single();
-
-    if (perfil && perfil.estado === 'bloqueado') {
-      await supabaseClient.auth.signOut();
-      errEl.textContent = ' Cuenta suspendida por la administración.';
+    if (error) {
+      errEl.textContent = tradError(error.message);
       errEl.classList.add('visible');
-      return;
-    }
+    } else {
+      // Verificación de Bloqueo
+      const { data: perfil } = await supabaseClient
+        .from('perfiles')
+        .select('estado')
+        .eq('user_id', data.session.user.id)
+        .single();
 
-    // Redirigir al returnUrl validado o al dashboard
-    const params = new URLSearchParams(window.location.search);
-    const rawRet = params.get('returnUrl') || '';
-    const ret    = sanitizeReturnUrl(rawRet) || 'dashboard.html';
-    window.location.href = ret;
+      if (perfil && perfil.estado === 'bloqueado') {
+        await supabaseClient.auth.signOut();
+        errEl.textContent = 'Cuenta suspendida por la administración.';
+        errEl.classList.add('visible');
+        return;
+      }
+
+      // Redirigir al returnUrl validado o al dashboard
+      const params = new URLSearchParams(window.location.search);
+      const rawRet = params.get('returnUrl') || '';
+      const ret    = sanitizeReturnUrl(rawRet) || 'dashboard.html';
+      window.location.href = ret;
+    }
+  } catch (err) {
+    // Nunca dejar el botón bloqueado en silencio ante un fallo inesperado.
+    btn.disabled = false;
+    btn.textContent = 'Iniciar sesión';
+    errEl.textContent = 'No se pudo iniciar sesión, inténtalo de nuevo';
+    errEl.classList.add('visible');
   }
 }
 
@@ -185,11 +207,18 @@ async function handleForgotPassword(e) {
   e.preventDefault();
   const email = document.getElementById('loginEmail').value.trim();
   if (!email) { showToast('Introduce tu email primero', 'info'); return; }
-  const captchaToken = getTurnstileToken('turnstile-login');
-  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { captchaToken });
-  resetTurnstile('turnstile-login');
-  if (error) showToast('Error: ' + tradError(error.message), 'error');
-  else showToast(' Email de recuperación enviado', 'success');
+  try {
+    const captchaToken = getTurnstileToken('turnstile-login');
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { captchaToken });
+    resetTurnstile('turnstile-login');
+    if (error) showToast('Error: ' + tradError(error.message), 'error');
+    else showToast('Email de recuperación enviado', 'success');
+  } catch (err) {
+    // Nunca fallar en silencio: si algo inesperado revienta aquí (p.ej. el
+    // widget de Turnstile aún no listo), el usuario debe ver algo, no que
+    // el botón "no responda".
+    showToast('No se pudo procesar la solicitud, inténtalo de nuevo', 'error');
+  }
 }
 
 // ---- Validación de returnUrl (previene Open Redirect) -------
