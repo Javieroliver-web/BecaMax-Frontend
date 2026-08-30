@@ -3,6 +3,57 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== 🚧 PENDIENTE: Turnstile bloqueado en el entorno del admin (2026-08-30) ===
+Investigación en curso, retomar mañana. Estado actual:
+- CAUSA RAÍZ CONFIRMADA (no es un bug de BecaMax): el navegador del admin
+  recibe una Content-Security-Policy `trusted-types Kssz2 default` que
+  bloquea a Cloudflare Turnstile crear su propia política interna ("afc"):
+  `Failed to execute 'createPolicy' ... Policy "afc" disallowed`.
+  Confirmado con evidencia dura que esa CSP NO la envía nuestro servidor
+  (cabeceras reales de becamax.vercel.app comprobadas por curl: sin
+  Content-Security-Policy alguna).
+- Se reproduce igual en PC (Edge y Chrome, incluso InPrivate) y en el
+  MÓVIL usando datos móviles (descarta wifi/router de casa).
+- Descartado: extensiones de Chrome de escritorio (el móvil no las corre
+  y falla igual), Google Family Link / control parental, cuenta de
+  Google Workspace o dispositivo gestionado por empresa/centro de
+  estudios. Antivirus de terceros: el PC solo tiene Windows Defender
+  (sin antivirus adicional instalado) — pendiente de comprobar en el
+  móvil qué apps de seguridad/VPN hay instaladas.
+  Pendiente aún: revisar Microsoft Family Safety (si hay cuenta
+  Microsoft compartida entre PC y móvil), chrome://policy / edge://policy
+  en el PC, y qué apps de seguridad/VPN corren en el móvil.
+- Arreglo temporal de acceso YA aplicado y verificado: generé un enlace
+  de recuperación de contraseña vía Supabase Admin API (sin pasar por
+  Turnstile) para que el admin pudiera fijar una contraseña nueva de 8+
+  caracteres desde Configuración. Funcionó.
+- El LOGIN normal sigue bloqueado para el admin en su PC/móvil actuales:
+  Turnstile nunca da token → Supabase responde
+  `captcha protection: request disallowed (no captcha_token found)`
+  porque la protección CAPTCHA está marcada OBLIGATORIA en el servidor
+  de Supabase (Authentication → Attack Protection). Es todo-o-nada:
+  cubre registro+login+recuperación a la vez, no se puede aplicar solo
+  a uno de los tres flujos.
+- Se probó dejar pasar el login sin captcha desde el cliente cuando
+  Turnstile no responde (commit b6eead9) -- funcionaba a medias porque
+  Supabase igualmente lo rechazaba en servidor. El usuario decidió NO
+  desactivar la protección CAPTCHA obligatoria de Supabase, así que se
+  revirtió (commit 725987b) para no mostrar un error técnico feo en su
+  lugar. Sigue el mensaje amable "espera un segundo e inténtalo de nuevo".
+- Próximos pasos a evaluar mañana (decisión pendiente del usuario):
+  a) Cambiar de proveedor de captcha en Supabase: Turnstile → hCaptcha
+     (Supabase admite ambos). Puede que la librería de hCaptcha no
+     choque con esa CSP restrictiva al no intentar crear la misma
+     política "afc" de Cloudflare. Requiere cuenta hCaptcha + cambiar
+     la config en Supabase + cambiar el widget en auth.html.
+  b) Seguir investigando qué inyecta exactamente esa CSP en ambos
+     dispositivos del admin (ver pendientes de arriba) y eliminarlo de
+     raíz, dejando Turnstile intacto.
+  c) Mientras tanto, si el admin necesita entrar con urgencia: puedo
+     generar otro enlace de recuperación vía Supabase Admin API (server
+     -side, sin Turnstile) como parche puntual -- no toca la
+     configuración de la cuenta, solo genera un enlace de un solo uso.
+
 === 🔐 BUG LOGIN: minlength=8 heredado bloqueaba contraseñas antiguas (2026-08-30) ===
 - [x] `pages/auth.html`: el campo `loginPassword` tenía `minlength="8"`, arrastrado
       del cambio de política de contraseñas (mínimo subió de 6 a 8). Esto hacía
