@@ -267,9 +267,12 @@ function renderCard(b, delay = 0) {
 function actualizarStats(becasFiltradas) {
   const abiertas = BECAS.filter(b => diasRestantes(b.deadline) >= 0);
   const maxImp   = Math.max(0, ...BECAS.map(b => b.importe?.max ?? 0));
+  const urgentes = abiertas.filter(b => diasRestantes(b.deadline) <= 7);
   document.getElementById('statTotal').textContent = abiertas.length;
   const finEl = document.getElementById('statFinanciacion');
   if (finEl) finEl.textContent = maxImp > 0 ? maxImp.toLocaleString('es-ES') + ' €' : '—';
+  const urgEl = document.getElementById('statUrgentes');
+  if (urgEl) urgEl.textContent = urgentes.length;
 }
 
 // ---- Render principal --------------------------------------
