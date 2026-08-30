@@ -487,10 +487,16 @@ async function updateHeaderAuth() {
           if (el.id === 'userDropdownMenuDiv') return;
           const t = el.textContent.trim().toLowerCase();
           if (
-            t.includes('cerrar sesión') || t.includes('salir') || 
-            t.includes('iniciar sesión') || t.includes('registrarse') || 
+            // Por id es robusto de verdad (no depende de adivinar el texto
+            // exacto del botón -- así se nos coló "Acceder" en
+            // incidencias.html, que no coincidía con "iniciar sesión" y
+            // se quedaba mostrado a la vez que la sesión ya iniciada).
+            el.id === 'btnLogin' || el.id === 'btnRegister' ||
+            el.id === 'mobileLogin' || el.id === 'mobileRegister' ||
+            t.includes('cerrar sesión') || t.includes('salir') ||
+            t.includes('iniciar sesión') || t.includes('registrarse') ||
             t.includes('perfil') || t.includes('configuración') ||
-            (t.includes('mis alertas') && el.tagName === 'A') || 
+            (t.includes('mis alertas') && el.tagName === 'A') ||
             (t.includes('monitorización') && el.tagName === 'A') ||
             el.id === 'headerUserName' || el.classList.contains('user-menu')
           ) {
