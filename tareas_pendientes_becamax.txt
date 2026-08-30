@@ -36,14 +36,25 @@ vacíos (`innerHTML = ''`) en vez de sustituir por iconos reales.
   indebida.
 - Verificado visualmente en navegador (escritorio y móvil 390px): tema,
   icono de contraseña, menú móvil -- todo funcionando correctamente.
-- [ ] Pendiente de revisión futura (no cubierto por presupuesto de esta
-      pasada): pequeña discrepancia observada en el contador "becas
-      disponibles" de la home (mostró 15+ y luego 10 al reabrir el menú
-      móvil -- probablemente solo un dato optimista vs. el real cargando
-      de forma asíncrona, no confirmado como bug real). Resto de espacios
-      sueltos detectados por patrón de texto en archivos .html estáticos
-      (no confirmados uno a uno, riesgo de falsos positivos en HTML
-      multilínea) y verificación de consola/debugger olvidados.
+- [x] (2026-08-30) Modal de bienvenida "¡Bienvenido a BecaMax!" (onboarding
+      de 3 pasos) eliminado por completo a petición del usuario -- lo
+      consideraba invasivo. Borrado `js/onboarding.js`, su `<script>` en
+      index.html y el CSS específico (`.onb-dot`) que ya no se usaba.
+- [x] (2026-08-30) El contador "15+ -> 10" no era solo un parpadeo: era un
+      bug real de IDs cruzados. La tarjeta "Financiación potencial" tenía
+      el id `statUrgente` y se rellenaba con un CONTADOR de becas urgentes
+      (ej. "2"), sin sentido bajo esa etiqueta; la tarjeta "Gratis y sin
+      límites" tenía el id `statMaxImporte` y se sobrescribía con un
+      IMPORTE en euros en vez de quedarse en "100%" fijo. Corregido:
+      "Financiación potencial" ahora muestra el importe máximo real entre
+      las becas abiertas (verificado en producción: "30.000 €"), "Gratis y
+      sin límites" ya no se toca por JS y se queda siempre en "100%". El
+      placeholder estático "15+" de "Becas disponibles" se cambió a "—"
+      para no mostrar nunca un número inventado antes de cargar el real.
+      Resto de espacios sueltos detectados por patrón de texto en archivos
+      .html estáticos (no confirmados uno a uno, riesgo de falsos
+      positivos en HTML multilínea) y verificación de consola/debugger
+      olvidados quedan pendientes de una pasada futura si se desea.
 
 === ✅ FIXES CRÍTICOS APLICADOS (2026-08-29, auditoría Claude Code) ===
 - [x] (2026-08-29) SyntaxError en alerts.controller.js (faltaba `try {` antes
