@@ -8,8 +8,8 @@
   <link rel="stylesheet" href="../css/styles.css">
   <style>
     .admin-nav { display:flex; gap:10px; margin-bottom: 20px; justify-content: center;}
-    .admin-table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 8px; overflow: hidden; font-size:0.9rem;}
-    .admin-table th, .admin-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+    .admin-table { width: 100%; border-collapse: collapse; background: var(--bg-secondary); border-radius: 8px; overflow: hidden; font-size:0.9rem;}
+    .admin-table th, .admin-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--glass-border); }
     .admin-table th { background: rgba(255,255,255,0.03); color: var(--text-secondary); font-weight: 500;}
   </style>
 </head>
@@ -105,8 +105,8 @@
     tbody.innerHTML = incidencias.map(i => {
       const fecha = new Date(i.created_at).toLocaleDateString();
       const estadoBadge = i.estado === 'pendiente' 
-        ? `<span class="badge" style="background:var(--warning-color);color:#000">Pendiente</span>` 
-        : `<span class="badge" style="background:var(--success-color);color:#000">Resuelta</span>`;
+        ? `<span class="badge" style="background:var(--warning);color:#000">Pendiente</span>`
+        : `<span class="badge" style="background:var(--success);color:#000">Resuelta</span>`;
       return `
       <tr>
         <td style="white-space:nowrap">${fecha}</td>
