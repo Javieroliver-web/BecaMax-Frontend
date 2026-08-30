@@ -3,6 +3,48 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== 🎨 AUDITORÍA UI/UX Y BUGS (2026-08-30) ===
+Origen: el usuario vio el icono de tema claro/oscuro vacío. Causa raíz
+encontrada: en algún momento se "purgó" el proyecto de emojis (nota propia
+en Backend-BecaMax/pendientes_manana.txt), pero se hizo dejando huecos
+vacíos (`innerHTML = ''`) en vez de sustituir por iconos reales.
+- [x] Icono de tema claro/oscuro: vacío en ambas ramas (auth.js/configuracion.js)
+      -> iconos SVG de sol/luna.
+- [x] Botón de mostrar/ocultar contraseña ("Botón Ojo"): completamente
+      invisible en los 4 formularios que lo usan (login, registro,
+      configuración x2) -- funcionaba pero nadie lo veía. Ahora con iconos
+      SVG de ojo/ojo-tachado, compartidos vía config.js (se quitó la
+      duplicación de la función en auth.html y configuracion.html).
+- [x] Botón de favoritos (⭐): usaba un emoji literal que **ignora la
+      propiedad CSS `color`** -- el cambio de color activo/inactivo
+      (gris/naranja) nunca funcionó de verdad pese a estar en el CSS.
+      Cambiado a SVG con `currentColor`, ahora sí funciona.
+- [x] 8 estados vacíos sin icono (sin resultados de búsqueda, sin alertas
+      activas, sin coincidencias x2, perfil incompleto, sin alertas
+      guardadas, sin favoritos, mensaje de éxito en incidencias) --
+      todos con iconos SVG contextuales ahora.
+- [x] Icono de notificaciones: el backend insertaba `icono: ''` y el
+      frontend tenía un ternario con las dos ramas vacías. Limpiado en
+      ambos lados, icono de campana fijo en el frontend.
+- [x] ~10 espacios sueltos (huella de emojis borrados sin quitar el
+      espacio separador) en auth.js, dashboard.js, adblock.js, app.js y
+      la plantilla de email de alertas.
+- Confirmado limpio en la revisión de bugs: enlaces internos sin roturas,
+  formato de respuesta de error consistente en todos los controladores del
+  backend, sin conflictos de z-index, sin condición de carrera entre los
+  crons de BDNS (06:00) y alertas (07:00), páginas admin sin lógica cruzada
+  indebida.
+- Verificado visualmente en navegador (escritorio y móvil 390px): tema,
+  icono de contraseña, menú móvil -- todo funcionando correctamente.
+- [ ] Pendiente de revisión futura (no cubierto por presupuesto de esta
+      pasada): pequeña discrepancia observada en el contador "becas
+      disponibles" de la home (mostró 15+ y luego 10 al reabrir el menú
+      móvil -- probablemente solo un dato optimista vs. el real cargando
+      de forma asíncrona, no confirmado como bug real). Resto de espacios
+      sueltos detectados por patrón de texto en archivos .html estáticos
+      (no confirmados uno a uno, riesgo de falsos positivos en HTML
+      multilínea) y verificación de consola/debugger olvidados.
+
 === ✅ FIXES CRÍTICOS APLICADOS (2026-08-29, auditoría Claude Code) ===
 - [x] (2026-08-29) SyntaxError en alerts.controller.js (faltaba `try {` antes
       de un `catch`) tumbaba TODA la API, no solo el cron de alertas.
