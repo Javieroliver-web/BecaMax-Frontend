@@ -22,6 +22,7 @@
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body class="dashboard-page">
+<a href="#main-content" class="skip-link">Saltar al contenido principal</a>
 
 <!-- ===== HEADER ===== -->
 <header class="header">
@@ -56,7 +57,7 @@
 </header>
 
 <!-- ===== DASHBOARD HERO ===== -->
-<section class="dashboard-hero">
+<section class="dashboard-hero" id="main-content">
   <div class="dashboard-hero-inner">
     <h1 class="font-heading">Mis alertas</h1>
     <p>Aquí están tus búsquedas guardadas. Te avisamos por email cuando aparezcan becas nuevas que encajen.</p>
@@ -113,7 +114,7 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- MODAL NOTIFICACIONES -->
-<div class="modal-overlay" id="modalNotificaciones">
+<div class="modal-overlay" id="modalNotificaciones" role="dialog" aria-modal="true" aria-label="Notificaciones">
   <div class="modal modal-wide">
     <div class="modal-header">
       <h2 class="modal-title">Notificaciones</h2>
@@ -129,7 +130,7 @@
 </div>
 
 <!-- MODAL EDITAR NOMBRE ALERTA -->
-<div class="modal-overlay" id="modalEditarAlerta">
+<div class="modal-overlay" id="modalEditarAlerta" role="dialog" aria-modal="true" aria-label="Renombrar alerta">
   <div class="modal">
     <h2 class="modal-title">Renombrar alerta</h2>
     <div class="form-group" style="margin-top:16px">

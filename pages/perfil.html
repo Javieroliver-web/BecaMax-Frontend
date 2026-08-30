@@ -10,6 +10,7 @@
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body class="dashboard-page">
+<a href="#main-content" class="skip-link">Saltar al contenido principal</a>
 
 <!-- ===== HEADER ===== -->
 <header class="header">
@@ -37,7 +38,7 @@
 </section>
 
 <!-- ===== PERFIL FORM ===== -->
-<div class="main-layout" style="display:block; max-width:600px; margin:0 auto; padding-top:20px; padding-bottom: 60px;">
+<div class="main-layout" id="main-content" style="display:block; max-width:600px; margin:0 auto; padding-top:20px; padding-bottom: 60px;">
   
   <!-- Sección: Datos Personales -->
   <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
@@ -116,7 +117,7 @@
 </div>
 
 <!-- ===== MODAL AVATARES ===== -->
-<div class="modal-overlay" id="modalAvatares">
+<div class="modal-overlay" id="modalAvatares" role="dialog" aria-modal="true" aria-label="Selecciona tu avatar">
   <div class="modal">
     <div class="modal-header">
       <h2 class="modal-title">Selecciona tu Avatar</h2>

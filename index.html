@@ -51,6 +51,7 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6819969179751671" crossorigin="anonymous"></script>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Saltar al contenido principal</a>
 
 <!-- ===== HEADER ===== -->
 <header class="header">
@@ -149,7 +150,7 @@
 </div>
 
 <!-- ===== MAIN LAYOUT ===== -->
-<main class="main-layout">
+<main class="main-layout" id="main-content">
 
   <!-- SIDEBAR FILTROS -->
   <aside class="filters" id="filtersPanel">
@@ -206,8 +207,8 @@
       <div class="filter-group">
         <label>Importe (€)</label>
         <div class="filter-importe">
-          <input type="number" class="filter-number" id="filtroImporteMin" placeholder="Mín." min="0">
-          <input type="number" class="filter-number" id="filtroImporteMax" placeholder="Máx." min="0">
+          <input type="number" class="filter-number" id="filtroImporteMin" placeholder="Mín." min="0" aria-label="Importe mínimo en euros">
+          <input type="number" class="filter-number" id="filtroImporteMax" placeholder="Máx." min="0" aria-label="Importe máximo en euros">
         </div>
       </div>
 

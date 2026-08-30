@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body class="dashboard-page">
+<a href="#main-content" class="skip-link">Saltar al contenido principal</a>
 
 <!-- ===== LOADING OVERLAY ===== -->
 <div class="loading-overlay" id="loadingOverlay">
@@ -41,7 +42,7 @@
 </section>
 
 <!-- ===== MAIN LAYOUT ===== -->
-<div class="main-layout" style="display:block; max-width:600px; margin:0 auto; padding-top:30px; padding-bottom: 60px;">
+<div class="main-layout" id="main-content" style="display:block; max-width:600px; margin:0 auto; padding-top:30px; padding-bottom: 60px;">
   
   <!-- Sección: Accesibilidad y Visuales -->
   <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
@@ -128,7 +129,7 @@
 </div>
 
 <!-- ===== MODAL ELIMINAR CUENTA ===== -->
-<div class="modal-overlay" id="modalEliminar">
+<div class="modal-overlay" id="modalEliminar" role="dialog" aria-modal="true" aria-label="Eliminar cuenta definitivamente">
   <div class="modal">
     <div class="modal-header">
       <h2 class="modal-title" style="color:var(--danger)">Eliminar Cuenta Definitivamente</h2>
