@@ -1,6 +1,5 @@
 User-agent: *
 Disallow: /pages/admin-dashboard.html
-Disallow: /pages/admin-usuarios.html
 Disallow: /pages/admin-monitorizacion.html
 Disallow: /pages/admin-incidencias.html
 Disallow: /pages/dashboard.html
