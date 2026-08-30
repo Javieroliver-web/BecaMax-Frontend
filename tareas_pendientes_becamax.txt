@@ -3,6 +3,83 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== ✅ RONDA FINAL: UX, DATOS Y PANEL DE NOTICIAS (2026-08-31) ===
+Tanda de peticiones sueltas del usuario navegando la web en vivo tras el
+despliegue de la CSP, más una revisión completa de la base de datos.
+
+UX del buscador (index.html):
+- [x] Tarjeta de estadística "100% Gratis y sin límites" (inútil, no
+      aportaba información) sustituida por "Cierran en 7 o menos días",
+      con el número real de becas abiertas en plazo urgente (misma
+      logica de urgencia que ya usan los badges de las tarjetas).
+- [x] Checkbox dedicado "Ver solo becas abiertas" en el buscador,
+      independiente del desplegable "Estado del plazo" -- eliminada la
+      opción "Solo abiertas" que quedó duplicada dentro del propio
+      desplegable tras añadir el checkbox.
+- [x] Hueco vacío en móvil entre las 3 estadísticas y el listado de
+      becas (reportado por el usuario, solo visible logueado): era la
+      caja reservada para el anuncio de AdSense, sin anuncio real
+      porque aún no se ha pedido la revisión. Oculta con display:none.
+- [x] Texto "Versión beta — algunos datos son de muestra" acortado a
+      solo "Versión beta".
+
+Panel de "mensaje del admin" (#newsPanel):
+- [x] Añadida una X para que el usuario pueda cerrar el aviso; se
+      recuerda el id del mensaje cerrado en localStorage para no
+      repetirlo, pero un mensaje nuevo del admin sí vuelve a aparecer.
+- [x] Añadida la opción de eliminar la noticia global actual desde el
+      propio panel de administración (antes solo se podía sustituir
+      publicando una nueva). Nuevo endpoint backend DELETE
+      /api/admin/news, con confirmación previa vía toast.
+
+Veracidad y organización del contenido de becas:
+- [x] BUG REAL: 3 becas traídas del scraper de la BDNS mostraban el
+      título legal crudo de la resolución (estilo BOE, todo en
+      mayúsculas, con saltos de línea y espacios dobles incrustados)
+      como nombre y entidad -- muy distinto del resto del catálogo
+      ("Beca 6000", "Erasmus+ Estudios"). Añadida limpiarNombre() en
+      bdnsSync.service.js (colapsa espacios, pasa a capitalización
+      normal cuando el texto es predominantemente mayúsculas, y trunca
+      en palabra completa) para nombre y entidad, aplicada tanto a las
+      3 filas ya existentes en producción como a las futuras
+      sincronizaciones diarias del cron.
+
+Revisión de la base de datos (Supabase, proyecto aklieayhnjnhikmggpiv):
+- 8 tablas en public: perfiles, filtros_guardados, incidencias, becas,
+  system_logs, noticias, favoritos, notificaciones. RLS activado en
+  las 8. Todas las tablas de usuario (menos becas) tienen FK a
+  auth.users con ON DELETE CASCADE (perfiles, filtros_guardados,
+  favoritos, notificaciones) o SET NULL (incidencias, system_logs,
+  noticias) según si el dato debe desaparecer o conservarse de forma
+  anónima al borrar la cuenta.
+- Políticas RLS revisadas una por una: todas coherentes (dueño o admin
+  para leer/escribir lo propio; becas de solo lectura pública, solo
+  escribible por service_role/cron). Encontradas 2 políticas SELECT
+  duplicadas en "becas" (mismo efecto, limpieza cosmética pendiente,
+  no es un problema de seguridad).
+- Hallazgo de diseño (no urgente): favoritos.beca_id es TEXT y becas.id
+  es INTEGER -- no hay ni puede haber una FK real entre ambas sin
+  antes migrar el tipo. En la práctica no es un problema porque la
+  sincronización BDNS nunca borra becas (solo upsert), así que no hay
+  riesgo de favoritos huérfanos por ahora.
+- noticias y notificaciones con 0 filas en el momento de la revisión
+  (funcionalidad correcta, simplemente sin uso activo todavía).
+
+Investigación (sin cambio de código, solo diagnóstico):
+- Reportada "foto de perfil rota" en perfil.html. Investigado a fondo:
+  el archivo existe y es válido (2160×3840px, confirmado navegando
+  directamente a la URL y con fetch() desde la propia página, ambos
+  con 200 OK), pero el <img> incrustado en la página fallaba siempre
+  con 503 en el navegador de pruebas de esta sesión, incluso con
+  cache-busting y forzando CORS. Todo apunta a una extensión del
+  navegador de automatización bloqueando imágenes como subrecurso (ya
+  hubo un caso similar documentado esta misma sesión con Turnstile) y
+  no a un bug real del sitio. Se mantiene igualmente el reintento con
+  cache-busting añadido en perfil.js como salvaguarda razonable ante
+  un 503 genuino de Supabase Storage, pero pendiente de que el propio
+  usuario confirme en su navegador habitual si el problema persiste
+  ahí tambien.
+
 === ✅ CSP COMPLETA + BUG REAL "CREAR ALERTA" DESDE LA FICHA DE BECA (2026-08-30) ===
 Petición del usuario: implementar una CSP completa "con cuidado" (aún no
 se ha pedido la revisión de AdSense), y luego dos bugs reportados en
