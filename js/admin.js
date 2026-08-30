@@ -29,7 +29,7 @@ async function requireAdmin() {
 
   const adminBody = document.getElementById('adminBody');
   if (adminBody) {
-    adminBody.style.display = 'block';
+    adminBody.style.display = 'flex';
   }
   return true;
 }
