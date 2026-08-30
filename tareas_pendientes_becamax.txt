@@ -3,6 +3,27 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== ✅ CERRADO: email de confirmación de registro "no responde" (2026-08-30) ===
+- [x] Causa raíz encontrada: Site URL en Supabase (Authentication -> URL
+      Configuration) apuntaba a `https://beca-max-frontend.vercel.app`
+      (dominio viejo/inexistente), no a `https://becamax.vercel.app`. Como
+      el frontend no pasa `emailRedirectTo` al registrar, Supabase usaba
+      ese Site URL como destino tras confirmar -> enlace muerto.
+      Corregido por el usuario en el dashboard.
+- [x] De paso, versionada y reforzada la plantilla de email (antes solo
+      vivía en Supabase, sin archivo local): añadido el enlace de
+      repuesto en texto plano "copia y pega este enlace" que ya usaba la
+      plantilla de reset de contraseña -- `Backend-BecaMax/plantilla_email_confirmacion.html`.
+- [x] Añadido botón "Reenviar email" con cooldown de 60s en la pantalla
+      de éxito del registro (auth.html). Probado en vivo: resend() de
+      Supabase también exige captcha (protección a nivel de proyecto),
+      así que se le dio su propio widget hCaptcha dedicado
+      (turnstile-resend), ya que el de registro queda oculto y gastado.
+      De paso arreglado el icono vacío de esa pantalla (mismo patrón de
+      emoji purgado sin sustituir).
+- [ ] Pendiente confirmar con un registro real que el enlace ya lleva a
+      becamax.vercel.app correctamente tras el cambio de Site URL.
+
 === ✅ RESUELTO (diagnóstico) / 🚧 EN CURSO (migración): Turnstile → hCaptcha (2026-08-30) ===
 Turnstile bloqueaba tanto el login del admin como el registro de usuarios
 nuevos, con error de Cloudflare 300010 dentro de la propia caja del
