@@ -3,6 +3,88 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== ✅ SEGUNDA RONDA DE PRUEBAS: ACCESIBILIDAD PARA CIEGOS + SEGURIDAD (2026-08-30) ===
+Petición del usuario: 30 minutos más de pruebas, con foco explícito en
+que la web sea apta para personas ciegas u otras discapacidades
+(lectores de pantalla, navegación solo por teclado).
+
+SEGURIDAD:
+- [x] Cabeceras HTTP: añadidas Referrer-Policy y Permissions-Policy en
+      vercel.json (seguras de aplicar sin riesgo de romper AdSense ni
+      hCaptcha). Se deja pendiente una CSP completa como recomendación
+      aparte -- con AdSense de por medio, una CSP mal calibrada podría
+      romper anuncios en producción sin forma de verificarlo en vivo.
+- [x] Revocado el EXECUTE público (anon/authenticated) de las funciones
+      trigger handle_new_user() y prevent_privilege_escalation(),
+      detectado por el linter de seguridad de Supabase. No eran
+      explotables (Postgres impide llamar triggers fuera de su
+      contexto), pero se ha reducido la superficie por buena práctica.
+      Confirmado que ambos triggers (on_auth_user_created,
+      trg_prevent_privilege_escalation) siguen activos tras el cambio.
+- [x] Confirmado que /pages/admin-*.html redirige de verdad si no eres
+      admin, y que el backend/CORS rechaza correctamente orígenes
+      ajenos (probado con Origin falso contra la API real).
+- [x] Probada inyección de `<script>` en el buscador: el campo es un
+      input de texto, se trata como valor plano, sin XSS. De paso se
+      encontró y arregló el bug del botón "Cargar más resultados" (ver
+      abajo).
+- Robots.txt/sitemap.xml accesibles y sin filtraciones; comprobado que
+  no hay .env, package.json ni configuración interna expuestos en la
+  web pública.
+
+BUG REAL -- botón "Cargar más resultados" persistía con 0 resultados:
+- [x] renderGrid() (app.js) retornaba en cuanto detectaba 0 resultados,
+      antes de llegar a la línea que oculta loadMoreBtn. Si el usuario
+      ya había visto ese botón y luego buscaba algo sin coincidencias,
+      se quedaba flotando bajo "Sin resultados". Corregido y verificado
+      en producción.
+
+BUG REAL -- campana de notificaciones duplicada en escritorio:
+- [x] `.btn-notifications-mobile{display:none}` tenía la misma
+      especificidad que la regla genérica `.btn{display:inline-flex}`,
+      definida después en el fichero -- el empate de especificidad lo
+      gana el orden de aparición, así que la campana pensada solo para
+      móvil se mostraba siempre, duplicada junto a la de escritorio.
+      Corregido con !important en ambas reglas (ocultar por defecto y
+      mostrar en el media query móvil). Bug independiente del tema
+      claro/oscuro, presente en ambos.
+
+ACCESIBILIDAD PARA CIEGOS / SOLO TECLADO (petición explícita del usuario):
+- [x] Menú hamburguesa móvil: no había forma de cerrarlo con teclado
+      (Escape). Añadido en las 9 páginas que lo usan, con foco
+      devuelto al botón hamburguesa al cerrar.
+- [x] Modales (notificaciones, renombrar alerta, eliminar cuenta,
+      selector de avatar): tampoco cerraban con Escape. Centralizado un
+      único listener en auth.js (se carga en todas las páginas) que
+      cierra cualquier `.modal-overlay.active`. Nota: el primer intento
+      usaba el selector `.modal.active`, que no coincidía con la clase
+      real `.modal-overlay` -- corregido tras verificar que Escape no
+      cerraba nada en producción.
+- [x] Añadido un enlace "Saltar al contenido principal" (skip-link) en
+      las 17 páginas del sitio, visible solo al recibir foco por
+      teclado -- sin él, un usuario de lector de pantalla tenía que
+      recorrer todo el header en cada página antes de llegar al
+      contenido real. Verificado con Tab en producción.
+- [x] Añadido role="dialog" + aria-modal + aria-label a los modales que
+      no lo tenían (antes solo el de "guardar alerta" lo tenía) para
+      que un lector de pantalla anuncie la apertura del diálogo.
+- [x] Los inputs de "Importe mínimo/máximo" (buscador) compartían una
+      única etiqueta genérica sin asociar a ninguno de los dos --
+      añadido aria-label específico a cada input.
+- [x] La imagen de avatar en el menú de cabecera (perfil.js) no tenía
+      atributo alt -- añadido alt="" (decorativa, el nombre ya aparece
+      al lado en el mismo elemento).
+- Confirmado ya presente y correcto: lang="es" en las 17 páginas, foco
+  visible global (*:focus-visible), inputs del buscador y de becas ya
+  con alt/aria-label suficientes, formularios de incidencias/auth con
+  <label for="..."> bien asociados.
+- Probado el flujo de "olvidé mi contraseña": exige hCaptcha antes de
+  enviar el email (barrera anti-abuso intencionada, no un bug) y el
+  email se envía correctamente.
+- Modo claro revisado en index.html y dashboard.html sin problemas de
+  contraste nuevos (ya se había revisado el modo oscuro en la ronda
+  anterior).
+
 === ✅ RONDA DE PRUEBAS: USO, DISEÑO, ACCESIBILIDAD Y SEGURIDAD (2026-08-30) ===
 Petición del usuario: pruebas exhaustivas de uso, diseño, accesibilidad,
 seguridad general y resistencia a ciberataques, corrigiendo todo bug
