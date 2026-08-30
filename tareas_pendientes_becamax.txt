@@ -3,6 +3,41 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== ✅ REVISIÓN DE RESPONSIVE + emoji del cuadrado negro (2026-08-30) ===
+Petición del usuario: revisar el responsive de toda la web y quitar el
+emoji ⬛ de la etiqueta "Cerrada" (poco profesional).
+- [x] urgenciaLabel() estaba duplicada de forma idéntica en app.js,
+      dashboard.js y beca-detalle.html, las 3 con el emoji ⬛ delante de
+      "Cerrada" y un espacio suelto en el resto de casos. Limpiadas las
+      3 copias (no se ha unificado en una función compartida, cambio
+      fuera de alcance de este arreglo puntual).
+- [x] Emoji 🔽/🔼 incrustado directamente en CSS (`content:` del botón
+      "Mostrar/Ocultar filtros" en móvil) -- quitado, texto plano.
+- [x] BUG RESPONSIVE REAL: en `dashboard.html`, `.header-actions` se
+      oculta entera por debajo de 640px (sustituida por el menú
+      hamburguesa), así que la campana de notificaciones quedaba
+      completamente inaccesible en móvil -- ni el propio menú
+      hamburguesa ofrecía una alternativa. Añadido un botón de campana
+      aparte, visible solo en móvil junto al icono de hamburguesa,
+      compartiendo el mismo modal y contador que el de escritorio.
+- [x] BUG RESPONSIVE REAL: el símbolo "€" de "30.000 €" se partía en su
+      propia línea en las tarjetas de estadísticas de la home entre
+      ~480-640px de ancho (`font-size:3rem` fijo, sin margen para el
+      texto completo en tarjetas de 2 columnas). Cambiado a
+      `clamp(1.8rem, 6vw, 3rem)` para que encoja de forma fluida.
+- [x] De propina, encontrado (no relacionado con responsive) un bug real
+      en `perfil.js`: el campo "Nombre completo" salía siempre vacío
+      para cualquier cuenta registrada por el formulario normal, porque
+      el registro guarda el nombre como `user_metadata.nombre` pero
+      perfil.js solo miraba `full_name`. auth.js sí comprobaba ambos
+      (por eso la cabecera mostraba el nombre bien pero el perfil no).
+      Añadido el mismo fallback en perfil.js.
+- Verificado en 1280px, 768px, 752px, 640px, 624px y 390px de ancho en
+  index.html, dashboard.html, perfil.html, configuracion.html,
+  incidencias.html, beca-detalle.html y auth.html (registro). Sin más
+  roturas encontradas -- el resto del sitio responde bien en todo el
+  rango probado.
+
 === ✅ AUDITORÍA UI/UX + BUGS GRAVES DE FAVORITOS Y NOTIFICACIONES (2026-08-30) ===
 Petición del usuario: revisar interfaz, UI/UX, contraste de temas y
 funcionamiento real navegando logueado como usuario normal (no admin)
