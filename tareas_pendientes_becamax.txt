@@ -872,9 +872,12 @@ Seguridad:
       el frontend siempre gestionó favoritos hablando directo con
       Supabase (tabla `favoritos`), nunca llamó a este endpoint. Menos
       superficie de API expuesta sin necesidad.
-      Acción manual pendiente del usuario: borrar en Vercel la variable
-      de entorno `DISCORD_WEBHOOK_URL` (Backend-BecaMax) -- ya no se usa
-      desde que el logger de accesos se migró a `system_logs`.
+- [x] Variable de entorno `DISCORD_WEBHOOK_URL` (Backend-BecaMax) borrada
+      por el usuario en Vercel -- ya no se usaba desde que el logger de
+      accesos se migró a `system_logs`.
+- Decisión del usuario: mantener `Dockerfile`, `.dockerignore` y
+      `sonar-project.properties` aunque no se usen en el despliegue actual
+      (Vercel), por si se retoman en el futuro. No se tocan.
 
 Bugs funcionales corregidos:
 - [x] "Crear alerta" desde la ficha de una beca (`beca-detalle.html`)
@@ -943,6 +946,37 @@ Mejoras de UX:
 - [x] README.md del frontend actualizado: reflejaba una estructura de
       2020 muy distinta a la actual (páginas movidas a `pages/`, backend
       separado, datos desde la BDNS en vez de un dataset estático).
+- [x] Spinner de carga en la pantalla de perfil (`perfil.html`): antes el
+      formulario aparecía ya con sus valores por defecto y "saltaba" al
+      valor real un instante después de cargar los datos de Supabase.
+      Añadido el mismo overlay con spinner que ya se usaba en
+      `beca-detalle.html`, oculto en un `finally` para que desaparezca
+      tanto si la carga tiene éxito como si falla. El resto de páginas
+      con carga de datos ya tenían skeleton loaders o spinner propio.
+- [x] Email de contacto legal corregido en Aviso Legal y Política de
+      Privacidad: mostraban `contacto@becamax.es`, una dirección de un
+      dominio que aún no se ha comprado y que por tanto no existía --
+      nadie podía escribir de verdad pese a figurar como contacto
+      obligatorio LSSICE/RGPD. Sustituido por el email personal real del
+      titular. El domicilio se mantiene a nivel de "Andalucía, España"
+      (la LSSICE art. 10.1.a permite el email como alternativa al
+      domicilio exacto -- no hace falta publicar la dirección completa).
+
+=== 🤖 EXPLORADO Y DESCARTADO: API gratuita de NVIDIA (build.nvidia.com) (2026-08-31) ===
+Idea: usar un LLM gratuito para mejorar la limpieza de las descripciones
+crudas de la BDNS (más allá de `limpiarNombre()`). Revisados los
+Términos de Servicio oficiales del trial (no solo blogs de terceros):
+- [ ] DESCARTADO por ahora: la API gratuita de NVIDIA es explícitamente
+      "solo para pruebas/evaluación, no en producción" (secc. 1.2 y 1.4
+      del contrato) salvo que se pague una suscripción -- no se puede
+      usar tal cual en el flujo real de `bdnsSync.service.js`.
+      Además, sí registra y usa el contenido enviado para mejorar sus
+      propios modelos (secc. 3.3), algo asumible para texto público de
+      becas pero nunca para datos de usuarios.
+      Si en el futuro se quiere retomar: probarlo offline como prueba de
+      concepto primero, y si compensa, mirar alternativas cuyo tier
+      gratuito sí permita producción (Google Gemini, Groq) antes de
+      integrarlo de verdad.
 
 ==================================================
               TAREAS COMPLETADAS
