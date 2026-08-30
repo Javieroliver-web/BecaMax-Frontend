@@ -158,10 +158,8 @@ function urgencia(dias) {
 }
 
 function urgenciaLabel(u, dias) {
-  if (u === 'cerrada')    return '⬛ Cerrada';
-  if (u === 'urgente')    return ` ${dias}d restantes`;
-  if (u === 'proximo')    return ` ${dias}d restantes`;
-  return ` ${dias}d restantes`;
+  if (u === 'cerrada') return 'Cerrada';
+  return `${dias}d restantes`;
 }
 
 function formatImporte(b) {

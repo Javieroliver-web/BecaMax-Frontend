@@ -155,10 +155,10 @@
     }
 
     function urgenciaLabel(dias) {
-      if (dias < 0)   return { text: '⬛ Cerrada', cls: 'cerrada' };
-      if (dias <= 7)  return { text: ` ${dias} días restantes`, cls: 'urgente' };
-      if (dias <= 30) return { text: ` ${dias} días restantes`, cls: 'proximo' };
-      return           { text: ` ${dias} días restantes`, cls: 'disponible' };
+      if (dias < 0)   return { text: 'Cerrada', cls: 'cerrada' };
+      if (dias <= 7)  return { text: `${dias} días restantes`, cls: 'urgente' };
+      if (dias <= 30) return { text: `${dias} días restantes`, cls: 'proximo' };
+      return           { text: `${dias} días restantes`, cls: 'disponible' };
     }
 
     function formatImporte(imp) {
