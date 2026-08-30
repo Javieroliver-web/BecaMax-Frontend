@@ -59,11 +59,16 @@
     beneficiario (induciría a error); se deja `importe: null` y se enlaza a
     las bases oficiales. Requiere ejecutar antes
     `supabase/becas_bdns_migration.sql` en el SQL Editor de Supabase (añade
-    la columna codigo_bdns necesaria para el upsert idempotente). Ejecutar
-    con `npm run bdns:sync`. Pendiente decidir si se automatiza con un cron
-    (no se ha añadido uno de forma automática: el runtime varía con el
-    número de convocatorias candidatas y podría acercarse a los límites de
-    duración de las funciones serverless de Vercel).
+    la columna codigo_bdns necesaria para el upsert idempotente).
+[x] (2026-08-30) Automatizado con un cron diario en Vercel (06:00 UTC, una
+    hora antes que el cron de alertas para que las becas nuevas ya estén en
+    la base de datos). Lógica compartida movida a
+    `src/services/bdnsSync.service.js`, usada tanto por el cron
+    (`/api/bdns/process_cron`, protegido con CRON_SECRET, ventana de 3 días
+    para syncs incrementales) como por el script manual `npm run bdns:sync`
+    (ventana completa de 365 días). No hizo falta tocar la duración máxima
+    de las funciones de Vercel: con Fluid Compute activado, el límite por
+    defecto es de 300s incluso en plan Hobby, de sobra para el scraper.
 [x] (2026-08-29) Integración de Cloudflare Turnstile: creado el widget real
     en Cloudflare (hostname becamax.vercel.app + localhost, modo Managed).
     `auth.html`/`auth.js` ya usan la site key real en los 3 formularios
@@ -156,10 +161,19 @@
     iniciada (solo es un argumento de venta para quien no tiene cuenta).
 [x] Google Search Console: propiedad verificada (meta tag en index.html),
     sitemap.xml enviado, indexación solicitada manualmente para home/guías/FAQ.
+[x] (2026-08-30) Dos guías específicas más: `guia-beca-mec.html` (paso a
+    paso de la Beca MEC) y `guia-fp-andalucia.html` (becas de FP en
+    Andalucía), enlazadas desde la guía general y en el sitemap.
 [ ] Backlinks desde webs de universidades, foros de estudiantes o portales
     educativos -- trabajo de difusión/marketing, fuera del alcance del código.
 [ ] Seguir publicando contenido nuevo (más guías, más preguntas) para
     reforzar la señal de sitio activo ante Google.
+
+=== ✅ ESTADO ACTUAL (2026-08-30): listo para solicitar la revisión de AdSense ===
+Todas las tareas pendientes que dependían del código están cerradas. Solo
+quedan abiertas, a propósito: comprar dominio propio (ligado a monetización
+futura), SMTP/Resend (ligado a lo mismo), backlinks (marketing externo) y
+seguir publicando contenido (labor continua, no una tarea con fin).
 
 ==================================================
               TAREAS COMPLETADAS
