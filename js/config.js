@@ -18,7 +18,7 @@ const CONFIG = {
   // Sitekey pública de hCaptcha (sustituye a Cloudflare Turnstile). No es
   // secreta -- se sirve tal cual en el HTML -- pero hay que registrar aquí
   // la real desde el dashboard de hCaptcha antes de desplegar.
-  HCAPTCHA_SITEKEY: 'PENDIENTE-sustituir-por-la-sitekey-real-de-hcaptcha'
+  HCAPTCHA_SITEKEY: '1e3ceb4a-cf28-41b6-ba78-c456e0586a34'
 };
 
 // Escapa texto antes de insertarlo via innerHTML (evita XSS almacenado
