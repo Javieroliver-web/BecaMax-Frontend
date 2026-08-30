@@ -59,8 +59,8 @@ function renderAlerta(alerta) {
         <input type="checkbox" ${alerta.activo ? 'checked' : ''} onchange="toggleAlerta('${id}', this.checked)">
         <span class="toggle-slider"></span>
       </label>
-      <button class="btn btn-secondary btn-sm" data-id="${id}" data-nombre="${escapeHtml(alerta.nombre)}" onclick="editarAlerta(this.dataset.id, this.dataset.nombre)"></button>
-      <button class="btn btn-danger btn-sm" onclick="eliminarAlerta('${id}')"></button>
+      <button class="btn btn-secondary btn-sm" data-id="${id}" data-nombre="${escapeHtml(alerta.nombre)}" onclick="editarAlerta(this.dataset.id, this.dataset.nombre)" aria-label="Renombrar alerta" title="Renombrar alerta"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
+      <button class="btn btn-danger btn-sm" onclick="eliminarAlerta('${id}')" aria-label="Eliminar alerta" title="Eliminar alerta"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
     </div>
   </div>`;
 }
