@@ -9,8 +9,13 @@ async function cargarPerfil() {
   // 1. Cargar metadatos de usuario (Datos Personales)
   const user = session.user;
   document.getElementById('perfEmail').value = user.email || '';
-  if (user.user_metadata && user.user_metadata.full_name) {
-    document.getElementById('perfNombre').value = user.user_metadata.full_name;
+  // El registro guarda el nombre como user_metadata.nombre (auth.js);
+  // full_name solo se usa si Configuración lo actualiza mas tarde. Sin
+  // este fallback, cualquiera que se hubiera registrado normalmente veia
+  // este campo vacio pese a que la cabecera si mostraba su nombre bien.
+  const nombreGuardado = user.user_metadata?.full_name || user.user_metadata?.nombre;
+  if (nombreGuardado) {
+    document.getElementById('perfNombre').value = nombreGuardado;
   }
 
   // 2. Cargar perfil académico (base de datos pública)
