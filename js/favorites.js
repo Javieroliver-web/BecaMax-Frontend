@@ -61,13 +61,18 @@ async function toggleFavorite(becaId, btnEl) {
   _persistFavoritesCache();
   _updateFavBtn(btnEl, !wasFav);
 
-  // Sincronizar con Supabase
+  // Sincronizar con Supabase. supabase-js no lanza excepcion en errores de
+  // base de datos (RLS, constraints...): devuelve { error } en la propia
+  // respuesta, hay que comprobarlo explicitamente o un fallo silencioso
+  // se muestra igualmente como "guardado con éxito".
   try {
     if (wasFav) {
-      await supabaseClient.from('favoritos').delete().eq('user_id', _userId).eq('beca_id', id);
+      const { error } = await supabaseClient.from('favoritos').delete().eq('user_id', _userId).eq('beca_id', id);
+      if (error) throw error;
       showToast('Beca eliminada de favoritos', 'info');
     } else {
-      await supabaseClient.from('favoritos').upsert({ user_id: _userId, beca_id: id }, { onConflict: 'user_id,beca_id' });
+      const { error } = await supabaseClient.from('favoritos').upsert({ user_id: _userId, beca_id: id }, { onConflict: 'user_id,beca_id' });
+      if (error) throw error;
       showToast('Beca añadida a favoritos', 'success');
     }
   } catch (e) {
