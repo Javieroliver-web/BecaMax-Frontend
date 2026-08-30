@@ -253,6 +253,11 @@ input,select,textarea,button{font-family:inherit}
 .badge-disponible::before{background:var(--success)}
 .badge-cerrada::before{background:var(--text-muted)}
 .badge-cerrada{opacity:0.7}
+/* En claro, atenuar TODO el badge (fondo+borde+texto ya muy claros de por
+   si) con opacity difumina el texto casi hasta desaparecer contra el
+   fondo blanco de la pagina. Se mantiene la idea de "atenuado" solo con
+   colores algo mas apagados, sin perder contraste real. */
+body.light-mode .badge-cerrada{opacity:1;color:#334155;border-color:#cbd5e1}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.2)}}
 
 .card-nombre{font-size:1rem;font-weight:700;line-height:1.35;margin-bottom:3px}

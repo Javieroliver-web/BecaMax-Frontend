@@ -78,12 +78,15 @@ function iniciarContadorRateLimit(seconds, errEl, btn) {
 const hcaptchaWidgets = {};
 
 function onHcaptchaLoad() {
+  // El tema del captcha antes estaba fijo en 'dark': en modo claro aparecía
+  // como una caja negra que desentonaba con el resto de la página.
+  const theme = (localStorage.getItem('theme') || 'dark') === 'light' ? 'light' : 'dark';
   ['turnstile-login', 'turnstile-register'].forEach(containerId => {
     const el = document.getElementById(containerId);
     if (!el) return; // la página puede no tener los dos formularios (no aplica aquí, pero por si acaso)
     hcaptchaWidgets[containerId] = hcaptcha.render(containerId, {
       sitekey: CONFIG.HCAPTCHA_SITEKEY,
-      theme: 'dark'
+      theme
     });
   });
 }
