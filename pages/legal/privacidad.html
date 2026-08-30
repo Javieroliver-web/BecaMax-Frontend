@@ -44,7 +44,7 @@
           <li><strong style="color:var(--text-primary)">Datos de perfil académico:</strong> Nivel de estudios, área de estudios y comunidad autónoma, que utilizamos para personalizar las recomendaciones de becas.</li>
           <li><strong style="color:var(--text-primary)">Datos de uso:</strong> Alertas guardadas, filtros aplicados y preferencias de búsqueda.</li>
           <li><strong style="color:var(--text-primary)">Datos técnicos:</strong> Dirección IP y tipo de navegador, recogidos automáticamente con fines de seguridad y análisis de rendimiento.</li>
-          <li><strong style="color:var(--text-primary)">Registro de accesos:</strong> Si aceptas todas las cookies, registramos tu IP, ciudad/país aproximados (mediante el servicio ipapi.co), tipo de dispositivo y navegador, que se envían a un canal interno privado de Discord con fines exclusivos de seguridad y monitorización de accesos. No se registra si eliges "Solo esenciales".</li>
+          <li><strong style="color:var(--text-primary)">Registro de accesos:</strong> Si aceptas todas las cookies, registramos tu IP, ciudad/país aproximados (mediante el servicio externo ipapi.co), tipo de dispositivo y navegador. Este registro se guarda internamente en nuestra base de datos (Supabase) y solo es visible para el administrador de BecaMax, con fines exclusivos de seguridad y monitorización de accesos. No se registra si eliges "Solo esenciales".</li>
         </ul>
       </section>
 
@@ -66,19 +66,33 @@
       <section>
         <h2 class="font-heading" style="font-size:1.1rem;color:var(--text-primary);margin-bottom:10px;">5. Proveedores de servicios (terceros)</h2>
         <ul style="padding-left:20px;display:flex;flex-direction:column;gap:8px;">
-          <li><strong style="color:var(--text-primary)">Supabase:</strong> Utilizamos Supabase para la autenticación y el almacenamiento de datos. Cumple con el RGPD.</li>
-          <li><strong style="color:var(--text-primary)">Google AdSense:</strong> Mostramos anuncios de Google, que puede usar cookies para mostrar publicidad personalizada. Puedes configurar tus preferencias en <a href="https://adssettings.google.com" target="_blank" rel="noopener" style="color:var(--primary)">Google Ad Settings</a>.</li>
+          <li><strong style="color:var(--text-primary)">Supabase:</strong> Utilizamos Supabase para la autenticación y el almacenamiento de datos (perfiles, favoritos, alertas, registro de accesos). Cumple con el RGPD.</li>
           <li><strong style="color:var(--text-primary)">Vercel:</strong> Nuestro proveedor de hosting, alojado en la UE.</li>
+          <li><strong style="color:var(--text-primary)">Cloudflare (Turnstile):</strong> Usamos el captcha Turnstile de Cloudflare en los formularios de acceso, registro y recuperación de contraseña para evitar registros automatizados y ataques. Procesa datos técnicos del dispositivo (no rastrea con fines publicitarios).</li>
+          <li><strong style="color:var(--text-primary)">Resend:</strong> Utilizamos Resend para enviarte el correo de alertas de becas cuando activas una alerta. Recibe tu email y el contenido del mensaje únicamente para poder entregarlo.</li>
+          <li><strong style="color:var(--text-primary)">ipapi.co:</strong> Servicio externo que consultamos para aproximar el país/ciudad a partir de tu IP, solo si aceptas todas las cookies (ver sección 2).</li>
+          <li><strong style="color:var(--text-primary)">Google AdSense:</strong> Mostramos anuncios de Google, que puede usar cookies para mostrar publicidad personalizada. Puedes configurar tus preferencias en <a href="https://adssettings.google.com" target="_blank" rel="noopener" style="color:var(--primary)">Google Ad Settings</a>.</li>
         </ul>
       </section>
 
       <section>
-        <h2 class="font-heading" style="font-size:1.1rem;color:var(--text-primary);margin-bottom:10px;">6. Tus derechos</h2>
+        <h2 class="font-heading" style="font-size:1.1rem;color:var(--text-primary);margin-bottom:10px;">6. Transferencias internacionales de datos</h2>
+        <p>Algunos de los proveedores anteriores tratan datos fuera del Espacio Económico Europeo (EEE), principalmente en Estados Unidos:</p>
+        <ul style="padding-left:20px;margin-top:10px;display:flex;flex-direction:column;gap:8px;">
+          <li><strong style="color:var(--text-primary)">Google (AdSense):</strong> transferencia amparada por el marco de adecuación UE-EE.UU. (EU-US Data Privacy Framework).</li>
+          <li><strong style="color:var(--text-primary)">Resend</strong> y <strong style="color:var(--text-primary)">Cloudflare</strong>: transferencia amparada por Cláusulas Contractuales Tipo (CCT) de la Comisión Europea, incluidas en sus condiciones de servicio.</li>
+          <li><strong style="color:var(--text-primary)">ipapi.co:</strong> el dato tratado es únicamente tu IP en el momento de la consulta, con el fin exclusivo de aproximar país/ciudad; no se comparte ningún otro dato personal con este proveedor.</li>
+        </ul>
+        <p style="margin-top:10px;">Supabase y Vercel, nuestros proveedores principales, operan con infraestructura en la UE.</p>
+      </section>
+
+      <section>
+        <h2 class="font-heading" style="font-size:1.1rem;color:var(--text-primary);margin-bottom:10px;">7. Tus derechos</h2>
         <p>Conforme al RGPD, tienes derecho a acceder, rectificar, suprimir, portabilidad y oposición al tratamiento de tus datos. Para ejercer estos derechos, contacta con nosotros en <a href="mailto:contacto@becamax.es" style="color:var(--primary)">contacto@becamax.es</a>. También puedes reclamar ante la <a href="https://www.aepd.es" target="_blank" rel="noopener" style="color:var(--primary)">Agencia Española de Protección de Datos (AEPD)</a>.</p>
       </section>
 
       <section>
-        <h2 class="font-heading" style="font-size:1.1rem;color:var(--text-primary);margin-bottom:10px;">7. Conservación de datos</h2>
+        <h2 class="font-heading" style="font-size:1.1rem;color:var(--text-primary);margin-bottom:10px;">8. Conservación de datos</h2>
         <p>Conservamos tus datos mientras mantengas una cuenta activa. Si eliminas tu cuenta, tus datos serán suprimidos en un plazo máximo de 30 días.</p>
       </section>
 

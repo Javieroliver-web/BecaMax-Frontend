@@ -1,7 +1,7 @@
 /**
  * BecaMax — Logger de accesos · Sylphiette (Seguro)
- * Envía información del visitante a nuestro backend para que este lo mande a Discord,
- * manteniendo la URL del webhook de Discord oculta y segura.
+ * Envía información del visitante a nuestro backend, que la guarda en
+ * system_logs (Supabase) para consulta desde el panel admin.
  */
 (function () {
   'use strict';
