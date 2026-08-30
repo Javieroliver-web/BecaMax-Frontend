@@ -2,6 +2,18 @@
 //  PERFIL.JS – Carga y guardado de perfil de usuario (Múltiples secciones)
 // ============================================================
 
+// Supabase Storage a veces devuelve un 503 puntual al servir una foto de
+// avatar (el archivo existe, es un fallo transitorio de su CDN). Un <img>
+// no reintenta solo tras un error, así que sin esto se quedaba mostrando
+// el icono de imagen rota aunque la foto sí exista y cargue bien recargando.
+function cargarImagenConReintento(img, url, intentosRestantes = 2) {
+  img.onerror = () => {
+    if (intentosRestantes <= 0) return;
+    setTimeout(() => cargarImagenConReintento(img, url, intentosRestantes - 1), 600);
+  };
+  img.src = url;
+}
+
 async function cargarPerfil() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) return;
@@ -44,7 +56,7 @@ async function cargarPerfil() {
     }, 50);
     
     if (data.avatar_url) {
-      document.getElementById('perfilAvatarImg').src = data.avatar_url;
+      cargarImagenConReintento(document.getElementById('perfilAvatarImg'), data.avatar_url);
       // Actualizar también el header por si acaso
       const nameEls = document.querySelectorAll('#headerUserName');
       nameEls.forEach(el => {
@@ -204,7 +216,7 @@ async function guardarAvatar(url) {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) return;
 
-  document.getElementById('perfilAvatarImg').src = url;
+  cargarImagenConReintento(document.getElementById('perfilAvatarImg'), url);
   document.getElementById('modalAvatares').classList.remove('active');
 
   const { error } = await supabaseClient
