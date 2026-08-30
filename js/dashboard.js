@@ -52,7 +52,7 @@ function renderAlerta(alerta) {
       <div class="alerta-tags">
         ${tags.map(t => `<span class="alerta-tag">${escapeHtml(t)}</span>`).join('')}
       </div>
-      <div class="alerta-coincidencias"> ${n} beca${n !== 1 ? 's' : ''} coincide${n !== 1 ? 'n' : ''} ahora</div>
+      <div class="alerta-coincidencias">${n} beca${n !== 1 ? 's' : ''} coincide${n !== 1 ? 'n' : ''} ahora</div>
     </div>
     <div class="alerta-actions">
       <label class="toggle" title="Activar/desactivar">
@@ -71,7 +71,7 @@ function renderBecasRecomendadas(alertas) {
   if (!activas.length) {
     document.getElementById('becasRecomendadas').innerHTML = `
       <div class="empty-state" style="grid-column:1/-1">
-        <div class="empty-icon"></div>
+        <div class="empty-icon"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
         <h3>Sin alertas activas</h3>
         <p>Activa al menos una alerta para ver las becas recomendadas.</p>
       </div>`;
@@ -101,7 +101,7 @@ function renderBecasRecomendadas(alertas) {
   if (!recomendadas.length) {
     document.getElementById('becasRecomendadas').innerHTML = `
       <div class="empty-state" style="grid-column:1/-1">
-        <div class="empty-icon"></div>
+        <div class="empty-icon"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         <h3>Sin coincidencias actuales</h3>
         <p>No hay becas abiertas que encajen con tus filtros ahora mismo.</p>
       </div>`;
@@ -129,7 +129,7 @@ async function cargarBecasPerfil() {
   if (!perfil || (!perfil.tipo_estudio && !perfil.region && (!perfil.area || perfil.area === 'Cualquier área'))) {
     document.getElementById('becasPerfil').innerHTML = `
       <div class="empty-state" style="grid-column:1/-1; padding:40px 20px;">
-        <div class="empty-icon" style="font-size:2.5rem; margin-bottom:10px;"></div>
+        <div class="empty-icon" style="font-size:2.5rem; margin-bottom:10px;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <h3>Perfil incompleto</h3>
         <p>Configura lo que estudias para recibir recomendaciones automáticas aquí.</p>
         <a href="perfil.html" class="btn btn-primary btn-sm" style="margin-top:12px;">Configurar perfil</a>
@@ -150,7 +150,7 @@ async function cargarBecasPerfil() {
   if (!recomendadas.length) {
     document.getElementById('becasPerfil').innerHTML = `
       <div class="empty-state" style="grid-column:1/-1; padding:40px 20px;">
-        <div class="empty-icon" style="font-size:2.5rem; margin-bottom:10px;"></div>
+        <div class="empty-icon" style="font-size:2.5rem; margin-bottom:10px;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         <h3>Sin coincidencias</h3>
         <p>No hay becas abiertas que encajen estrictamente con tu perfil actual.</p>
       </div>`;
@@ -194,10 +194,10 @@ async function cargarAlertas() {
     countEl.textContent = '0 alertas';
     lista.innerHTML = `
       <div class="dashboard-empty">
-        <div class="dashboard-empty-icon"></div>
+        <div class="dashboard-empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
         <h3>Sin alertas guardadas</h3>
         <p>Ve al buscador, aplica filtros y guarda una alerta para recibir notificaciones.</p>
-        <a href="../index.html" class="btn btn-primary"> Ir al buscador</a>
+        <a href="../index.html" class="btn btn-primary">Ir al buscador</a>
       </div>`;
     renderBecasRecomendadas([]);
     return;
@@ -309,7 +309,7 @@ function renderCard(b, delay = 0) {
     </div>
     <div class="countdown-bar"><div class="countdown-fill ${u}" style="width:${pct}%"></div></div>
     <div class="card-actions">
-      <a href="beca-detalle.html?id=${b.id}" class="btn btn-secondary btn-sm"> Detalles</a>
+      <a href="beca-detalle.html?id=${b.id}" class="btn btn-secondary btn-sm">Detalles</a>
       <a href="${safeUrl(b.url)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Ver beca ↗</a>
     </div>
   </article>`;
@@ -349,10 +349,10 @@ async function renderNotificaciones() {
     const fechaStr = new Date(n.created_at).toLocaleDateString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
     return `
     <div class="notification-item ${n.leida ? '' : 'unread'}" onclick="marcarNotificacionLeida('${n.id}', '${n.url_destino || ''}')">
-      <div class="notif-icon">${n.icono || ''}</div>
+      <div class="notif-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
       <div class="notif-content">
-        <div class="notif-title">${n.titulo} ${n.leida ? '' : ''}</div>
-        <div class="notif-text">${n.texto}</div>
+        <div class="notif-title">${escapeHtml(n.titulo)}</div>
+        <div class="notif-text">${escapeHtml(n.texto)}</div>
         <div class="notif-time">${fechaStr}</div>
       </div>
     </div>

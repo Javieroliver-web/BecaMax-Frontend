@@ -236,7 +236,7 @@ function renderCard(b, delay = 0) {
         <span class="badge badge-tipo">${sanitizeHTML(tipoLabel(b.tipo))}</span>
         <span class="badge badge-${u}">${sanitizeHTML(urgenciaLabel(u, dias))}</span>
       </div>
-      <button class="btn-fav ${typeof isFavorite === 'function' && isFavorite(b.id) ? 'active' : ''}" onclick="typeof toggleFavorite === 'function' ? toggleFavorite('${sanitizeHTML(b.id)}', this) : null" aria-label="Añadir a favoritos" title="Guardar beca">⭐</button>
+      <button class="btn-fav ${typeof isFavorite === 'function' && isFavorite(b.id) ? 'active' : ''}" onclick="typeof toggleFavorite === 'function' ? toggleFavorite('${sanitizeHTML(b.id)}', this) : null" aria-label="Añadir a favoritos" title="Guardar beca"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
     </div>
     <div class="card-body">
       <div class="card-nombre font-heading">${sanitizeHTML(b.nombre)}</div>
@@ -285,7 +285,7 @@ function renderGrid(append = false) {
   if (ordenadas.length === 0) {
     grid.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon"></div>
+        <div class="empty-icon"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         <h3>Sin resultados</h3>
         <p>Prueba a cambiar los filtros o amplía la búsqueda.</p>
       </div>`;
@@ -329,7 +329,7 @@ function renderGrid(append = false) {
 function verRequisitos(id) {
   const b = BECAS.find(x => x.id === id);
   if (!b) return;
-  const lista = b.requisitos.map(r => `<li style="margin-bottom:6px"> ${sanitizeHTML(r)}</li>`).join('');
+  const lista = b.requisitos.map(r => `<li style="margin-bottom:6px">${sanitizeHTML(r)}</li>`).join('');
   // Reutilizamos el modal de alerta como modal de info
   const modal = document.getElementById('modalAlerta');
   modal.querySelector('.modal-title').textContent    = sanitizeHTML(b.nombre);

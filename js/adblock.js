@@ -66,7 +66,7 @@
       '    <div class="adblock-step"><span class="adblock-step-num">2</span> Selecciona "Desactivar en este sitio" o "Pausar"</div>',
       '    <div class="adblock-step"><span class="adblock-step-num">3</span> Recarga la página</div>',
       '  </div>',
-      '  <button class="adblock-btn" onclick="window.location.reload()"> Ya lo desactivé — Recargar</button>',
+      '  <button class="adblock-btn" onclick="window.location.reload()">Ya lo desactivé — Recargar</button>',
       '  <button class="btn btn-secondary btn-sm" id="adblock-dismiss" style="width:100%">Seguir sin desactivarlo</button>',
       '</div>',
     ].join('');

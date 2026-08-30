@@ -282,7 +282,7 @@ async function updateHeaderAuth() {
         ` : '';
 
         const misAlertasBtn = `
-          <a href="${toPages}dashboard.html" class="btn btn-ghost btn-sm" style="margin-right:8px;"> Mis alertas</a>
+          <a href="${toPages}dashboard.html" class="btn btn-ghost btn-sm" style="margin-right:8px;">Mis alertas</a>
         `;
 
         const avatarFallback = escapeHtml(nombre.charAt(0).toUpperCase());
@@ -362,12 +362,12 @@ async function updateHeaderAuth() {
              <div style="font-size:0.8rem; text-transform:uppercase; color:var(--primary-light); font-weight:600;">${perfil?.rol === 'admin' ? 'Administrador' : 'Estudiante'}</div>
            </div>
         </div>
-        <a href="${toRoot}index.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;"> Buscar becas</a>
-        <a href="${toPages}dashboard.html" class="btn btn-secondary btn-full" style="margin-bottom:10px; justify-content:center;"> Mis alertas</a>
-        <a href="${toPages}perfil.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;"> Mi Perfil</a>
-        <a href="${toPages}configuracion.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;"> Configuración</a>
+        <a href="${toRoot}index.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">Buscar becas</a>
+        <a href="${toPages}dashboard.html" class="btn btn-secondary btn-full" style="margin-bottom:10px; justify-content:center;">Mis alertas</a>
+        <a href="${toPages}perfil.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">Mi Perfil</a>
+        <a href="${toPages}configuracion.html" class="btn btn-ghost btn-full" style="margin-bottom:10px; justify-content:center;">Configuración</a>
         ${perfil?.rol === 'admin' ? `<a href="${toPages}admin-monitorizacion.html" class="btn btn-warning btn-full" style="margin-bottom:10px; justify-content:center;">Monitorización</a>` : ''}
-        <button onclick="handleSignOut()" class="btn btn-danger btn-full" style="margin-top:10px; width:100%;"> Cerrar sesión</button>
+        <button onclick="handleSignOut()" class="btn btn-danger btn-full" style="margin-top:10px; width:100%;">Cerrar sesión</button>
       `;
     }
   }

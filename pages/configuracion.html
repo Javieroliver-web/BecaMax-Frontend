@@ -94,14 +94,14 @@
         <label for="confPassword">Nueva Contraseña</label>
         <div class="password-wrapper">
           <input type="password" class="form-input" id="confPassword" placeholder="Mínimo 8 caracteres" required minlength="8">
-          <button type="button" class="btn-eye" onclick="togglePass('confPassword',this)" aria-label="Mostrar contraseña"></button>
+          <button type="button" class="btn-eye" onclick="togglePass('confPassword',this)" aria-label="Mostrar contraseña"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
       </div>
       <div class="form-group" style="margin-top:16px">
         <label for="confPasswordConfirm">Confirmar Nueva Contraseña</label>
         <div class="password-wrapper">
           <input type="password" class="form-input" id="confPasswordConfirm" placeholder="Repite la nueva contraseña" required minlength="8">
-          <button type="button" class="btn-eye" onclick="togglePass('confPasswordConfirm',this)" aria-label="Mostrar contraseña"></button>
+          <button type="button" class="btn-eye" onclick="togglePass('confPasswordConfirm',this)" aria-label="Mostrar contraseña"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
       </div>
       <button type="submit" class="btn btn-primary btn-full" id="btnGuardarSeguridad" style="margin-top:20px">
@@ -170,13 +170,7 @@
 <script src="../js/adblock.js"></script>
 <script src="../js/logger.js"></script>
 <script>
-function togglePass(id, btn) {
-  const inp = document.getElementById(id);
-  const show = inp.type === 'password';
-  inp.type = show ? 'text' : 'password';
-  btn.textContent = show ? '' : '';
-  btn.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña');
-}
+// togglePass() vive en config.js (compartida con auth.html)
 (function(){
   var hBtn = document.getElementById('hamburgerBtn');
   var mMenu = document.getElementById('mobileMenu');

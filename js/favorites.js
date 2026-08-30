@@ -68,7 +68,7 @@ async function toggleFavorite(becaId, btnEl) {
       showToast('Beca eliminada de favoritos', 'info');
     } else {
       await supabaseClient.from('favoritos').upsert({ user_id: _userId, beca_id: id }, { onConflict: 'user_id,beca_id' });
-      showToast('⭐ Beca añadida a favoritos', 'success');
+      showToast('Beca añadida a favoritos', 'success');
     }
   } catch (e) {
     // Revertir en caso de error
@@ -100,10 +100,10 @@ async function renderFavoritosSection(containerId) {
   if (error || !data || data.length === 0) {
     container.innerHTML = `
       <div class="empty-state" style="grid-column:1/-1;padding:40px 20px;">
-        <div class="empty-icon" style="font-size:2.5rem;margin-bottom:10px;">⭐</div>
+        <div class="empty-icon" style="font-size:2.5rem;margin-bottom:10px;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
         <h3>Sin favoritos aún</h3>
-        <p>Guarda becas con el botón ⭐ para encontrarlas fácilmente aquí.</p>
-        <a href="../index.html" class="btn btn-primary btn-sm" style="margin-top:12px;"> Explorar becas</a>
+        <p>Guarda becas con el botón de estrella para encontrarlas fácilmente aquí.</p>
+        <a href="../index.html" class="btn btn-primary btn-sm" style="margin-top:12px;">Explorar becas</a>
       </div>`;
     return;
   }
