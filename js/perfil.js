@@ -2,14 +2,10 @@
 //  PERFIL.JS – Carga y guardado de perfil de usuario (Múltiples secciones)
 // ============================================================
 
-// Supabase Storage a veces devuelve un 503 puntual al servir una foto de
-// avatar. Comprobado que el archivo existe y responde 200 vía fetch() en
-// el mismo momento en que el <img> falla: es una respuesta mala cacheada
-// en el CDN concreta para esa variante de petición, no un problema real
-// del archivo. Un <img> tampoco reintenta solo tras un error, así que sin
-// esto se quedaba mostrando el icono de imagen rota indefinidamente. En
-// cada reintento se añade un parámetro distinto para forzar una petición
-// nueva que no pueda servirse desde esa entrada de caché mala.
+// Un <img> no reintenta solo tras un error de red puntual, así que sin esto
+// un fallo transitorio de Supabase Storage dejaría el icono de imagen rota
+// fijo hasta recargar la página. Cada reintento añade un parámetro distinto
+// para forzar una petición nueva en vez de repetir la misma URL.
 function cargarImagenConReintento(img, url, intentosRestantes = 2) {
   img.onerror = () => {
     if (intentosRestantes <= 0) return;
@@ -40,7 +36,21 @@ async function redimensionarImagen(file, maxLado = 512, calidad = 0.85) {
   return await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', calidad));
 }
 
+function ocultarCargaPerfil() {
+  document.body.classList.remove('loading-state');
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
 async function cargarPerfil() {
+  try {
+    await cargarPerfilInterno();
+  } finally {
+    ocultarCargaPerfil();
+  }
+}
+
+async function cargarPerfilInterno() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) return;
 
