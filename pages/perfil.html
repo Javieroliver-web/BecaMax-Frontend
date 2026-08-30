@@ -177,6 +177,15 @@
       mMenu.classList.toggle('open', open);
       mMenu.setAttribute('aria-hidden', !open);
     });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && hBtn.classList.contains('open')){
+        hBtn.classList.remove('open');
+        hBtn.setAttribute('aria-expanded', false);
+        mMenu.classList.remove('open');
+        mMenu.setAttribute('aria-hidden', true);
+        hBtn.focus();
+      }
+    });
   }
 })();
 </script>
