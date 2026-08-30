@@ -24,10 +24,30 @@
 [x] Ejecutar script SQL de Favoritos: Copiar el contenido de `d:\Proyectos\BecaMax-Backend\supabase_favoritos.sql` y ejecutarlo en el SQL Editor de Supabase.
 [x] Ejecutar script SQL de Notificaciones: Copiar el contenido de `d:\Proyectos\BecaMax-Backend\supabase_notificaciones.sql` y ejecutarlo en el SQL Editor de Supabase.
 [x] Ejecutar script SQL de Storage (Fotos): Copiar el contenido de `d:\Proyectos\BecaMax-Backend\supabase_storage.sql` y ejecutarlo en el SQL Editor de Supabase.
-[ ] Configurar Plantilla de Email (Reset Password): Copiar el HTML de `d:\Proyectos\BecaMax-Backend\plantilla_email_reset.html` y pegarlo en Supabase -> Authentication -> Email Templates -> Reset Password.
-[ ] Configurar SMTP de Resend: Ir a Supabase -> Authentication -> Providers -> Email e introducir los credenciales de SMTP (Host: smtp.resend.com, Port: 465, User: resend, Pass: tu_api_key).
-[ ] Rate Limit: Aumentar el límite de correos enviados por hora en Supabase (si usas plan Pro) o pedir aumento a Resend.
-[ ] Comprimir Imágenes (Opcional): Pasar los logos o fondos pesados de `/img` por un compresor a WebP o AVIF (ej: squoosh.app) de forma manual.
+[x] (2026-08-30) Configurar Plantilla de Email (Reset Password): corregido el
+    dominio de contacto en `Backend-BecaMax/plantilla_email_reset.html`
+    (decía becamax.es, no es el dominio actual) y pegada en Supabase ->
+    Authentication -> Emails -> Reset Password.
+[x] (2026-08-30) Comprimir Imágenes: logo.png bajado de 3,4 MB a 62,8 KB
+    (256x256, sin pérdida visible). Era la única imagen pesada en /img.
+
+=== 📧 EMAIL: DECISIÓN TOMADA (2026-08-30) — pendiente ligada a compra de dominio ===
+[ ] SMTP personalizado de Supabase (Resend): decisión del usuario -- NO
+    activarlo por ahora, se mantiene el límite bajo por defecto de Supabase
+    para los emails de autenticación (registro, reset), suficiente con pocos
+    usuarios. Retomar cuando se compre el dominio propio.
+[ ] IMPORTANTE, no confundir con lo anterior: las ALERTAS DE BECAS por email
+    (`alerts.controller.js`, vía API de Resend, NO pasa por Supabase Auth)
+    NO llegan a usuarios reales ahora mismo. La cuenta de Resend está recién
+    creada sin dominio verificado -- sin verificar un dominio, Resend solo
+    permite enviar desde `onboarding@resend.dev` y únicamente al email
+    propio del dueño de la cuenta, nunca a destinatarios reales. El cron
+    diario sigue corriendo sin romperse (falla en silencio, registrado como
+    error en el log), pero ningún usuario recibe sus alertas todavía.
+    Se arregla verificando un dominio en Resend cuando se compre el dominio
+    propio -- en ese momento, actualizar también el remitente
+    `alertas@becamax.es` en alerts.controller.js si el dominio final es
+    distinto.
 
 
 === ⚠️ TAREAS REABIERTAS (marcadas como completadas pero no lo estaban) ===
