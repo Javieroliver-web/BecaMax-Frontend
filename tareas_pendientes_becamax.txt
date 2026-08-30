@@ -3,6 +3,70 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== ✅ RONDA DE PRUEBAS: USO, DISEÑO, ACCESIBILIDAD Y SEGURIDAD (2026-08-30) ===
+Petición del usuario: pruebas exhaustivas de uso, diseño, accesibilidad,
+seguridad general y resistencia a ciberataques, corrigiendo todo bug
+encontrado. Sesión logueada como usuario normal + revisión de código
+backend/BD/RLS.
+
+SEGURIDAD -- hallazgos reales corregidos:
+- [x] XSS sin escapar en dashboard.js: renderCard() (usado en "Mis
+      favoritos" y "Recomendadas para tu perfil") interpolaba
+      nombre/entidad/descripción de la beca directamente en el HTML sin
+      pasar por escapeHtml(), a diferencia de la copia equivalente en
+      app.js. Parte de esos datos vienen del scraper BDNS (fuente
+      externa), así que era un vector XSS real en una página con sesión
+      iniciada. Corregido usando escapeHtml() (disponible vía config.js,
+      que sí carga en dashboard.html).
+- [x] IDOR/spoofing en la tabla `incidencias`: la política RLS de INSERT
+      tenía `WITH CHECK: true`, permitiendo que cualquier usuario
+      autenticado enviara un `user_id` ajeno al reportar una incidencia.
+      Corregido en Supabase: `WITH CHECK (user_id IS NULL OR user_id =
+      auth.uid())`.
+- [x] Revisadas funciones SECURITY DEFINER sin `search_path` fijado
+      (delete_my_account, is_admin, prevent_privilege_escalation,
+      handle_new_user) -- vector clásico de escalada vía search_path
+      hijacking. Fijado `SET search_path = public, pg_temp` en las 4.
+- [x] Revisado el backend Express (admin.controller.js,
+      favorites.controller.js, rateLimiter.js, alerts.controller.js,
+      bdns.controller.js): verificación de Bearer token, comprobación de
+      rol admin, CORS por origen, Helmet, rate limiting con Upstash y
+      fallback en memoria, y CRON_SECRET en los endpoints de cron --
+      todo correcto, sin cambios necesarios.
+- Pendiente para el usuario (no aplicable por SQL): activar "Leaked
+  Password Protection" en el panel de Supabase Auth -- gratis y sin
+  riesgo, mejora la resistencia a contraseñas filtradas.
+- Nota de arquitectura (no es un bug, no se ha tocado): el endpoint
+  backend favorites.controller.js/favorites.routes.js quedó huérfano
+  desde que el frontend pasó a hablar directo con Supabase -- no es
+  inseguro, pero es código muerto candidato a limpieza futura.
+
+ACCESIBILIDAD -- hallazgos reales corregidos:
+- [x] El logo grande de auth.html no tenía atributo `alt`.
+- [x] El botón de favorito en las tarjetas de becas (app.js) siempre
+      anunciaba "Añadir a favoritos" a los lectores de pantalla, incluso
+      en becas ya guardadas donde visualmente sí se mostraba el estado
+      activo -- ahora el aria-label/title reflejan el estado real desde
+      el primer render.
+
+USO / DISEÑO -- hallazgos reales corregidos:
+- [x] En incidencias.html el botón de login decía "Acceder" en vez de
+      "Iniciar sesión". La limpieza de botones estáticos de
+      updateHeaderAuth() (auth.js) solo comparaba por texto exacto, así
+      que "Acceder" nunca coincidía y el botón se quedaba visible a la
+      vez que "Mis alertas" y el avatar del usuario ya logueado.
+      Corregido el texto y reforzada la lógica de limpieza para que
+      compruebe también por `id` (btnLogin/btnRegister/mobileLogin/
+      mobileRegister), más robusto que depender solo del texto.
+- Verificado modo oscuro sin defectos de contraste ni de maquetación en:
+  index.html, dashboard.html, perfil.html, configuracion.html,
+  incidencias.html y beca-detalle.html (logueado como usuario normal).
+  Confirmado también el fix de perfil.js (nombre) sigue funcionando.
+
+CIBERSEGURIDAD -- sin hallazgos adicionales más allá de los ya listados
+arriba (XSS e IDOR). No se han detectado endpoints sin autenticar,
+CORS abiertos, ni fugas de claves/secretos en el frontend.
+
 === ✅ REVISIÓN DE RESPONSIVE + emoji del cuadrado negro (2026-08-30) ===
 Petición del usuario: revisar el responsive de toda la web y quitar el
 emoji ⬛ de la etiqueta "Cerrada" (poco profesional).
