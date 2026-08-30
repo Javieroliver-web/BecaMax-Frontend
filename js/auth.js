@@ -380,7 +380,7 @@ async function requireAuth() {
 
   if (perfil && perfil.estado === 'bloqueado') {
     await supabaseClient.auth.signOut();
-    showToast(' Acceso denegado: su cuenta ha sido suspendida.', 'error');
+    showToast('Acceso denegado: su cuenta ha sido suspendida.', 'error');
     const isPagesDir = window.location.pathname.includes('/pages/');
     const toRoot = isPagesDir ? '../' : './';
     setTimeout(() => { window.location.href = toRoot + 'index.html'; }, 2500);
@@ -399,6 +399,15 @@ async function updateHeaderAuth() {
     // para quien todavía no tiene cuenta; quien ya inició sesión no la necesita.
     const featuresSection = document.getElementById('featuresSection');
     if (featuresSection) featuresSection.style.display = 'none';
+
+    // initFavorites() antes solo se llamaba desde dashboard.js: en el resto
+    // de páginas (buscador, ficha de beca...) el botón de estrella se
+    // encontraba _userId sin asignar y redirigía al login aunque hubiera
+    // sesión iniciada. Se centraliza aquí porque updateHeaderAuth() corre
+    // en todas las páginas que cargan auth.js.
+    if (typeof initFavorites === 'function') {
+      initFavorites(session.user.id);
+    }
 
     const nombre = session.user.user_metadata?.full_name || session.user.user_metadata?.nombre || session.user.email.split('@')[0];
 
