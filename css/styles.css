@@ -160,6 +160,7 @@ input,select,textarea,button{font-family:inherit}
 .news-panel-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   font-size: 0.75rem;
   font-weight: 700;
@@ -167,6 +168,20 @@ input,select,textarea,button{font-family:inherit}
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 10px;
+}
+
+.news-panel-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: var(--transition);
+}
+.news-panel-close:hover {
+  color: var(--text-primary);
 }
 
 .news-panel-content {

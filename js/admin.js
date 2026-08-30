@@ -230,10 +230,62 @@ async function publicarNoticia() {
   }
 }
 
+async function eliminarNoticiaActual() {
+  // Toast de confirmación no bloqueante en lugar de confirm() nativo, para
+  // mantener el mismo patrón que el resto del sitio (ej. eliminar alerta).
+  const c = document.getElementById('toastContainer');
+  if (!c) return;
+  const t = document.createElement('div');
+  t.className = 'toast info';
+  t.style.cssText = 'flex-direction:column;align-items:flex-start;gap:10px;max-width:300px;pointer-events:all;';
+  t.innerHTML = `
+    <span>¿Eliminar la noticia global actual? Dejará de verla todo el mundo.</span>
+    <div style="display:flex;gap:8px;width:100%">
+      <button type="button" class="btn btn-ghost btn-sm" style="flex:1">Cancelar</button>
+      <button type="button" class="btn btn-danger btn-sm" style="flex:1">Eliminar</button>
+    </div>`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 6000);
+
+  const [btnCancelar, btnEliminar] = t.querySelectorAll('button');
+  btnCancelar.addEventListener('click', () => t.remove());
+  btnEliminar.addEventListener('click', async () => {
+    t.remove();
+    const btn = document.getElementById('btnDeleteNews');
+    try {
+      btn.disabled = true;
+      btn.textContent = 'Eliminando...';
+
+      const backendUrl = CONFIG.BASE_URL;
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const token = session?.access_token;
+
+      const res = await fetch(`${backendUrl}/api/admin/news`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message || 'Error al eliminar la noticia');
+
+      showToast('Noticia global eliminada', 'success');
+    } catch (error) {
+      console.error('Error al eliminar noticia:', error);
+      showToast(error.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Eliminar noticia actual';
+    }
+  });
+}
+
 // Inicialización de eventos para noticias
 document.addEventListener('DOMContentLoaded', () => {
     const btnNews = document.getElementById('btnPostNews');
     if (btnNews) {
         btnNews.addEventListener('click', publicarNoticia);
+    }
+    const btnDeleteNews = document.getElementById('btnDeleteNews');
+    if (btnDeleteNews) {
+        btnDeleteNews.addEventListener('click', eliminarNoticiaActual);
     }
 });

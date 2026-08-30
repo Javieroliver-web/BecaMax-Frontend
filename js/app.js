@@ -121,15 +121,27 @@ async function fetchNews() {
       return;
     }
 
+    // El usuario puede cerrar el aviso; se recuerda por id para no volver a
+    // mostrar ESE mismo mensaje, pero un mensaje nuevo del admin sí aparece.
+    if (localStorage.getItem('newsDismissedId') === String(news.id)) {
+      panel.style.display = 'none';
+      return;
+    }
+
     const dateStr = new Date(news.created_at).toLocaleDateString();
     panel.innerHTML = `
       <div class="news-panel-header">
-        <span> mensaje del admin</span>
+        <span>Mensaje del admin</span>
+        <button type="button" class="news-panel-close" aria-label="Cerrar aviso" title="Cerrar aviso">&times;</button>
       </div>
       <div class="news-panel-content">${sanitizeHTML(news.content)}</div>
       <span class="news-panel-date">Publicado el ${sanitizeHTML(dateStr)}</span>
     `;
     panel.style.display = 'block';
+    panel.querySelector('.news-panel-close').addEventListener('click', () => {
+      localStorage.setItem('newsDismissedId', String(news.id));
+      panel.style.display = 'none';
+    });
 
   } catch (err) {
     console.error('Error al cargar noticias:', err);
