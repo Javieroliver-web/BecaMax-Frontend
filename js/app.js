@@ -265,12 +265,11 @@ function renderCard(b, delay = 0) {
 
 // ---- Stats del hero ----------------------------------------
 function actualizarStats(becasFiltradas) {
-  const abiertas  = BECAS.filter(b => diasRestantes(b.deadline) >= 0);
-  const urgentes  = BECAS.filter(b => { const d = diasRestantes(b.deadline); return d >= 0 && d <= 7; });
-  const maxImp    = Math.max(0, ...BECAS.map(b => b.importe?.max ?? 0));
-  document.getElementById('statTotal').textContent   = abiertas.length;
-  document.getElementById('statUrgente').textContent = urgentes.length;
-  document.getElementById('statMaxImporte').textContent = maxImp.toLocaleString('es-ES') + ' €';
+  const abiertas = BECAS.filter(b => diasRestantes(b.deadline) >= 0);
+  const maxImp   = Math.max(0, ...BECAS.map(b => b.importe?.max ?? 0));
+  document.getElementById('statTotal').textContent = abiertas.length;
+  const finEl = document.getElementById('statFinanciacion');
+  if (finEl) finEl.textContent = maxImp > 0 ? maxImp.toLocaleString('es-ES') + ' €' : '—';
 }
 
 // ---- Render principal --------------------------------------

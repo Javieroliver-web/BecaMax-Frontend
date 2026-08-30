@@ -923,19 +923,6 @@ body:not(.loading-state) .loading-overlay {
 }
 .btn-eye:hover { color: var(--primary-light); }
 
-/* ============================================ ONBOARDING ============================================ */
-.onb-dot {
-  width: 10px;
-  height: 10px;
-  background: var(--glass-border);
-  border-radius: 50%;
-  transition: var(--transition);
-}
-.onb-dot.active {
-  background: var(--primary);
-  transform: scale(1.2);
-}
-
 /* ============================================ SKELETON CARDS ============================================ */
 .skeleton-card {
   background: var(--bg-secondary);
