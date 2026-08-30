@@ -76,7 +76,7 @@ Navega a `http://localhost:3000` (o el puerto que indique `serve`).
 
 ## Google AdSense
 
-Activado en `index.html`. Pendiente de solicitar la revisión de AdSense para los anuncios.
+Activado en `index.html`, pero **no solicitar la revisión todavía**: el sitio corre en `becamax.vercel.app`, un subdominio compartido propiedad de Vercel, y AdSense rechaza automáticamente ese tipo de dominio por no poder verificar la propiedad (pasa igual con `*.github.io`, `*.netlify.app`, etc.) — es un bloqueo estructural, no de contenido. Hace falta comprar un dominio propio y conectarlo primero (ver `tareas_pendientes_becamax.txt` para el detalle y los pasos de migración).
 
 ---
 

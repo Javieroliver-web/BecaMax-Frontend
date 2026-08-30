@@ -978,6 +978,35 @@ Términos de Servicio oficiales del trial (no solo blogs de terceros):
       gratuito sí permita producción (Google Gemini, Groq) antes de
       integrarlo de verdad.
 
+=== 🚨 BLOQUEANTE ENCONTRADO: dominio propio necesario ANTES de pedir la revisión de AdSense (2026-08-31) ===
+El usuario iba a solicitar ya la revisión de AdSense. Investigado antes
+de dar luz verde: NO hacerlo todavía con la URL actual.
+- [ ] `becamax.vercel.app` es un subdominio compartido, propiedad de
+      Vercel, no del usuario. AdSense exige poder verificar propiedad
+      del dominio -- el rechazo en subdominios tipo `*.vercel.app` (igual
+      que `*.github.io`, `*.netlify.app`) es automático y estructural,
+      ni siquiera llega a revisarse el contenido. Pasa lo mismo con
+      otros ad networks (Mediavine, Ezoic, Media.net).
+      Esto invierte el plan que tenía el usuario de "comprar dominio
+      cuando haya ingresos": el dominio propio hace falta ANTES de poder
+      generar esos ingresos vía AdSense, no después.
+- [ ] Comprobada disponibilidad: `becamax.es` está libre (Vercel no
+      vende `.es` directamente, hay que comprarlo en un registrador
+      externo -- IONOS, Nominalia, OVH -- unos 10-15€/año -- y apuntarlo
+      a Vercel por DNS). `becamax.com` ya no está disponible.
+- [ ] El resto del checklist de AdSense ya está listo: ads.txt en
+      producción, CMP/Funding Choices instalado, contenido original
+      suficiente (guías + FAQ), política de privacidad que ya menciona
+      AdSense, sitio responsive con HTTPS. Solo falta el dominio.
+- [ ] Próximos pasos, en este orden, cuando el usuario tenga el dominio:
+      1) Comprar `becamax.es` (o el TLD que elija) y conectarlo en Vercel.
+      2) Una vez propagado el DNS, migrar las referencias al dominio
+         antiguo en el código: canonical tags, `sitemap.xml`,
+         `robots.txt`, datos estructurados JSON-LD, la config del CMP,
+         `FRONTEND_URL` del backend (CORS), y las URLs de redirección
+         permitidas en Supabase Auth.
+      3) Solo entonces solicitar la revisión de AdSense.
+
 ==================================================
               TAREAS COMPLETADAS
 ==================================================
