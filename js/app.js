@@ -288,6 +288,8 @@ function renderGrid(append = false) {
         <h3>Sin resultados</h3>
         <p>Prueba a cambiar los filtros o amplía la búsqueda.</p>
       </div>`;
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) loadMoreBtn.style.display = 'none';
     return;
   }
 
