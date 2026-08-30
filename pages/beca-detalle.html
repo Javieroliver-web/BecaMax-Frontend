@@ -23,7 +23,7 @@
   <header class="header">
     <div class="header-inner">
       <a href="../index.html" class="logo">
-        <img src="../img/logo.png" alt="BX" class="logo-img" style="height:32px;width:32px;border-radius:6px;object-fit:cover;">
+        <img src="../img/logo.png" alt="BecaMax" class="logo-img" style="height:32px;width:32px;border-radius:6px;object-fit:cover;">
         <span class="logo-text font-heading">BecaMax</span>
       </a>
       <nav class="header-actions" id="headerActions">
@@ -177,6 +177,17 @@
     // ── Render ───────────────────────────────────────────────────
     function renderBeca(beca) {
       document.title = `${beca.nombre} · BecaMax`;
+
+      const descMeta = document.querySelector('meta[name="description"]');
+      if (descMeta) descMeta.setAttribute('content', `${beca.nombre} (${beca.entidad}): requisitos, importe y plazo de solicitud en BecaMax.`);
+
+      let canonicalLink = document.querySelector('link[rel="canonical"]');
+      if (!canonicalLink) {
+        canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonicalLink);
+      }
+      canonicalLink.setAttribute('href', `https://becamax.vercel.app/pages/beca-detalle?id=${encodeURIComponent(beca.id)}`);
 
       // Cabecera
       document.getElementById('becaNombre').textContent  = beca.nombre;
