@@ -160,12 +160,62 @@ async function handleRegister(e) {
       document.getElementById('formRegistro').style.display = 'none';
       document.querySelector('.auth-tabs').style.display = 'none';
       document.getElementById('authSuccess').classList.add('visible');
+      resendEmail = email;
+      iniciarCooldownReenvio(60);
     }
   } catch (err) {
     // Nunca dejar el botón bloqueado en silencio ante un fallo inesperado.
     btn.disabled = false;
     btn.textContent = 'Crear cuenta gratuita';
     errEl.textContent = 'No se pudo procesar el registro, inténtalo de nuevo';
+    errEl.classList.add('visible');
+  }
+}
+
+// ---- Reenviar email de confirmación --------------------------
+let resendEmail = '';
+let resendTimer = null;
+
+function iniciarCooldownReenvio(seconds) {
+  const btn = document.getElementById('btnResendConfirm');
+  clearInterval(resendTimer);
+  const tick = () => {
+    if (seconds > 0) {
+      btn.disabled = true;
+      btn.textContent = `Reenviar en ${seconds}s`;
+      seconds--;
+    } else {
+      clearInterval(resendTimer);
+      btn.disabled = false;
+      btn.textContent = 'Reenviar email';
+    }
+  };
+  tick();
+  resendTimer = setInterval(tick, 1000);
+}
+
+async function handleResendConfirmation() {
+  const btn = document.getElementById('btnResendConfirm');
+  const errEl = document.getElementById('resendError');
+  errEl.classList.remove('visible');
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+
+  try {
+    const { error } = await supabaseClient.auth.resend({ type: 'signup', email: resendEmail });
+    if (error) {
+      btn.disabled = false;
+      btn.textContent = 'Reenviar email';
+      errEl.textContent = tradError(error.message);
+      errEl.classList.add('visible');
+    } else {
+      showToast('Email reenviado, revisa tu bandeja de entrada', 'success');
+      iniciarCooldownReenvio(60);
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Reenviar email';
+    errEl.textContent = 'No se pudo reenviar el email, inténtalo de nuevo';
     errEl.classList.add('visible');
   }
 }
@@ -459,6 +509,8 @@ function tradError(msg) {
   if (msg.includes('Email not confirmed'))       return 'Confirma tu email antes de entrar.';
   if (msg.includes('User already registered'))   return 'Este email ya tiene cuenta. Inicia sesión.';
   if (msg.includes('Password should'))            return 'La contraseña debe tener al menos 8 caracteres.';
+  if (msg.includes('security purposes'))          return 'Por seguridad, espera unos segundos antes de volver a intentarlo.';
+  if (msg.toLowerCase().includes('captcha'))      return 'Verificación de seguridad no válida, recarga la página e inténtalo de nuevo.';
   return msg;
 }
 

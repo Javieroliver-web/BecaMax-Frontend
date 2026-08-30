@@ -110,12 +110,17 @@
 
     <!-- SUCCESS (registro) -->
     <div class="auth-success" id="authSuccess">
-      <div class="auth-success-icon"></div>
+      <div class="auth-success-icon" style="color:var(--primary)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
       <h2 style="font-size:1.2rem;margin-bottom:8px">¡Revisa tu email!</h2>
       <p style="color:var(--text-secondary);font-size:.875rem;margin-bottom:20px">
         Te hemos enviado un enlace de confirmación. Haz clic en él para activar tu cuenta.
       </p>
-      <a href="../index.html" class="btn btn-primary">Volver al inicio</a>
+      <p style="color:var(--text-muted);font-size:.8rem;margin-bottom:14px">
+        ¿No te ha llegado? Revisa la carpeta de spam o pide que te lo enviemos otra vez.
+      </p>
+      <button type="button" class="btn btn-secondary btn-full" id="btnResendConfirm" onclick="handleResendConfirmation()" disabled>Reenviar en 60s</button>
+      <div class="form-error" id="resendError" style="margin-top:10px;"></div>
+      <a href="../index.html" class="btn btn-primary" style="margin-top:14px;display:inline-block;">Volver al inicio</a>
     </div>
 
     <div class="auth-footer">
