@@ -81,7 +81,7 @@ function onHcaptchaLoad() {
   // El tema del captcha antes estaba fijo en 'dark': en modo claro aparecía
   // como una caja negra que desentonaba con el resto de la página.
   const theme = (localStorage.getItem('theme') || 'dark') === 'light' ? 'light' : 'dark';
-  ['turnstile-login', 'turnstile-register'].forEach(containerId => {
+  ['turnstile-login', 'turnstile-register', 'turnstile-resend'].forEach(containerId => {
     const el = document.getElementById(containerId);
     if (!el) return; // la página puede no tener los dos formularios (no aplica aquí, pero por si acaso)
     hcaptchaWidgets[containerId] = hcaptcha.render(containerId, {
@@ -198,11 +198,23 @@ async function handleResendConfirmation() {
   const btn = document.getElementById('btnResendConfirm');
   const errEl = document.getElementById('resendError');
   errEl.classList.remove('visible');
+
+  // Supabase exige captcha tambien en resend() al tener la protección
+  // activada a nivel de proyecto -- necesita su propio widget porque el de
+  // registro queda oculto (y ya usado) dentro del formulario.
+  const captchaToken = getCaptchaToken('turnstile-resend');
+  if (!captchaToken) {
+    errEl.textContent = 'Marca la casilla del captcha antes de reenviar';
+    errEl.classList.add('visible');
+    return;
+  }
+
   btn.disabled = true;
   btn.textContent = 'Enviando…';
 
   try {
-    const { error } = await supabaseClient.auth.resend({ type: 'signup', email: resendEmail });
+    const { error } = await supabaseClient.auth.resend({ type: 'signup', email: resendEmail, options: { captchaToken } });
+    resetCaptcha('turnstile-resend');
     if (error) {
       btn.disabled = false;
       btn.textContent = 'Reenviar email';
