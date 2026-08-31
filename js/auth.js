@@ -348,7 +348,6 @@ function sanitizeReturnUrl(url) {
 
 // ---- Sign out -----------------------------------------------
 async function handleSignOut() {
-  sessionStorage.clear();
   await AuthAPI.signOut();
   const isPagesDir = window.location.pathname.includes('/pages/');
   const toRoot = isPagesDir ? '../' : './';

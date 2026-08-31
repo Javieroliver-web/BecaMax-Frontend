@@ -97,7 +97,7 @@ async function cargarPerfilInterno() {
       // Actualizar también el header por si acaso
       const nameEls = document.querySelectorAll('#headerUserName');
       nameEls.forEach(el => {
-        el.innerHTML = `<img src="${data.avatar_url}" class="header-avatar-img" alt=""> ${el.textContent}`;
+        el.innerHTML = `<img src="${escapeHtml(data.avatar_url)}" class="header-avatar-img" alt=""> ${el.textContent}`;
       });
     }
   }
