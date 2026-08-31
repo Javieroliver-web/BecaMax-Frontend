@@ -3,7 +3,78 @@
                  (Nivel Producción Premium)
 ==================================================
 
-=== 🚧 REFACTOR DE SESIÓN A COOKIES httpOnly (2026-08-31) — PENDIENTE DE PROBAR Y DESPLEGAR ===
+=== ✅ RONDA DE BUGS POST-DESPLIEGUE DEL REFACTOR DE COOKIES (2026-08-31) ===
+Probando en producción con el usuario logueado como admin real, aparecieron
+4 bugs reales en cadena, todos relacionados con el refactor de cookies de
+esta misma sesión -- cada uno solo se veía con tráfico real, no con curl:
+- [x] `Datos personales` de perfil.html mostraba siempre el avatar por
+      defecto pese a tener uno guardado (el banner sí lo mostraba bien,
+      porque venía de una caché antigua) -- causa real: CORS bloqueaba el
+      preflight de supabase-js (cabeceras `accept-profile`/`x-retry-count`
+      no estaban en el `allowedHeaders` fijo del backend). Arreglado
+      quitando la lista fija: sin `allowedHeaders`, el paquete `cors`
+      refleja automáticamente lo que pida el propio preflight.
+- [x] `AuthAPI.getSession()` devolvía `data:null` ante cualquier fallo HTTP
+      del backend (un 503 puntual, por ejemplo), y como toda la web hace
+      `const {data:{session}} = await AuthAPI.getSession()` sin comprobar
+      `error` antes, la página entera reventaba con un `TypeError` en vez
+      de tratarlo como "sin sesión". Normalizado en el único sitio que
+      hace falta.
+- [x] El rate limit (100 peticiones/15 min por IP, Upstash) se agotó de
+      verdad por el volumen de pruebas de esta sesión -- eso disparó el
+      503/bloqueos de arriba. De paso se encontró que el limiter corría
+      ANTES que `cors()`, así que un 429 salía sin cabeceras CORS y el
+      navegador lo veía como un "Failed to fetch" opaco. Reordenado
+      (cors primero) y subido el límite a 300/15 min a petición del
+      usuario -- margen para varios usuarios compartiendo IP (instituto/
+      universidad) y para el tráfico mayor que genera el nuevo backend-
+      como-proxy (cada página ahora es varios viajes de red reales en vez
+      de ir directo a Supabase).
+- [x] Perfil/dashboard pedían la fila de `perfiles` del usuario hasta 4
+      veces por carga de página (requireAuth, updateHeaderAuth, la propia
+      pantalla...), cada una ahora un viaje de red real -- de ahí la
+      lentitud reportada en perfil.html. `PerfilAPI.getMine()`
+      (js/supabase.js) cachea la fila una sola vez por carga de página,
+      mismo patrón que `AuthAPI.getSession()`. De paso corregido un bug
+      preexistente: la cache de avatar del banner vivía en sessionStorage
+      sin invalidarse nunca al cambiar de foto.
+
+=== ✅ EMBUDO DE CONVERSIÓN + COOKIES DE 3 CATEGORÍAS (2026-08-31) ===
+A petición del usuario: banner de cookies con 3 categorías reales
+(Necesarias/Análisis/Marketing, con toggles independientes) y tracking del
+embudo búsqueda -> ver_beca -> crear_alerta -> registro aprovechando la
+categoría Análisis.
+- [x] `js/cookies.js` reescrito: panel de personalizar con toggles (migra
+      en el momento el formato antiguo 'essential'/'all' sin re-preguntar
+      a quien ya había aceptado). Análisis activa el logger de visitas +
+      Vercel Web Analytics (antes un `<script>` estático incondicional, sin
+      gating real); Marketing activa AdSense (`unlockAds()`, sin cambio de
+      comportamiento salvo el nombre de la categoría).
+      BUG encontrado al verificar en vivo: `.cookies-panel{display:flex}`
+      ganaba al `[hidden]` del navegador por especificidad de autor -- el
+      panel se veía expandido desde el principio. Corregido con
+      `.cookies-panel[hidden]{display:none}` explícito.
+- [x] Tabla nueva `eventos_embudo` (Supabase), separada de `system_logs`
+      para no llenar de ruido el log de auditoría de admin -- inserción
+      anónima permitida (como incidencias), lectura solo admin. Vía el
+      proxy `/api/db` ya existente, sin backend nuevo. `AnalyticsAPI.track()`
+      no envía nada sin consentimiento de Análisis y nunca puede romper la
+      UI si falla.
+- [x] Panel de embudo en `admin-dashboard.html`: barras proporcionales
+      (últimos 30 días) con % de conversión respecto al primer paso.
+      Verificado en producción con datos de prueba sembrados y borrados
+      después.
+- [ ] Pendiente, sin decidir todavía: qué hacer con la categoría Marketing
+      más allá de gatear AdSense (el usuario lo aparcó explícitamente para
+      retomarlo más adelante).
+
+==================================================
+
+=== ✅ REFACTOR DE SESIÓN A COOKIES httpOnly (2026-08-31) — DESPLEGADO Y PROBADO ===
+[Actualización: probado en producción por el usuario con su cuenta real
+tras el despliegue. Encontrados y corregidos 2 bugs reales del propio
+despliegue -- ver la sección "RONDA DE BUGS POST-DESPLIEGUE" más abajo,
+justo antes de esta sección en el fichero.]
 Petición del usuario: endurecer la sesión contra robo de token vía un XSS
 futuro, moviendo el token de auth de localStorage a una cookie httpOnly
 (invisible para JS). Implementado en local, COMMITEADO EN NINGÚN SITIO
