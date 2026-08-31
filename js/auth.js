@@ -2,11 +2,15 @@
 //  AUTH.JS – Supabase Auth logic (shared across all pages)
 // ============================================================
 
-// --- Sincronización Inmediata de Tema (evita parpadeo FOUC) ---
-// Clave unificada: siempre 'theme' (elimina la antigua 'becamax_lightMode')
+// --- Sincronización de tema + migración de clave legacy ---
+// El parpadeo FOUC real (fondo oscuro por defecto en :root, flash visible
+// en cada cambio de página para quien usa modo claro) lo evita ya el
+// <script> inline al principio del <body> de cada página -- auth.js carga
+// al final, demasiado tarde para evitarlo por sí solo. Este bloque se deja
+// como red de seguridad (classList.add es idempotente, no pasa nada si ya
+// estaba aplicado) y para migrar la clave legacy 'becamax_lightMode'.
 (function() {
   const t = localStorage.getItem('theme') || 'dark';
-  // Migrar clave legacy si existe
   if (localStorage.getItem('becamax_lightMode') !== null) {
     if (localStorage.getItem('becamax_lightMode') === 'true') localStorage.setItem('theme', 'light');
     localStorage.removeItem('becamax_lightMode');
