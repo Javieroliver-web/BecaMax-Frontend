@@ -1066,3 +1066,16 @@ body:not(.loading-state) .loading-overlay {
   .cookies-actions { width: 100%; }
   .cookies-actions .btn { flex: 1; }
 }
+.cookies-panel {
+  max-width: var(--max-width);
+  margin: 16px auto 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cookies-category { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.cookies-category-info strong { display: block; font-size: .85rem; color: var(--text-primary); margin-bottom: 2px; }
+.cookies-category-info p { font-size: .78rem; color: var(--text-secondary); margin: 0; }
+.cookies-required-badge { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; color: var(--text-muted); background: var(--bg-tertiary); padding: 4px 10px; border-radius: 50px; flex-shrink: 0; }
