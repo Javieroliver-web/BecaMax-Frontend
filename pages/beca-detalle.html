@@ -269,6 +269,8 @@
       document.body.classList.remove('loading-state');
       document.getElementById('loadingOverlay').style.display  = 'none';
       document.getElementById('detailContainer').style.display = 'grid';
+
+      AnalyticsAPI.track('ver_beca', { beca_id: beca.id, tipo: beca.tipo || null });
     }
 
     // ── Crear alerta a partir de esta beca ──────────────────────
@@ -296,6 +298,7 @@
         return;
       }
       showToast('Alerta guardada correctamente', 'success');
+      AnalyticsAPI.track('crear_alerta', { origen: 'beca-detalle', tipo: becaActual.tipo || null });
       setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
     }
 

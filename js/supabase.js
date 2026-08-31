@@ -141,3 +141,33 @@ const PerfilAPI = {
   },
   invalidate: _invalidatePerfil
 };
+
+// ============================================================
+//  ANALYTICS API – embudo busqueda -> ver beca -> crear alerta -> registro.
+//  Solo envia nada si hay consentimiento de la categoria "Analisis" (ver
+//  js/cookies.js). Nunca debe poder romper la UI: cualquier fallo se traga
+//  en silencio, es telemetria, no una funcion critica.
+// ============================================================
+function _getAnalyticsId() {
+  let id = localStorage.getItem('becamax_analytics_id');
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem('becamax_analytics_id', id);
+  }
+  return id;
+}
+
+const AnalyticsAPI = {
+  async track(evento, meta = {}) {
+    if (!window.BecaMaxConsent || !window.BecaMaxConsent.hasAnalyticsConsent()) return;
+    try {
+      const { data: { session } } = await AuthAPI.getSession();
+      await supabaseClient.from('eventos_embudo').insert({
+        evento,
+        meta,
+        user_id: session ? session.user.id : null,
+        analytics_id: _getAnalyticsId()
+      });
+    } catch (e) { /* telemetria: nunca debe romper la pagina */ }
+  }
+};

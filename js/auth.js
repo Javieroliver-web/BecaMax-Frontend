@@ -168,6 +168,7 @@ async function handleRegister(e) {
       document.querySelector('.auth-tabs').style.display = 'none';
       document.getElementById('authSuccess').classList.add('visible');
       resendEmail = email;
+      AnalyticsAPI.track('registro');
     }
   } catch (err) {
     // Nunca dejar el botón bloqueado en silencio ante un fallo inesperado.

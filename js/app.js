@@ -88,6 +88,22 @@ async function cargarBecas() {
 
     actualizarStats();
     renderGrid();
+
+    // Embudo: solo cuenta como "búsqueda" si el usuario aplicó algo (no la
+    // carga inicial de la página, que llega con los filtros vacíos). No se
+    // envía el texto libre buscado, solo las categorías (no es dato
+    // personal identificable, a diferencia de lo que alguien escriba).
+    const hayFiltroActivo = filtrosActivos.busqueda || filtrosActivos.tipo || filtrosActivos.region ||
+      filtrosActivos.area || filtrosActivos.plazo || filtrosActivos.importeMin !== null || filtrosActivos.importeMax !== null;
+    if (hayFiltroActivo) {
+      AnalyticsAPI.track('busqueda', {
+        tipo: filtrosActivos.tipo || null,
+        region: filtrosActivos.region || null,
+        plazo: filtrosActivos.plazo || null,
+        conTexto: !!filtrosActivos.busqueda,
+        conImporte: !!(filtrosActivos.importeMin || filtrosActivos.importeMax)
+      });
+    }
   } catch (error) {
     console.warn('[BecaMax] No se pudo conectar con el backend, usando datos locales:', error.message);
     // Fallback: usar el array estático incluido en la página si el backend no responde
@@ -395,8 +411,12 @@ async function confirmarAlerta() {
 
   document.getElementById('modalAlerta').classList.remove('active');
 
-  if (error) showToast('Error al guardar la alerta', 'error');
-  else       showToast('Alerta guardada correctamente', 'success');
+  if (error) {
+    showToast('Error al guardar la alerta', 'error');
+  } else {
+    showToast('Alerta guardada correctamente', 'success');
+    AnalyticsAPI.track('crear_alerta', { origen: 'buscador' });
+  }
 }
 
 // ---- Event listeners ---------------------------------------
