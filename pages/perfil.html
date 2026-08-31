@@ -104,6 +104,10 @@
         </select>
       </div>
       <div class="form-group" style="margin-top:16px;">
+        <label for="perfProvincia">Provincia</label>
+        <input type="text" class="form-input" id="perfProvincia" placeholder="Ej. Sevilla, Málaga...">
+      </div>
+      <div class="form-group" style="margin-top:16px;">
         <label for="perfArea">Área principal de estudios</label>
         <select class="form-input" id="perfArea">
           <option value="Cualquier área">Cualquier área / General</option>
@@ -112,12 +116,39 @@
           <option value="Educación">Educación, Letras, Humanidades</option>
         </select>
       </div>
+      <div class="form-group" style="margin-top:16px;">
+        <label for="perfCurso">Curso actual</label>
+        <input type="text" class="form-input" id="perfCurso" placeholder="Ej. 2º de Bachillerato, 3er curso de Ingeniería...">
+      </div>
+      <div class="form-group" style="margin-top:16px;">
+        <label for="perfCentro">Centro educativo</label>
+        <input type="text" class="form-input" id="perfCentro" placeholder="Ej. IES Ejemplo, Universidad de Sevilla...">
+      </div>
+      <p style="font-size:.78rem;color:var(--text-muted);margin-top:8px;">El curso y el centro son solo informativos: ninguna beca de las que gestionamos los referencia de forma exacta, así que no afectan a las recomendaciones.</p>
       <button type="submit" class="btn btn-primary btn-full" id="btnGuardarAcademico" style="margin-top:20px">
         Guardar Perfil Académico
       </button>
     </form>
   </div>
 
+  <!-- Sección: Datos para recomendaciones más precisas -->
+  <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
+    <h2 class="font-heading" style="font-size: 1rem; margin-bottom: 4px; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">Recomendaciones más precisas</h2>
+    <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:16px;">Opcional. Algunas becas tienen requisitos de edad o de renta familiar — si nos dices estos datos, solo te recomendaremos las que realmente puedes solicitar. Nunca se muestran a otros usuarios ni se usan para nada más.</p>
+    <form id="formRecomendacion" onsubmit="guardarDatosRecomendacion(event)">
+      <div class="form-group">
+        <label for="perfFechaNacimiento">Fecha de nacimiento</label>
+        <input type="date" class="form-input" id="perfFechaNacimiento">
+      </div>
+      <div class="form-group" style="margin-top:16px;">
+        <label for="perfRenta">Renta familiar anual aproximada (€)</label>
+        <input type="number" class="form-input" id="perfRenta" min="0" step="1" placeholder="Ej. 15000">
+      </div>
+      <button type="submit" class="btn btn-secondary btn-full" id="btnGuardarRecomendacion" style="margin-top:20px">
+        Guardar
+      </button>
+    </form>
+  </div>
 
   <div style="text-align:center; padding-top:24px;">
     <a href="dashboard.html" style="font-size:0.95rem; color:var(--text-secondary); text-decoration: underline;">Volver al panel principal</a>

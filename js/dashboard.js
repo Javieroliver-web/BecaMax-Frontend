@@ -134,12 +134,23 @@ async function cargarBecasPerfil() {
   }
   
   const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const edadUsuario = perfil.fecha_nacimiento ? calcularEdad(perfil.fecha_nacimiento) : null;
+
   const recomendadas = BECAS.filter(b => {
     const dias = Math.ceil((new Date(b.deadline) - hoy) / 86400000);
     if (dias < 0) return false;
     if (perfil.tipo_estudio && b.tipo !== perfil.tipo_estudio) return false;
     if (perfil.region && b.region !== perfil.region && b.region !== 'Nacional') return false;
     if (perfil.area && perfil.area !== 'Cualquier área' && b.area !== perfil.area && b.area !== 'Cualquier área') return false;
+    // Edad/renta: solo excluye cuando AMBOS lados (perfil y beca) tienen el
+    // dato -- si falta en cualquiera de los dos, se muestra igualmente (es
+    // mejor mostrar de mas que ocultar una beca a la que si podrias optar).
+    if (edadUsuario !== null && b.edad_min != null && edadUsuario < Number(b.edad_min)) return false;
+    if (edadUsuario !== null && b.edad_max != null && edadUsuario > Number(b.edad_max)) return false;
+    // PostgREST devuelve las columnas `numeric` como string para no perder
+    // precision -- comparar sin convertir seria lexicografico ("9000" >
+    // "11939" por el primer caracter), no numerico. Number() explicito.
+    if (perfil.renta_familiar_anual != null && b.renta_max != null && Number(perfil.renta_familiar_anual) > Number(b.renta_max)) return false;
     return true;
   });
 
@@ -256,6 +267,16 @@ async function eliminarAlerta(id) {
     if (error) showToast('Error al eliminar', 'error');
     else { showToast('Alerta eliminada', 'info'); await cargarAlertas(); }
   });
+}
+
+// ---- Edad a partir de la fecha de nacimiento (para el filtro de recomendadas)
+function calcularEdad(fechaNacimiento) {
+  const hoy = new Date();
+  const nacimiento = new Date(fechaNacimiento);
+  let edad = hoy.getFullYear() - nacimiento.getFullYear();
+  const m = hoy.getMonth() - nacimiento.getMonth();
+  if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) edad--;
+  return edad;
 }
 
 // ---- Helpers (los mismos que app.js, para las recomendadas)

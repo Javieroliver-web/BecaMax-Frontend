@@ -12,6 +12,8 @@ let filtrosActivos = {
   importeMin: null,
   importeMax: null,
   plazo: '',
+  edad: null,
+  renta: null,
 };
 let ordenActual = 'deadline';
 
@@ -70,6 +72,8 @@ async function cargarBecas() {
     if (filtrosActivos.plazo)      params.set('plazo',      filtrosActivos.plazo);
     if (filtrosActivos.importeMin !== null) params.set('importeMin', filtrosActivos.importeMin);
     if (filtrosActivos.importeMax !== null) params.set('importeMax', filtrosActivos.importeMax);
+    if (filtrosActivos.edad !== null)  params.set('edad',  filtrosActivos.edad);
+    if (filtrosActivos.renta !== null) params.set('renta', filtrosActivos.renta);
     params.set('orden', ordenActual);
     params.set('limit', '100');
 
@@ -465,13 +469,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('filtroImporteMin').addEventListener('input', e => { filtrosActivos.importeMin = e.target.value ? Number(e.target.value) : null; currentPage = 1; debouncedCargar(); });
   document.getElementById('filtroImporteMax').addEventListener('input', e => { filtrosActivos.importeMax = e.target.value ? Number(e.target.value) : null; currentPage = 1; debouncedCargar(); });
+  document.getElementById('filtroEdad').addEventListener('input', e => { filtrosActivos.edad = e.target.value ? Number(e.target.value) : null; currentPage = 1; debouncedCargar(); });
+  document.getElementById('filtroRenta').addEventListener('input', e => { filtrosActivos.renta = e.target.value ? Number(e.target.value) : null; currentPage = 1; debouncedCargar(); });
 
   // Ordenación — recarga con el nuevo orden
   document.getElementById('sortSelect').addEventListener('change', e => { ordenActual = e.target.value; currentPage = 1; cargarBecas(); });
 
   // Reset filtros
   document.getElementById('btnResetFiltros').addEventListener('click', () => {
-    filtrosActivos = { busqueda:'', tipo:'', region:'', area:'', importeMin:null, importeMax:null, plazo:'' };
+    filtrosActivos = { busqueda:'', tipo:'', region:'', area:'', importeMin:null, importeMax:null, plazo:'', edad:null, renta:null };
     searchInput.value = '';
     searchClear.classList.remove('visible');
     document.getElementById('filtroTipo').value = '';
@@ -481,6 +487,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('filtroSoloAbiertas').checked = false;
     document.getElementById('filtroImporteMin').value = '';
     document.getElementById('filtroImporteMax').value = '';
+    document.getElementById('filtroEdad').value = '';
+    document.getElementById('filtroRenta').value = '';
     currentPage = 1;
     cargarBecas();
   });

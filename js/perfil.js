@@ -76,17 +76,22 @@ async function cargarPerfilInterno() {
 
   if (data) {
     document.getElementById('perfTipo').value = data.tipo_estudio || '';
-    
+
     // Disparar evento change para actualizar las opciones de área si es FP
     document.getElementById('perfTipo').dispatchEvent(new Event('change'));
 
     document.getElementById('perfRegion').value = data.region || 'Andalucía';
-    
+    document.getElementById('perfProvincia').value = data.provincia || '';
+    document.getElementById('perfCurso').value = data.curso_actual || '';
+    document.getElementById('perfCentro').value = data.centro_educativo || '';
+    document.getElementById('perfFechaNacimiento').value = data.fecha_nacimiento || '';
+    document.getElementById('perfRenta').value = data.renta_familiar_anual ?? '';
+
     // Pequeño timeout para asegurar que el DOM actualizó las opciones
     setTimeout(() => {
       document.getElementById('perfArea').value = data.area || 'Cualquier área';
     }, 50);
-    
+
     if (data.avatar_url) {
       cargarImagenConReintento(document.getElementById('perfilAvatarImg'), data.avatar_url);
       // Actualizar también el header por si acaso
@@ -127,10 +132,13 @@ async function guardarDatosPersonales(e) {
 
 async function guardarPerfilAcademico(e) {
   e.preventDefault();
-  
+
   const tipo = document.getElementById('perfTipo').value;
   const region = document.getElementById('perfRegion').value;
   const area = document.getElementById('perfArea').value;
+  const provincia = document.getElementById('perfProvincia').value.trim();
+  const curso = document.getElementById('perfCurso').value.trim();
+  const centro = document.getElementById('perfCentro').value.trim();
   const btn = document.getElementById('btnGuardarAcademico');
 
   const { data: { session } } = await AuthAPI.getSession();
@@ -145,10 +153,13 @@ async function guardarPerfilAcademico(e) {
   // Usamos update para no alterar otros campos como el avatar
   const { error } = await supabaseClient
     .from('perfiles')
-    .update({ 
-      tipo_estudio: tipo, 
-      region: region, 
-      area: area 
+    .update({
+      tipo_estudio: tipo,
+      region: region,
+      area: area,
+      provincia: provincia || null,
+      curso_actual: curso || null,
+      centro_educativo: centro || null
     })
     .eq('user_id', session.user.id);
 
@@ -161,6 +172,42 @@ async function guardarPerfilAcademico(e) {
   } else {
     PerfilAPI.invalidate();
     showToast('Perfil académico guardado. Tus recomendaciones se han actualizado.', 'success');
+  }
+}
+
+async function guardarDatosRecomendacion(e) {
+  e.preventDefault();
+
+  const fechaNacimiento = document.getElementById('perfFechaNacimiento').value;
+  const rentaRaw = document.getElementById('perfRenta').value;
+  const btn = document.getElementById('btnGuardarRecomendacion');
+
+  const { data: { session } } = await AuthAPI.getSession();
+  if (!session) {
+    showToast('Sesión caducada, intenta loguearte de nuevo.', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+
+  const { error } = await supabaseClient
+    .from('perfiles')
+    .update({
+      fecha_nacimiento: fechaNacimiento || null,
+      renta_familiar_anual: rentaRaw !== '' ? Number(rentaRaw) : null
+    })
+    .eq('user_id', session.user.id);
+
+  btn.disabled = false;
+  btn.textContent = 'Guardar';
+
+  if (error) {
+    console.error('Error al guardar datos de recomendación:', error);
+    showToast('Error al guardar estos datos.', 'error');
+  } else {
+    PerfilAPI.invalidate();
+    showToast('Datos guardados. Tus recomendaciones son ahora más precisas.', 'success');
   }
 }
 
