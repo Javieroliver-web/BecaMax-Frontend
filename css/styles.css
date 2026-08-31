@@ -1,6 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Josefin+Sans:wght@400;500;600;700&display=swap');
 
 /* ============================================ VARIABLES ============================================ */
+/* Fondo del propio <html>, no solo de <body>: las paginas de admin ocultan
+   <body> con display:none hasta confirmar el rol (ver admin-*.html), y un
+   elemento display:none no pinta nada -- sin esto, ese hueco se ve con el
+   blanco por defecto del navegador en vez del tema real (bug real
+   encontrado en produccion, mas notorio ahora que la comprobacion de
+   sesion es una peticion de red real en vez de instantanea). */
+html { background: #0a0f1c; }
+html.light-mode { background: #f6f9fc; }
+
 :root {
   /* === TEMA OSCURO (Por defecto) === */
   --bg-primary: #0a0f1c;
