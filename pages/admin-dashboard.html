@@ -11,6 +11,14 @@
     .stat-card { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 12px; padding: 24px; text-align: center;}
     .stat-card h3 { font-size: 2.5rem; margin:0 0 8px 0; color: var(--primary-light)}
     .stat-card p { margin:0; color: var(--text-secondary); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;}
+
+    .funnel { display: flex; flex-direction: column; gap: 14px; }
+    .funnel-step { display: grid; grid-template-columns: 140px 1fr 90px; align-items: center; gap: 14px; }
+    .funnel-step-label { font-size: .85rem; color: var(--text-secondary); }
+    .funnel-track { background: var(--bg-tertiary); border-radius: 50px; height: 28px; overflow: hidden; }
+    .funnel-fill { height: 100%; background: var(--gradient); border-radius: 50px; min-width: 4px; transition: width .5s ease; }
+    .funnel-count { text-align: right; font-size: .9rem; font-weight: 700; color: var(--text-primary); }
+    .funnel-count small { display: block; font-weight: 400; color: var(--text-muted); font-size: .72rem; }
   </style>
 </head>
 <body class="dashboard-page" style="display:none;" id="adminBody"> <!-- Hidden until auth logic confirms admin -->
@@ -56,6 +64,14 @@
       <h3 id="statIncidencias">--</h3>
       <p>Incidencias Ptes.</p>
     </div>
+  </div>
+
+  <div class="dashboard-section" style="margin-top:32px;">
+    <div class="section-header">
+      <h2 class="section-title font-heading">Embudo de conversión (últimos 30 días)</h2>
+    </div>
+    <p id="funnelEmpty" style="color:var(--text-muted);font-size:.85rem;display:none;">Sin eventos registrados todavía en este periodo.</p>
+    <div class="funnel" id="funnelContainer"></div>
   </div>
 </div>
 
@@ -108,7 +124,47 @@
       document.getElementById('statUsers').textContent = cUsers || 0;
       document.getElementById('statAlerts').textContent = cAlerts || 0;
       document.getElementById('statIncidencias').textContent = cIncidencias || 0;
+
+      cargarEmbudo();
     });
+
+    // Embudo de conversion: busqueda -> ver_beca -> crear_alerta -> registro,
+    // ultimos 30 dias. Una consulta de conteo por etapa (mismo patron ya
+    // usado arriba para usuarios/alertas/incidencias).
+    async function cargarEmbudo() {
+      const PASOS = [
+        { evento: 'busqueda',     label: 'Búsquedas' },
+        { evento: 'ver_beca',     label: 'Vistas de beca' },
+        { evento: 'crear_alerta', label: 'Alertas creadas' },
+        { evento: 'registro',     label: 'Registros' }
+      ];
+      const desde = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+      const counts = await Promise.all(PASOS.map(p =>
+        supabaseClient.from('eventos_embudo').select('*', { count: 'exact', head: true })
+          .eq('evento', p.evento).gte('created_at', desde)
+      ));
+
+      const valores = counts.map(c => c.count || 0);
+      const max = Math.max(...valores, 1);
+
+      if (valores.every(v => v === 0)) {
+        document.getElementById('funnelEmpty').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('funnelContainer').innerHTML = PASOS.map((p, i) => {
+        const valor = valores[i];
+        const pct = Math.round((valor / max) * 100);
+        const conversion = i === 0 || valores[0] === 0 ? null : Math.round((valor / valores[0]) * 100);
+        return `
+          <div class="funnel-step">
+            <span class="funnel-step-label">${p.label}</span>
+            <div class="funnel-track"><div class="funnel-fill" style="width:${pct}%"></div></div>
+            <span class="funnel-count">${valor}${conversion !== null ? `<small>${conversion}% del total</small>` : ''}</span>
+          </div>`;
+      }).join('');
+    }
   </script>
 </body>
 </html>
