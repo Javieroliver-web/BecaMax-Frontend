@@ -106,7 +106,21 @@ const AuthAPI = {
     return result;
   },
   getSession() {
-    if (!_sessionPromise) _sessionPromise = _authGet('/auth/session');
+    if (!_sessionPromise) {
+      // Todo el sitio hace `const {data:{session}} = await AuthAPI.getSession()`
+      // sin comprobar `error` antes -- confiando en que `data.session` SIEMPRE
+      // existe (aunque sea null). _authGet devuelve `data:null` en cualquier
+      // fallo HTTP (un 503 puntual del backend, un despliegue en curso...), lo
+      // que rompía esa destructuración con un TypeError y tumbaba la pagina
+      // entera. Se normaliza aqui, en el unico sitio que hace falta, para que
+      // un fallo de red se trate simplemente como "sin sesion".
+      _sessionPromise = _authGet('/auth/session').then(result => {
+        if (!result.data || result.data.session === undefined) {
+          return { data: { session: null }, error: result.error };
+        }
+        return result;
+      });
+    }
     return _sessionPromise;
   },
   async updateUser(attrs) {
