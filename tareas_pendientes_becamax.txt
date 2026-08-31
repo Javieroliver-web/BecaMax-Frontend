@@ -3,6 +3,46 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== ✅ FILTROS DE EDAD/RENTA + PERFIL AMPLIADO PARA RECOMENDACIONES (2026-08-31) ===
+A petición del usuario: filtros de búsqueda más específicos y datos de
+perfil para recomendar becas exactas. Investigado antes de construir nada:
+las becas vienen de la BDNS con `requisitos` como texto libre (ej. "Renta
+familiar < 11.939 €", "18 a 24 años") -- no hay campos estructurados mas
+alla de tipo/region/area. "Centro educativo" y "curso exacto" NUNCA pueden
+filtrar de verdad porque ninguna beca los referencia de forma estructurada;
+edad y renta SI, cuando la beca especifica una cifra clara.
+- [x] `becas`: columnas nuevas `edad_min`, `edad_max`, `renta_max` (NULL =
+      sin restricción conocida, nunca se usa para OCULTAR una beca).
+      Retro-rellenadas a mano las 3 de las 23 filas actuales que dan una
+      cifra clara en su `requisitos` (Beca 6000: renta_max 11939; Beca
+      Segunda Oportunidad: 18-24 años; Beca Iberoamérica: hasta 35 años).
+      El resto de menciones de renta ("baja", "por tramos") se dejan NULL
+      a propósito, no son una cifra, no se inventa un umbral.
+- [x] `perfiles`: columnas nuevas `fecha_nacimiento`, `renta_familiar_anual`
+      (ambas opcionales, ya protegidas por la RLS existente -- solo dueño y
+      admin), `provincia`, `centro_educativo`, `curso_actual` (informativos).
+- [x] `perfil.html`/`perfil.js`: nueva sección "Recomendaciones más
+      precisas" con nota de privacidad explícita, + provincia/curso/centro
+      en la sección académica existente.
+- [x] Filtro real en dos sitios con la MISMA lógica (excluye solo si la
+      BECA tiene el umbral y el usuario lo incumple, nunca por falta de
+      dato en cualquiera de los dos lados): el buscador público
+      (index.html + app.js, nuevos campos "Tu edad"/"Renta familiar anual",
+      filtrado server-side en becas.controller.js) y "Recomendadas para tu
+      perfil" en dashboard.html (client-side sobre las becas ya cargadas).
+- [x] Cuidado detectado y corregido: PostgREST devuelve columnas `numeric`
+      (renta_max, renta_familiar_anual) como STRING para no perder
+      precisión -- comparar sin `Number()` explícito habría sido
+      lexicográfico ("9000" > "11939" por el primer carácter) en vez de
+      numérico. `edad_min`/`edad_max` son `integer`, esos si llegan ya
+      como número.
+- [x] Probado en producción de principio a fin: filtro de edad en el
+      buscador (23 → 22 becas al filtrar por edad=15, excluyendo la que
+      pide 18-24 años), guardado del formulario de perfil verificado
+      directamente en la base de datos. Los datos de prueba insertados
+      para verificar el guardado se revirtieron a NULL inmediatamente
+      después (no son datos reales del usuario).
+
 === ✅ FLASH BLANCO + CUELGUE INDEFINIDO DEL PANEL DE ADMIN (2026-08-31) ===
 Dos bugs reales encontrados justo despues de la ronda anterior, revisando
 "la transicion de cambio de pantallas" a peticion del usuario:
