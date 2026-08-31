@@ -71,6 +71,19 @@ async function _authGet(path) {
   }
 }
 
+// La sesion ya no vive cacheada en el propio cliente (antes supabase-js la
+// tenia en memoria/localStorage y getSession() era practicamente gratis).
+// Ahora cada llamada es un viaje de red real al backend, y varias funciones
+// de cada pagina piden la sesion por separado (cabecera, guardias de acceso,
+// carga de datos...) -- sin cachear, eso son 3+ peticiones encadenadas en
+// serie en paginas como perfil.html, con la lentitud correspondiente.
+// Se cachea la MISMA promesa (no solo el resultado) para que llamadas
+// concurrentes esperen la unica peticion en curso en vez de disparar varias
+// a la vez. Se invalida tras login/logout/updateUser para no servir datos
+// obsoletos de sesion.
+let _sessionPromise = null;
+function _invalidateSession() { _sessionPromise = null; }
+
 const AuthAPI = {
   signUp({ email, password, options }) {
     return _authPost('/auth/register', { email, password, nombre: options?.data?.nombre, captchaToken: options?.captchaToken });
@@ -78,19 +91,26 @@ const AuthAPI = {
   resend({ email, options }) {
     return _authPost('/auth/resend', { email, captchaToken: options?.captchaToken });
   },
-  signInWithPassword({ email, password, options }) {
-    return _authPost('/auth/login', { email, password, captchaToken: options?.captchaToken });
+  async signInWithPassword({ email, password, options }) {
+    const result = await _authPost('/auth/login', { email, password, captchaToken: options?.captchaToken });
+    _invalidateSession();
+    return result;
   },
   resetPasswordForEmail(email, options) {
     return _authPost('/auth/forgot-password', { email, captchaToken: options?.captchaToken });
   },
-  signOut() {
-    return _authPost('/auth/logout');
+  async signOut() {
+    const result = await _authPost('/auth/logout');
+    _invalidateSession();
+    return result;
   },
   getSession() {
-    return _authGet('/auth/session');
+    if (!_sessionPromise) _sessionPromise = _authGet('/auth/session');
+    return _sessionPromise;
   },
-  updateUser(attrs) {
-    return _authPost('/auth/update-user', attrs);
+  async updateUser(attrs) {
+    const result = await _authPost('/auth/update-user', attrs);
+    _invalidateSession();
+    return result;
   }
 };
