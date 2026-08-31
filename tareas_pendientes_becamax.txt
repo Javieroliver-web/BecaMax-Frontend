@@ -3,6 +3,34 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== ✅ FLASH BLANCO + CUELGUE INDEFINIDO DEL PANEL DE ADMIN (2026-08-31) ===
+Dos bugs reales encontrados justo despues de la ronda anterior, revisando
+"la transicion de cambio de pantallas" a peticion del usuario:
+- [x] Flash blanco (no solo de tema) en las paginas de admin: ocultan
+      <body> con display:none hasta confirmar el rol, y un elemento oculto
+      no pinta nada -- <html> nunca tenia fondo propio, asi que ese hueco
+      se veia con el blanco por defecto del navegador. Antes imperceptible
+      (sesion en cache, verificacion instantanea); con el cookie-check por
+      red la ventana se hizo notoria. Arreglado con `html{background:...}`
+      + `html.light-mode{...}` en styles.css, aplicado por el mismo script
+      inline que ya evitaba el parpadeo de tema.
+- [x] BUG MAS SERIO encontrado justo despues probando en vivo con el admin
+      real: el panel se quedaba colgado INDEFINIDAMENTE (no solo un flash)
+      al entrar. Rastreado con fetch() directo desde la pagina: con la
+      cookie real del admin, /api/auth/session no respondia nunca (10s+
+      sin resolver); sin cookie (o con curl), rapido. Los logs de Vercel no
+      mostraban ni error ni la peticion completada -- apuntaba a que
+      `client.auth.getUser(token)` o `auth.refreshSession()` (Supabase
+      Auth, no la base de datos) se quedaba colgada, sin timeout que la
+      protegiera. Probable causa: volumen enorme de llamadas a Supabase
+      Auth durante toda esta sesion de trabajo agotando alguna cuota o
+      causando degradacion puntual del lado de Supabase. Anadido un
+      wrapper withTimeout() (8s) a las 5 llamadas de Auth del backend
+      (getUser, refreshSession, signInWithPassword, updateUser, signOut) --
+      si Supabase tarda, ahora falla rapido con un error claro en vez de
+      colgar la peticion para siempre. Verificado en las 3 pantallas del
+      panel de admin tras el fix, sin errores.
+
 === ✅ RONDA DE BUGS POST-DESPLIEGUE DEL REFACTOR DE COOKIES (2026-08-31) ===
 Probando en producción con el usuario logueado como admin real, aparecieron
 4 bugs reales en cadena, todos relacionados con el refactor de cookies de
