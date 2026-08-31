@@ -51,7 +51,7 @@ async function cargarPerfil() {
 }
 
 async function cargarPerfilInterno() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  const { data: { session } } = await AuthAPI.getSession();
   if (!session) return;
 
   // 1. Cargar metadatos de usuario (Datos Personales)
@@ -111,7 +111,7 @@ async function guardarDatosPersonales(e) {
   btn.disabled = true;
   btn.textContent = 'Guardando...';
 
-  const { data, error } = await supabaseClient.auth.updateUser({
+  const { data, error } = await AuthAPI.updateUser({
     data: { full_name: nombre }
   });
 
@@ -137,7 +137,7 @@ async function guardarPerfilAcademico(e) {
   const area = document.getElementById('perfArea').value;
   const btn = document.getElementById('btnGuardarAcademico');
 
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  const { data: { session } } = await AuthAPI.getSession();
   if (!session) {
     showToast('Sesión caducada, intenta loguearte de nuevo.', 'error');
     return;
@@ -249,7 +249,7 @@ function abrirModalAvatares() {
 }
 
 async function guardarAvatar(url) {
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  const { data: { session } } = await AuthAPI.getSession();
   if (!session) return;
 
   cargarImagenConReintento(document.getElementById('perfilAvatarImg'), url);
@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const file = e.target.files[0];
       if (!file) return;
 
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      const { data: { session } } = await AuthAPI.getSession();
       if (!session) return;
 
       // Cerrar modal temporalmente y mostrar toast de carga

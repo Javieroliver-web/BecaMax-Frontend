@@ -134,7 +134,7 @@ async function handleRegister(e) {
   btn.textContent = 'Creando cuenta…';
 
   try {
-    const { error } = await supabaseClient.auth.signUp({
+    const { error } = await AuthAPI.signUp({
       email,
       password: pass,
       options: { data: { nombre }, captchaToken }
@@ -219,7 +219,7 @@ async function handleResendConfirmation() {
   btn.textContent = 'Enviando…';
 
   try {
-    const { error } = await supabaseClient.auth.resend({ type: 'signup', email: resendEmail, options: { captchaToken } });
+    const { error } = await AuthAPI.resend({ email: resendEmail, options: { captchaToken } });
     resetCaptcha('turnstile-resend');
     if (error) {
       // Supabase ya aplica su propio límite de envíos y nos dice cuánto
@@ -273,7 +273,10 @@ async function handleLogin(e) {
   btn.textContent = 'Entrando…';
 
   try {
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
+    // La verificación de cuenta bloqueada ahora la hace el backend (ya no
+    // podemos leer el token aquí para consultar `perfiles` nosotros
+    // mismos): si está bloqueada, vuelve como error normal.
+    const { data, error } = await AuthAPI.signInWithPassword({
       email,
       password: pass,
       options: { captchaToken }
@@ -288,20 +291,6 @@ async function handleLogin(e) {
       errEl.textContent = tradError(error.message);
       errEl.classList.add('visible');
     } else {
-      // Verificación de Bloqueo
-      const { data: perfil } = await supabaseClient
-        .from('perfiles')
-        .select('estado')
-        .eq('user_id', data.session.user.id)
-        .single();
-
-      if (perfil && perfil.estado === 'bloqueado') {
-        await supabaseClient.auth.signOut();
-        errEl.textContent = 'Cuenta suspendida por la administración.';
-        errEl.classList.add('visible');
-        return;
-      }
-
       // Redirigir al returnUrl validado o al dashboard
       const params = new URLSearchParams(window.location.search);
       const rawRet = params.get('returnUrl') || '';
@@ -328,7 +317,7 @@ async function handleForgotPassword(e) {
     return;
   }
   try {
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { captchaToken });
+    const { error } = await AuthAPI.resetPasswordForEmail(email, { captchaToken });
     resetCaptcha('turnstile-login');
     if (error) showToast('Error: ' + tradError(error.message), 'error');
     else showToast('Email de recuperación enviado', 'success');
@@ -355,7 +344,7 @@ function sanitizeReturnUrl(url) {
 // ---- Sign out -----------------------------------------------
 async function handleSignOut() {
   sessionStorage.clear();
-  await supabaseClient.auth.signOut();
+  await AuthAPI.signOut();
   const isPagesDir = window.location.pathname.includes('/pages/');
   const toRoot = isPagesDir ? '../' : './';
   window.location.href = toRoot + 'index.html';
@@ -363,7 +352,7 @@ async function handleSignOut() {
 
 // ---- Session guard: redirige si no está logueado -----------
 async function requireAuth() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  const { data: { session } } = await AuthAPI.getSession();
   if (!session) {
     const isPagesDir = window.location.pathname.includes('/pages/');
     const toPages = isPagesDir ? './' : 'pages/';
@@ -379,7 +368,7 @@ async function requireAuth() {
     .single();
 
   if (perfil && perfil.estado === 'bloqueado') {
-    await supabaseClient.auth.signOut();
+    await AuthAPI.signOut();
     showToast('Acceso denegado: su cuenta ha sido suspendida.', 'error');
     const isPagesDir = window.location.pathname.includes('/pages/');
     const toRoot = isPagesDir ? '../' : './';
@@ -392,7 +381,7 @@ async function requireAuth() {
 
 // ---- Update header with user info --------------------------
 async function updateHeaderAuth() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  const { data: { session } } = await AuthAPI.getSession();
 
   if (session) {
     // La sección "Potencia tu futuro" de la home es un argumento de venta

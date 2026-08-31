@@ -3,6 +3,204 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== 🚧 REFACTOR DE SESIÓN A COOKIES httpOnly (2026-08-31) — PENDIENTE DE PROBAR Y DESPLEGAR ===
+Petición del usuario: endurecer la sesión contra robo de token vía un XSS
+futuro, moviendo el token de auth de localStorage a una cookie httpOnly
+(invisible para JS). Implementado en local, COMMITEADO EN NINGÚN SITIO
+TODAVÍA -- pendiente de que el usuario pruebe login/registro/logout en vivo
+con una cuenta real antes de desplegar (esta sesión no tiene credenciales de
+prueba y no se puede validar solo con revisión de código).
+
+Arquitectura: el frontend es 100% estático y hablaba directo con Supabase
+(el cliente JS adjunta el token como Authorization Bearer). Una cookie
+httpOnly es invisible para ese JS, así que ya no puede autenticar sus
+propias peticiones -- la solución es que el backend (Backend-BecaMax) sea
+ahora el único que ve el token, y todo lo que antes iba
+frontend->Supabase pase por frontend->backend->Supabase.
+
+Backend (Backend-BecaMax), todo nuevo salvo lo indicado:
+- `src/config/supabaseAnon.js`: getSupabaseAnon() (login/registro/refresh,
+  sin sesión) y getSupabaseAsUser(token) (mismo cliente pero con el
+  Authorization del usuario vía global.headers -- sirve tanto para .from()
+  como para .auth.updateUser()/.auth.signOut(), no hace falta setSession()).
+- `src/utils/authCookies.js`: pone/limpia sb-access-token (path /, ~1h) y
+  sb-refresh-token (path /api/auth, 7 días) -- SameSite=None+Secure en
+  producción (el backend vive en beca-max-backend.vercel.app, dominio
+  DISTINTO del frontend becamax.vercel.app: es cross-site de verdad, no
+  solo cross-origin), Lax sin Secure en local (http://localhost).
+- `src/middleware/cookieAuth.js`: attachUser (adjunta req.user si la cookie
+  es válida, nunca bloquea solo -- hace falta para incidencias anónimas) +
+  requireAuth.
+- `src/controllers/auth.controller.js` + `src/routes/auth.routes.js`:
+  POST /api/auth/{register,resend,login,forgot-password,logout,update-user},
+  GET /api/auth/session (con refresh transparente si el access token caducó
+  pero el refresh token sigue vivo -- sustituye al auto-refresh en segundo
+  plano que hacía antes el SDK de supabase-js en el navegador). login()
+  también mueve aquí la comprobación de cuenta bloqueada que antes hacía
+  auth.js en el navegador.
+- `src/controllers/dbProxy.controller.js` + `src/routes/db.routes.js`
+  (GET/POST/PATCH/DELETE /api/db/*): proxy transparente hacia PostgREST,
+  allowlist de recursos (perfiles, favoritos, filtros_guardados,
+  notificaciones, incidencias, system_logs, rpc/delete_my_account -- todo
+  lo demás 403). Reenvía método/query/body/cabeceras (Accept, Prefer)
+  case a caso, solo sustituye apikey/Authorization por los derivados de la
+  cookie (o por la anon key si no hay sesión, igual que hacía el cliente
+  del navegador sin login). LA AUTORIZACIÓN LA SIGUE HACIENDO RLS EN
+  POSTGRES, exactamente igual que antes -- este proxy no reimplementa
+  ninguna regla de permisos, solo traduce la cookie en la cabecera real.
+  Probado en vivo contra la Supabase de producción: /api/db/becas (no
+  permitido) -> 403; /api/db/favoritos sin sesión -> "permission denied"
+  real de Postgres (RLS actuando correctamente a través del proxy).
+- `src/controllers/storageProxy.controller.js` + `src/routes/storage.routes.js`
+  (/api/storage/object/avatars/*, requireAuth): mismo patrón para la subida
+  de avatares (bucket avatars únicamente), con express.raw() para el body
+  binario.
+- `src/controllers/admin.controller.js`: las 3 funciones (deleteUser,
+  postNews, deleteNews) ya no leen `Authorization: Bearer` del header --
+  leen la cookie sb-access-token directamente.
+- `src/app.js`: cookie-parser añadido (paquete nuevo en package.json),
+  CORS con `credentials:true` + `Prefer` en allowedHeaders + `Content-Range`
+  en exposedHeaders (necesario para los counts de admin-dashboard.html).
+
+Frontend (Frontend-BecaMax), inventario completo antes de tocar nada: 40
+puntos de llamada directa a Supabase en 11 ficheros.
+- `js/supabase.js`: reescrito. supabaseClient sigue siendo un cliente
+  supabase-js normal (createClient), pero con un `global.fetch` a medida
+  que redirige toda petición a /rest/v1/* y /storage/v1/* hacia
+  /api/db/* y /api/storage/* del backend (credentials:'include'). Gracias
+  a esto, los ~20 sitios que solo hacían `.from()`/`.storage` (favorites.js,
+  dashboard.js, admin-dashboard.html, admin-incidencias.html, la mayoría de
+  perfil.js...) NO SE HAN TOCADO, siguen funcionando tal cual. `auth:
+  {persistSession:false, autoRefreshToken:false}` -- ya no gestiona sesión
+  local. Añadido también `AuthAPI` (mismo fichero, para no tener que meter
+  un `<script>` más en 14 páginas): signUp/resend/signInWithPassword/
+  resetPasswordForEmail/signOut/getSession/updateUser, mismo shape
+  {data,error} que supabase-js para minimizar el diff en cada callsite.
+- `js/auth.js`, `js/configuracion.js`, `js/dashboard.js`, `js/perfil.js`,
+  `js/incidencias.js`, `js/admin.js`, `js/app.js`, `pages/beca-detalle.html`:
+  cada `supabaseClient.auth.X(...)` -> `AuthAPI.X(...)`. En admin.js,
+  además, las 3 llamadas a /api/admin/* que construían manualmente
+  `Authorization: Bearer <token>` ahora usan `credentials:'include'` sin
+  cabecera manual. En auth.js, la comprobación de cuenta bloqueada tras
+  login se quitó del todo (la hace el backend ahora, ver arriba).
+- BUG encontrado por la auditoría de esta misma sesión (ver más abajo) y
+  arreglado de paso: `legal/aviso-legal.html`, `privacidad.html` y
+  `cookies.html` no cargaban supabase-js ni supabase.js antes de auth.js
+  -- `ReferenceError: supabaseClient is not defined` en cada visita.
+  Añadidos los 3 `<script>` que faltaban (con `defer`, igual que ya tenía
+  auth.js en estas 3 páginas).
+
+PENDIENTE ANTES DE DESPLEGAR (bloqueante):
+- [ ] Añadir `SUPABASE_ANON_KEY` a las variables de entorno del proyecto
+      Backend-BecaMax en Vercel (no es secreta, es la misma publishable key
+      que ya está en `Frontend-BecaMax/js/supabase.js` -- pero el backend no
+      la tenía configurada, solo la Service Key). Sin esto, /api/auth/* y
+      /api/db/* fallan en producción con "Falta SUPABASE_URL o
+      SUPABASE_ANON_KEY en el entorno del servidor."
+- [ ] Probar en vivo, con una cuenta real, ANTES de dar esto por cerrado:
+      login, registro, reenvío de confirmación, recuperar contraseña,
+      logout, que la sesión sobreviva a recargar la página (refresh
+      transparente), favoritos, alertas (crear/editar/eliminar), perfil
+      académico + nombre + avatar (subida de imagen), configuración
+      (cambiar contraseña, eliminar cuenta), incidencias (con y sin
+      sesión), y el panel de admin completo (contar usuarios/alertas/
+      incidencias, bloquear/desbloquear, borrar noticia, publicar noticia,
+      borrado físico de usuario). Ninguna de estas rutas se ha podido
+      probar en esta sesión por falta de credenciales.
+- [ ] Solo entonces: commit + push de ambos repos (Backend-BecaMax y
+      Frontend-BecaMax) y confirmar que el deploy de Vercel de cada uno
+      recoge el env var nuevo antes de servir tráfico real.
+
+=== ✅ LIMPIEZA SUELTA: extensiones, RLS duplicada, funciones trigger, cookies (2026-08-31) ===
+Petición del usuario: descartar la activación de Leaked Password Protection,
+limpiar extensiones duplicadas de Edge del admin, y "encargarse con cuidado"
+de la política SELECT duplicada de `becas` y de las 4 funciones SECURITY
+DEFINER invocables vía API.
+- [x] "Leaked Password Protection" DESCARTADA por decisión del usuario (ver
+      marca [x] en la sección correspondiente más abajo en este mismo
+      fichero).
+- [x] Extensiones de Edge del admin: cerrado Edge y eliminadas 6 (Urban VPN
+      Proxy + 3 "Adblock" genéricos + Video Adblocker + AdBlock de
+      getadblock.com), conservando ZenMate (VPN) y AdGuard AdBlocker.
+- [x] Política SELECT duplicada en `becas`: eliminada "Becas are publicly
+      readable" (no estaba documentada en ningún .sql versionado -- se creó
+      suelta desde el dashboard en algún momento). Se conserva "Lectura
+      publica_becas", que sí es la del `seed_becas.sql` original. Mismo
+      efecto exacto (`USING (true)` para SELECT público), cero cambio de
+      acceso real.
+- [x] De las 4 funciones SECURITY DEFINER invocables vía API:
+      `handle_new_user()` y `prevent_privilege_escalation()` son funciones
+      de tipo `trigger` (Postgres las bloquea si se llaman fuera de su
+      contexto de disparo) -- revocado su EXECUTE público
+      (PUBLIC/anon/authenticated) sin ningún riesgo: el disparo del trigger
+      no depende del EXECUTE del rol que hace el INSERT/UPDATE, son
+      propiedad de `postgres` (no afecta a `service_role`), y no hay ni una
+      sola llamada directa a ellas en todo el código (frontend ni backend).
+      Verificado con el linter de seguridad de Supabase tras el cambio: ya
+      no aparecen en los avisos, los 2 triggers (`on_auth_user_created`,
+      `trg_prevent_privilege_escalation`) siguen activos.
+      Curiosidad: la nota anterior de esta misma sesión decía que este
+      revoke YA estaba hecho desde el 2026-08-30 -- no era así en la base
+      de datos real (probable `CREATE OR REPLACE FUNCTION` posterior que
+      reseteó el ACL a los permisos por defecto, un efecto colateral
+      conocido de Postgres). Ojo con esto en el futuro: cualquier
+      CREATE OR REPLACE sobre estas funciones vuelve a exponerlas.
+      `is_admin()` -- NO TOCADA a propósito: la usan políticas RLS de otras
+      tablas, revocar su EXECUTE rompería el panel de admin. `delete_my_account()`
+      ya estaba correctamente restringida solo a `authenticated`. Pendiente,
+      si se quiere cerrar del todo, mover `is_admin()` a un esquema no
+      expuesto por PostgREST (cambio más grande, requiere tocar todas las
+      políticas que la referencian).
+- [x] Pregunta del usuario: no ve ninguna cookie del sitio en el navegador --
+      confirmado que es normal, el sitio no usa `document.cookie` en ningún
+      sitio (grep completo sin resultados). Todo lo que la tabla de
+      `legal/cookies.html` llama "cookie" (`theme`, `sb-*`, `legal_banner_dismissed`)
+      es en realidad `localStorage`. Solo habría cookies reales de terceros
+      con hCaptcha (auth.html) o AdSense (hoy pausado/oculto).
+- [ ] Hallazgo pendiente de confirmación del usuario: la tabla de
+      `legal/cookies.html` es técnicamente inexacta -- describe entradas de
+      `localStorage` como "cookies" con una "duración" que no aplica a
+      localStorage. No es urgente, pero conviene corregir el texto legal.
+
+=== ✅ SLOTS DE ANUNCIO EN LATERALES (dashboard + ficha de beca) (2026-08-31) ===
+Petición del usuario: añadir slots de anuncio no invasivos en los laterales
+de dashboard.html y beca-detalle.html (el único slot que existía hasta ahora
+era el de index.html), y revisar qué otras pantallas serían candidatas.
+- [x] `beca-detalle.html` ya tenía un sidebar de 340px (`.detail-sidebar`,
+      sticky) con las tarjetas de datos de la beca y "Crear alerta". Añadida
+      una tercera `.sidebar-card` con el slot de anuncio, mismo patrón que
+      index.html: oculto con `display:none` + `aria-hidden="true"` hasta que
+      se apruebe la revisión de AdSense.
+- [x] `dashboard.html` no tenía ningún layout lateral (una sola columna de
+      secciones). Convertido `.dashboard-content` en un grid de 2 columnas
+      (`1fr 300px`, colapsa a 1 columna por debajo de 960px igual que
+      `.detail-layout`), con las secciones existentes envueltas en
+      `.dashboard-main` y un `<aside class="dashboard-sidebar">` sticky
+      nuevo con el mismo slot oculto.
+- [x] Añadido a ambas páginas el bloque de cabecera de AdSense (script
+      pausado por defecto + `adsbygoogle.js`) que index.html ya tenía, para
+      que los slots funcionen de verdad en cuanto se desoculten.
+- [x] BUG ENCONTRADO de paso: `beca-detalle.html` nunca cargaba `cookies.js`
+      -- no solo no funcionarían los anuncios ahí (pauseAdRequests nunca se
+      desactivaba porque nadie preguntaba por el consentimiento), sino que
+      el banner de cookies RGPD tampoco se mostraba nunca en esa página.
+      Añadido el `<script src="../js/cookies.js">`.
+- Placeholder `data-ad-slot="0000000000"` en los 2 slots nuevos -- hay que
+  sustituirlo por el ID de bloque de anuncio real cuando se cree en AdSense
+  (igual que ya se hizo con el slot de index.html, `3690503265`).
+- [ ] Revisión de otras pantallas candidatas para anuncios no invasivos:
+      `guias.html` y `faq.html` son artículos largos de una sola columna
+      (max-width 820px, sin lateral) -- encajaría mejor un slot in-article
+      entre secciones (ej. tras la 3ª de 7 en guías) que uno lateral. No
+      implementado todavía, pendiente de decisión del usuario.
+- [ ] Hallazgo más amplio, fuera de alcance de este cambio: `cookies.js` (banner
+      RGPD) NO se carga en la mayoría de páginas públicas (faq.html, guias.html,
+      incidencias.html, perfil.html, configuracion.html, auth.html, las 3
+      legales) -- solo en index.html, dashboard.html y ahora beca-detalle.html.
+      No es un problema de anuncios (ninguna de esas páginas tiene slots), pero
+      sí de cumplimiento RGPD si en el futuro se añade cualquier cookie no
+      esencial en ellas. Pendiente de revisión aparte.
+
 === ✅ RONDA FINAL: UX, DATOS Y PANEL DE NOTICIAS (2026-08-31) ===
 Tanda de peticiones sueltas del usuario navegando la web en vivo tras el
 despliegue de la CSP, más una revisión completa de la base de datos.
@@ -381,11 +579,10 @@ SEGURIDAD DE BASE DE DATOS (revisado de paso al estar ya dentro):
       entre otras) -- revocar el EXECUTE sin auditar antes cada uso
       podría romper el panel de admin entero. Pendiente de revisión
       aparte, con más calma.
-- [ ] "Leaked Password Protection" desactivada en Supabase Auth
-      (comprueba contra HaveIBeenPwned) -- gratis y sin riesgo activarla,
-      pero es un interruptor en Authentication -> Attack Protection del
-      dashboard, no algo aplicable por SQL. Pendiente de que el usuario
-      lo active cuando quiera.
+- [x] "Leaked Password Protection" (Supabase Auth, comprueba contra
+      HaveIBeenPwned) -- DESCARTADA por decisión del usuario (2026-08-31).
+      Interruptor en Authentication -> Attack Protection del dashboard, no
+      aplicable por SQL.
 
 === ✅ CERRADO: email de confirmación de registro "no responde" (2026-08-30) ===
 - [x] Causa raíz encontrada: Site URL en Supabase (Authentication -> URL

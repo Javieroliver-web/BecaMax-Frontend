@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.disabled = true;
     btn.textContent = 'Actualizando...';
   
-    const { data, error } = await supabaseClient.auth.updateUser({
+    const { data, error } = await AuthAPI.updateUser({
       password: password
     });
   
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (error) throw error;
       
       // La base de datos, en cascada, purgará todo (perfiles, alertas, incidencias).
-      await supabaseClient.auth.signOut();
+      await AuthAPI.signOut();
       
       showToast('Tu cuenta ha sido eliminada por completo. ¡Buena suerte!', 'success');
       

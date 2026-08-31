@@ -9,7 +9,7 @@ const ICON_UNLOCK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
 const ICON_TRASH  = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
 
 async function requireAdmin() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  const { data: { session } } = await AuthAPI.getSession();
   
   if (!session) {
     window.location.href = '/pages/auth.html';
@@ -127,7 +127,7 @@ async function cambiarEstadoUsuario(userId, nuevoEstado) {
     showToast(`Usuario ${nuevoEstado} exitosamente`, 'success');
     
     // Opcional: Registrar en system_logs
-    const sessionUrl = await supabaseClient.auth.getSession();
+    const sessionUrl = await AuthAPI.getSession();
     const adminId = sessionUrl.data.session?.user?.id;
     if (adminId) {
       await supabaseClient.from('system_logs').insert([{
@@ -155,15 +155,10 @@ async function eliminarUsuarioDefinitivo(userId) {
   
   try {
     const backendUrl = CONFIG.BASE_URL;
-      
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const token = session?.access_token;
 
     const res = await fetch(`${backendUrl}/api/admin/users/${userId}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      credentials: 'include'
     });
 
     if (!res.ok) {
@@ -199,16 +194,11 @@ async function publicarNoticia() {
     btn.textContent = 'Publicando...';
 
     const backendUrl = CONFIG.BASE_URL;
-      
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const token = session?.access_token;
 
     const res = await fetch(`${backendUrl}/api/admin/news`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content, expiration })
     });
 
@@ -257,12 +247,10 @@ async function eliminarNoticiaActual() {
       btn.textContent = 'Eliminando...';
 
       const backendUrl = CONFIG.BASE_URL;
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      const token = session?.access_token;
 
       const res = await fetch(`${backendUrl}/api/admin/news`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const result = await res.json();
       if (!res.ok) throw new Error(result.message || 'Error al eliminar la noticia');

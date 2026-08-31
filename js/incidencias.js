@@ -18,7 +18,7 @@ async function enviarIncidencia(e) {
   btn.textContent = 'Enviando...';
 
   // Obtenemos el user_id si está logueado, sino null
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  const { data: { session } } = await AuthAPI.getSession();
   const userId = session ? session.user.id : null;
 
   // Insertar en la tabla incidencias

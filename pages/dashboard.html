@@ -20,6 +20,14 @@
   <link rel="icon" type="image/png" href="../img/logo.png">
   <link rel="stylesheet" href="../css/styles.css">
   <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Google AdSense -->
+  <!-- Los anuncios arrancan PAUSADOS por defecto (RGPD): solo se activan cuando
+       el usuario pulsa "Aceptar todas" en el banner de cookies (ver cookies.js). -->
+  <script>
+    window.adsbygoogle = window.adsbygoogle || [];
+    window.adsbygoogle.pauseAdRequests = 1;
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6819969179751671" crossorigin="anonymous"></script>
 </head>
 <body class="dashboard-page">
 <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
@@ -66,6 +74,7 @@
 
 <!-- ===== DASHBOARD CONTENT ===== -->
 <div class="dashboard-content">
+<div class="dashboard-main">
 
   <!-- Alertas guardadas -->
   <div class="dashboard-section">
@@ -107,6 +116,19 @@
       <!-- Inyectado por dashboard.js -->
     </div>
   </div>
+
+</div>
+
+<!-- ===== SIDEBAR (AD SLOT) ===== -->
+<!-- Oculto hasta que se solicite y apruebe la revision de AdSense, mismo
+     patron que index.html: no mostrar ninguna caja vacia mientras tanto.
+     Quitar el "display:none" en cuanto se solicite la revision. -->
+<aside class="dashboard-sidebar">
+  <div class="sidebar-card ad-container" style="min-height:600px;display:none;" aria-hidden="true">
+    <ins class="adsbygoogle ad-slot" style="display:block" data-ad-client="ca-pub-6819969179751671" data-ad-slot="0000000000" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+</aside>
 
 </div>
 

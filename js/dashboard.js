@@ -117,7 +117,7 @@ function renderBecasRecomendadas(alertas) {
 
 // ---- Helper Funciones --------------------------------------
 async function cargarBecasPerfil() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  const { data: { session } } = await AuthAPI.getSession();
   if (!session) return;
 
   const { data: perfil, error } = await supabaseClient
@@ -178,7 +178,7 @@ async function cargarBecasDesdeAPI() {
 
 // ---- Funciones CRUD (Alertas) ------------------------------
 async function cargarAlertas() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  const { data: { session } } = await AuthAPI.getSession();
   if (!session) return;
 
   const { data: alertas, error } = await supabaseClient
@@ -315,7 +315,7 @@ function renderCard(b, delay = 0) {
 
 // ---- Notificaciones -----------------------------------------
 async function renderNotificaciones() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  const { data: { session } } = await AuthAPI.getSession();
   if (!session) return;
 
   const { data, error } = await supabaseClient
@@ -386,7 +386,7 @@ async function marcarTodasLeidas() {
   showToast('Todas las notificaciones leídas', 'success');
 
   // Background sync
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  const { data: { session } } = await AuthAPI.getSession();
   if (session) {
     await supabaseClient.from('notificaciones').update({ leida: true }).eq('user_id', session.user.id).eq('leida', false);
   }

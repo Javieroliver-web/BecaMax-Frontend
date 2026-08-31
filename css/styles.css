@@ -389,7 +389,12 @@ body.light-mode .badge-cerrada{opacity:1;color:#334155;border-color:#cbd5e1}
 .dashboard-hero-inner{max-width:var(--max-width);margin:0 auto}
 .dashboard-hero h1{font-size:1.9rem;margin-bottom:8px}
 .dashboard-hero p{color:var(--text-secondary);max-width:500px}
-.dashboard-content{max-width:var(--max-width);margin:0 auto;padding:36px 24px}
+.dashboard-content{max-width:var(--max-width);margin:0 auto;padding:36px 24px;display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start}
+.dashboard-sidebar{position:sticky;top:calc(var(--header-height) + 20px)}
+@media(max-width:960px){
+  .dashboard-content{grid-template-columns:1fr}
+  .dashboard-sidebar{position:static}
+}
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 .section-title{font-size:1.05rem;font-weight:700}
 .section-count{font-size:.82rem;color:var(--text-muted);background:var(--bg-tertiary);padding:3px 10px;border-radius:50px}
