@@ -25,7 +25,12 @@ function proxiedFetch(input, init = {}) {
   if (!proxiedUrl) return fetch(input, init); // no debería pasar con el uso actual del cliente
 
   proxiedUrl.search = url.search;
-  return fetch(proxiedUrl, { ...init, credentials: 'include' });
+  // Cabecera custom: un <form> cross-site no puede fijarla, así que su
+  // ausencia es la señal que el backend usa para bloquear escrituras CSRF
+  // (ver requireFetchHeader.js). Un GET no la necesita pero no molesta.
+  const headers = new Headers(init.headers || {});
+  headers.set('x-becamax-client', '1');
+  return fetch(proxiedUrl, { ...init, headers, credentials: 'include' });
 }
 
 const { createClient } = supabase;
@@ -49,7 +54,7 @@ async function _authPost(path, body) {
     const res = await fetch(CONFIG.API_URL + path, {
       method: 'POST',
       credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-becamax-client': '1' },
       body: JSON.stringify(body || {})
     });
     const json = await res.json().catch(() => ({}));
