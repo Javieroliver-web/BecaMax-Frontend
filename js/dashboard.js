@@ -120,12 +120,8 @@ async function cargarBecasPerfil() {
   const { data: { session } } = await AuthAPI.getSession();
   if (!session) return;
 
-  const { data: perfil, error } = await supabaseClient
-    .from('perfiles')
-    .select('*')
-    .eq('user_id', session.user.id)
-    .single();
-  
+  const { data: perfil } = await PerfilAPI.getMine();
+
   if (!perfil || (!perfil.tipo_estudio && !perfil.region && (!perfil.area || perfil.area === 'Cualquier área'))) {
     document.getElementById('becasPerfil').innerHTML = `
       <div class="empty-state" style="grid-column:1/-1; padding:40px 20px;">
@@ -422,7 +418,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const [,, perfilData] = await Promise.all([
     cargarBecasDesdeAPI(),
     cargarAlertas(),
-    supabaseClient.from('perfiles').select('rol').eq('user_id', session.user.id).single()
+    PerfilAPI.getMine()
   ]);
   await cargarBecasPerfil(); // Depende de BECAS ya cargado
   renderNotificaciones();

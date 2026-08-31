@@ -361,11 +361,7 @@ async function requireAuth() {
   }
 
   // Verificación de Bloqueo Global
-  const { data: perfil } = await supabaseClient
-    .from('perfiles')
-    .select('estado')
-    .eq('user_id', session.user.id)
-    .single();
+  const { data: perfil } = await PerfilAPI.getMine();
 
   if (perfil && perfil.estado === 'bloqueado') {
     await AuthAPI.signOut();
@@ -409,17 +405,12 @@ async function updateHeaderAuth() {
 
     const nombre = session.user.user_metadata?.full_name || session.user.user_metadata?.nombre || session.user.email.split('@')[0];
 
-    let perfil = null;
-    const cacheKey = `becamax_perfil_${session.user.id}`;
-    const cachedPerfil = sessionStorage.getItem(cacheKey);
-    
-    if (cachedPerfil) {
-      perfil = JSON.parse(cachedPerfil);
-    } else {
-      const { data } = await supabaseClient.from('perfiles').select('rol, avatar_url').eq('user_id', session.user.id).single();
-      perfil = data;
-      if (perfil) sessionStorage.setItem(cacheKey, JSON.stringify(perfil));
-    }
+    // Antes se cacheaba en sessionStorage (persistia entre paginas dentro de
+    // la misma pestaña sin invalidarse nunca -- si cambiabas de avatar, la
+    // cabecera podia seguir mostrando el antiguo el resto de la sesion del
+    // navegador). PerfilAPI.getMine() cachea solo en memoria durante ESTA
+    // carga de pagina, y se invalida de verdad tras guardar avatar/perfil.
+    const { data: perfil } = await PerfilAPI.getMine();
 
     const headerActions = document.querySelector('.header-actions');
     if (headerActions) {

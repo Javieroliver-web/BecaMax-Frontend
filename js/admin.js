@@ -16,11 +16,7 @@ async function requireAdmin() {
     return false;
   }
 
-  const { data: perfil, error } = await supabaseClient
-    .from('perfiles')
-    .select('rol')
-    .eq('user_id', session.user.id)
-    .single();
+  const { data: perfil, error } = await PerfilAPI.getMine();
 
   if (error || !perfil || perfil.rol !== 'admin') {
     window.location.href = '/index.html';

@@ -67,11 +67,7 @@ async function cargarPerfilInterno() {
   }
 
   // 2. Cargar perfil académico (base de datos pública)
-  const { data, error } = await supabaseClient
-    .from('perfiles')
-    .select('*')
-    .eq('user_id', user.id)
-    .single();
+  const { data, error } = await PerfilAPI.getMine();
 
   if (error && error.code !== 'PGRST116') { // PGRST116 = No rows returned
     console.error('Error al cargar perfil académico:', error);
@@ -163,6 +159,7 @@ async function guardarPerfilAcademico(e) {
     console.error('Error al guardar perfil académico:', error);
     showToast('Error al actualizar perfil.', 'error');
   } else {
+    PerfilAPI.invalidate();
     showToast('Perfil académico guardado. Tus recomendaciones se han actualizado.', 'success');
   }
 }
@@ -265,7 +262,11 @@ async function guardarAvatar(url) {
     showToast('Error al actualizar el avatar.', 'error');
   } else {
     showToast('Foto de perfil actualizada.', 'success');
-    // Actualizar nombre en el header si existe (para refrescar imagen global)
+    // Invalidar antes de refrescar la cabecera: si no, updateHeaderAuth()
+    // reutilizaria la fila cacheada con el avatar viejo (bug real que
+    // existia con la cache anterior en sessionStorage, que nunca se
+    // invalidaba al cambiar de avatar).
+    PerfilAPI.invalidate();
     if (typeof updateHeaderAuth === 'function') updateHeaderAuth();
   }
 }

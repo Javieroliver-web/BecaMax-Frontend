@@ -102,6 +102,7 @@ const AuthAPI = {
   async signOut() {
     const result = await _authPost('/auth/logout');
     _invalidateSession();
+    _invalidatePerfil();
     return result;
   },
   getSession() {
@@ -113,4 +114,30 @@ const AuthAPI = {
     _invalidateSession();
     return result;
   }
+};
+
+// ============================================================
+//  PERFIL API – misma idea que la cache de sesion: la fila de `perfiles`
+//  del usuario actual la piden por separado requireAuth() (comprobar
+//  bloqueo), updateHeaderAuth() (rol/avatar de la cabecera), y cada
+//  pagina para sus propios datos (perfil.html, dashboard.html llega a
+//  pedirla 3 veces distintas). Antes del refactor a cookies cada
+//  .from() era una unica peticion directa a Supabase; ahora cada una pasa
+//  por el proxy (navegador -> backend -> Supabase), asi que repetirla
+//  varias veces por pagina se nota de verdad en el tiempo de carga.
+//  Se cachea la fila completa (select *) una vez por pagina y cada sitio
+//  coge de ahi el campo que necesite.
+let _perfilPromise = null;
+function _invalidatePerfil() { _perfilPromise = null; }
+
+const PerfilAPI = {
+  async getMine() {
+    const { data: { session } } = await AuthAPI.getSession();
+    if (!session) return { data: null, error: { message: 'No autenticado' } };
+    if (!_perfilPromise) {
+      _perfilPromise = supabaseClient.from('perfiles').select('*').eq('user_id', session.user.id).single();
+    }
+    return _perfilPromise;
+  },
+  invalidate: _invalidatePerfil
 };
