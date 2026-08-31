@@ -3,6 +3,44 @@
                  (Nivel Producción Premium)
 ==================================================
 
+=== ✅ AUDITORÍA DE SEGURIDAD PROFUNDA + CIERRE DE HALLAZGOS (2026-08-31) ===
+A petición del usuario ("1 hora y media libre... revisión profunda...
+seguridad"): auditoría de seguridad de solo lectura sobre RLS, funciones
+SECURITY DEFINER, dbProxy/storageProxy, XSS, secretos y CSP. Cero hallazgos
+críticos o altos. Aplicados los 2 hallazgos MEDIOS y 2 de los BAJOS:
+- [x] GRANT excesivo en `becas`/`noticias`/`system_logs` (anon/authenticated
+      tenían INSERT/UPDATE/DELETE/TRUNCATE completos, con RLS como único
+      backstop). Confirmado no explotable hoy, pero corregido como defensa
+      en profundidad: REVOKE de todo salvo SELECT en becas/noticias
+      (anon+authenticated), y en system_logs REVOKE ALL de anon (nunca
+      satisface is_admin()) + solo SELECT/INSERT en authenticated (lo único
+      que usa admin.js, gateado por RLS a is_admin()).
+- [x] CSRF residual (cookies SameSite=None cross-origin: CORS impide leer
+      la respuesta pero no impide que un <form> cross-site envíe la
+      petición con la cookie de la víctima). Mitigado con cabecera custom
+      `x-becamax-client` exigida en toda escritura a /api/db, /api/storage
+      y /api/auth (un <form> no puede fijar cabeceras custom) --
+      middleware nuevo `requireFetchHeader.js`, cabecera añadida en
+      proxiedFetch/_authPost (js/supabase.js).
+- [x] `alerts.controller.js::buildEmailHTML()`: nombre/entidad/descripción
+      de beca y alerta se interpolaban sin escapar en el HTML del email de
+      alertas (dato semi-externo via scraping BDNS); `url` no se validaba
+      como http(s). Añadidas las mismas `escapeHtml()`/`safeUrl()` que ya
+      usa el frontend.
+- [x] `logs.controller.js::registrarVisita`: solo `page` tenía límite de
+      longitud; capados también ts/country/city/ip/device/lang/screen/
+      referrer para evitar abuso de almacenamiento (sin riesgo de
+      inyección, la inserción ya era parametrizada).
+- Descartado como no explotable (investigado con peticiones reales
+  cruzadas): sospecha de bypass de la allowlist de dbProxy vía `..` en la
+  URL -- Node/Vercel normaliza el path antes de que el proxy lo vea.
+- No urgente, documentado sin tocar: CSP con 'unsafe-inline' en
+  script-src (preexistente, cambio estructural a nonces/hashes).
+- [x] Verificado en producción tras desplegar: lectura pública de becas
+  intacta (10 becas cargan en index.html), escritura real probada
+  (toggle de alerta en dashboard.html -> PATCH 204 con la cabecera nueva),
+  sin errores de consola.
+
 === ✅ FILTROS DE EDAD/RENTA + PERFIL AMPLIADO PARA RECOMENDACIONES (2026-08-31) ===
 A petición del usuario: filtros de búsqueda más específicos y datos de
 perfil para recomendar becas exactas. Investigado antes de construir nada:
