@@ -1075,6 +1075,11 @@ body:not(.loading-state) .loading-overlay {
   flex-direction: column;
   gap: 12px;
 }
+/* Sin esto, el display:flex de arriba gana al [hidden] del navegador (misma
+   especificidad, pero una hoja de autor vence siempre a la del user-agent) y
+   el panel se ve expandido desde el principio en vez de solo tras pulsar
+   "Personalizar". */
+.cookies-panel[hidden] { display: none; }
 .cookies-category { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .cookies-category-info strong { display: block; font-size: .85rem; color: var(--text-primary); margin-bottom: 2px; }
 .cookies-category-info p { font-size: .78rem; color: var(--text-secondary); margin: 0; }
