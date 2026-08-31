@@ -158,7 +158,14 @@
       document.getElementById('funnelContainer').innerHTML = PASOS.map((p, i) => {
         const valor = valores[i];
         const pct = Math.round((valor / max) * 100);
-        const conversion = i === 0 || valores[0] === 0 ? null : Math.round((valor / valores[0]) * 100);
+        // "% del total" solo tiene sentido como tasa de conversion si cada
+        // paso es realmente un subconjunto del primero -- no lo es del todo
+        // (se puede ver una beca sin haber aplicado un filtro de busqueda
+        // antes), asi que puede superar el 100% de forma legitima. Mostrar
+        // "250% del total" confunde mas de lo que informa: se oculta la
+        // etiqueta en ese caso y se deja solo el numero absoluto.
+        const ratio = valores[0] === 0 ? null : valor / valores[0];
+        const conversion = i === 0 || ratio === null || ratio > 1 ? null : Math.round(ratio * 100);
         return `
           <div class="funnel-step">
             <span class="funnel-step-label">${p.label}</span>
