@@ -160,7 +160,7 @@
 
   <!-- SIDEBAR FILTROS -->
   <aside class="filters" id="filtersPanel">
-    <button class="filters-toggle" id="filtersToggle" aria-expanded="false">
+    <button class="filters-toggle" id="filtersToggle" aria-expanded="false" aria-label="Mostrar filtros">
       <span></span>
     </button>
     <div class="filters-inner">
@@ -315,7 +315,7 @@
   </div>
   <div class="footer-copy">
     © 2026 Francisco Javier Párraga Oliver · Todos los derechos reservados · v2.0.0.0<br>
-    Datos de <a href="https://www.juntadeandalucia.es" target="_blank" rel="noopener" style="color:var(--primary)">Junta de Andalucía</a> y <a href="https://www.becaseducacion.gob.es" target="_blank" rel="noopener" style="color:var(--primary)">MEC</a>. Información orientativa, verifica siempre en la fuente oficial.
+    Datos de <a href="https://www.juntadeandalucia.es" target="_blank" rel="noopener" style="color:var(--primary);text-decoration:underline">Junta de Andalucía</a> y <a href="https://www.becaseducacion.gob.es" target="_blank" rel="noopener" style="color:var(--primary);text-decoration:underline">MEC</a>. Información orientativa, verifica siempre en la fuente oficial.
   </div>
 </footer>
 
@@ -387,6 +387,8 @@
     fToggle.addEventListener('click', function(){
       var open = fPanel.classList.toggle('open');
       fToggle.setAttribute('aria-expanded', open);
+      // El texto visible sale del CSS (::before); el nombre accesible lo sigue.
+      fToggle.setAttribute('aria-label', open ? 'Ocultar filtros' : 'Mostrar filtros');
     });
   }
 })();

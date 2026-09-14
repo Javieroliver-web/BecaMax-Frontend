@@ -372,6 +372,12 @@ body.light-mode .badge-cerrada{opacity:1;color:#334155;border-color:#cbd5e1}
 .auth-tabs{display:flex;background:var(--bg-tertiary);border-radius:10px;padding:4px;margin-bottom:26px}
 .auth-tab{flex:1;padding:10px;text-align:center;border-radius:8px;font-size:.88rem;font-weight:600;cursor:pointer;transition:var(--transition);color:var(--text-secondary);border:none;background:none}
 .auth-tab.active{background:var(--gradient);color:#fff}
+.auth-google{margin-bottom:22px}
+.auth-google-btn{gap:10px}
+.auth-google-legal{margin-top:10px;font-size:.74rem;line-height:1.5;color:var(--text-muted);text-align:center}
+.auth-google-legal a{color:var(--primary-light)}
+.auth-divider{display:flex;align-items:center;gap:12px;margin-top:20px;font-size:.78rem;color:var(--text-muted)}
+.auth-divider::before,.auth-divider::after{content:"";flex:1;height:1px;background:var(--glass-border)}
 .auth-form{display:none}
 .auth-form.active{display:block}
 .auth-back{display:inline-flex;align-items:center;gap:6px;font-size:.83rem;color:var(--text-secondary);margin-bottom:20px;transition:var(--transition)}
@@ -1072,8 +1078,10 @@ body:not(.loading-state) .loading-overlay {
 .cookies-actions { display: flex; gap: 10px; flex-shrink: 0; }
 @media(max-width:640px) {
   .cookies-inner { flex-direction: column; }
-  .cookies-actions { width: 100%; }
-  .cookies-actions .btn { flex: 1; }
+  /* Tres botones con white-space:nowrap no caben en 390px: sin wrap,
+     "Aceptar todas" quedaba cortado fuera de la pantalla. */
+  .cookies-actions { width: 100%; flex-wrap: wrap; }
+  .cookies-actions .btn { flex: 1 1 auto; }
 }
 .cookies-panel {
   max-width: var(--max-width);

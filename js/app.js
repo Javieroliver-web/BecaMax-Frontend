@@ -290,7 +290,7 @@ function renderCard(b, delay = 0) {
     </div>
     <div class="card-actions">
       <a href="pages/beca-detalle.html?id=${sanitizeHTML(b.id)}" class="btn btn-secondary btn-sm" aria-label="Ver detalles de ${sanitizeHTML(b.nombre)}">Detalles</a>
-      <a href="${safeUrl(b.url)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" aria-label="Ir a web oficial de ${sanitizeHTML(b.nombre)}">Ver beca</a>
+      <a href="${safeUrl(b.url)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" aria-label="Ver beca: web oficial de ${sanitizeHTML(b.nombre)}">Ver beca</a>
     </div>
   </article>`;
 }
