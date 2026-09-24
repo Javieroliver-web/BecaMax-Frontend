@@ -44,6 +44,18 @@ window.BecaMaxConsent = {
 
   unlockAds() {
     if (!this.hasAdsConsent()) return;
+    // La librería de AdSense se descarga SOLO con consentimiento de
+    // Marketing: con la etiqueta fija de antes, Google recibía la IP del
+    // visitante al abrir la página aunque los anuncios estuvieran en pausa
+    // (revisión legal del 24/09/2026). Solo en las páginas con huecos.
+    if (document.querySelector('ins.adsbygoogle') && !document.getElementById('adsenseScript')) {
+      const s = document.createElement('script');
+      s.id = 'adsenseScript';
+      s.async = true;
+      s.crossOrigin = 'anonymous';
+      s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6819969179751671';
+      document.head.appendChild(s);
+    }
     window.adsbygoogle = window.adsbygoogle || [];
     window.adsbygoogle.pauseAdRequests = 0;
     document.querySelectorAll('ins.adsbygoogle:not([data-ad-status])').forEach(() => {
@@ -53,7 +65,8 @@ window.BecaMaxConsent = {
 
   // Vercel Web Analytics no se carga por defecto en las páginas que
   // incluyen este fichero -- se inyecta solo si hay consentimiento de
-  // Análisis, en vez de la etiqueta <script> estática de antes.
+  // Análisis. OJO: el 24/09/2026 seguía la etiqueta <script> fija en 14
+  // páginas, que lo cargaba siempre; se quitaron. No volver a ponerla.
   unlockAnalytics() {
     if (!this.hasAnalyticsConsent() || document.getElementById('vercelInsightsScript')) return;
     const s = document.createElement('script');
@@ -61,6 +74,15 @@ window.BecaMaxConsent = {
     s.defer = true;
     s.src = '/_vercel/insights/script.js';
     document.head.appendChild(s);
+  },
+
+  // Retirar el consentimiento tiene que ser tan fácil como darlo (AEPD, guía
+  // de cookies). Borra la elección y recarga: la página vuelve sin analítica
+  // ni anuncios y con el panel para elegir de nuevo. Lo usa el botón de la
+  // política de cookies.
+  reabrir() {
+    localStorage.removeItem(this.KEY);
+    window.location.reload();
   }
 };
 

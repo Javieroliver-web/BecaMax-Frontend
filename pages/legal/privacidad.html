@@ -18,7 +18,6 @@
   <link rel="icon" type="image/png" href="../../img/logo.png">
   <script src="/js/error-reporter.js"></script>
   <link rel="stylesheet" href="../../css/styles.css">
-  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 <script>if(localStorage.getItem('theme')==='light'){document.documentElement.classList.add('light-mode');document.body.classList.add('light-mode');}</script>
@@ -39,7 +38,7 @@
     <div style="margin-bottom:32px;">
       <span style="background:rgba(16,185,129,.1);color:var(--primary);font-size:.8rem;font-weight:700;padding:4px 12px;border-radius:50px;text-transform:uppercase;letter-spacing:1px;">Legal</span>
       <h1 class="font-heading" style="font-size:2rem;margin-top:16px;margin-bottom:8px;">Política de Privacidad</h1>
-      <p style="color:var(--text-secondary);font-size:.9rem;">Última actualización: agosto de 2026</p>
+      <p style="color:var(--text-secondary);font-size:.9rem;">Última actualización: septiembre de 2026</p>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:28px;color:var(--text-secondary);line-height:1.8;">
@@ -53,8 +52,11 @@
         <h2 class="font-heading" style="font-size:1.1rem;color:var(--text-primary);margin-bottom:10px;">2. Datos que recogemos</h2>
         <ul style="padding-left:20px;display:flex;flex-direction:column;gap:8px;">
           <li><strong style="color:var(--text-primary)">Datos de registro:</strong> Nombre y dirección de correo electrónico cuando creas una cuenta.</li>
-          <li><strong style="color:var(--text-primary)">Datos de perfil académico:</strong> Nivel de estudios, área de estudios y comunidad autónoma, que utilizamos para personalizar las recomendaciones de becas.</li>
-          <li><strong style="color:var(--text-primary)">Datos de uso:</strong> Alertas guardadas, filtros aplicados y preferencias de búsqueda.</li>
+          <li><strong style="color:var(--text-primary)">Datos de perfil académico:</strong> Nivel de estudios, área de estudios, comunidad autónoma y provincia, que utilizamos para personalizar las recomendaciones de becas. También, si los rellenas, tu centro educativo y tu curso actual (solo informativos: no afectan a las recomendaciones) y una foto de perfil.</li>
+          <li><strong style="color:var(--text-primary)">Fecha de nacimiento y renta familiar anual (opcionales):</strong> Solo si decides indicarlas en tu perfil. Las usamos únicamente para no recomendarte becas con requisitos de edad o de renta que no cumples. Nunca se muestran a otros usuarios ni se usan para ningún otro fin, y puedes borrarlas cuando quieras desde tu perfil.</li>
+          <li><strong style="color:var(--text-primary)">Datos de uso:</strong> Alertas guardadas, favoritos, filtros aplicados y preferencias de búsqueda.</li>
+          <li><strong style="color:var(--text-primary)">Incidencias:</strong> Si nos envías una incidencia, guardamos su tipo, tu descripción y, si has iniciado sesión, tu usuario, para poder resolverla.</li>
+          <li><strong style="color:var(--text-primary)">Pasos de uso (solo con consentimiento de Análisis):</strong> Registramos pasos como buscar, ver una beca o crear una alerta, con un identificador aleatorio guardado en tu navegador, para saber qué partes de la web funcionan. No se registra si rechazas la categoría Análisis.</li>
           <li><strong style="color:var(--text-primary)">Datos técnicos:</strong> Dirección IP y tipo de navegador, recogidos automáticamente con fines de seguridad y análisis de rendimiento.</li>
           <li><strong style="color:var(--text-primary)">Registro de accesos:</strong> Si aceptas todas las cookies, registramos tu IP, ciudad/país aproximados (mediante el servicio externo ipapi.co), tipo de dispositivo y navegador. Este registro se guarda internamente en nuestra base de datos (Supabase) y solo es visible para el administrador de BecaMax, con fines exclusivos de seguridad y monitorización de accesos. No se registra si eliges "Solo esenciales".</li>
         </ul>
@@ -72,7 +74,17 @@
 
       <section>
         <h2 class="font-heading" style="font-size:1.1rem;color:var(--text-primary);margin-bottom:10px;">4. Base legal</h2>
-        <p>El tratamiento de tus datos se realiza sobre la base del consentimiento que nos otorgas al registrarte y aceptar estos términos, así como en el interés legítimo de mejorar el servicio.</p>
+        <ul style="padding-left:20px;display:flex;flex-direction:column;gap:8px;">
+          <li><strong style="color:var(--text-primary)">Tu cuenta, tu perfil, favoritos y alertas:</strong> la prestación del servicio que solicitas al registrarte (art. 6.1.b RGPD).</li>
+          <li><strong style="color:var(--text-primary)">Fecha de nacimiento, renta familiar, emails de alertas, análisis y publicidad personalizada:</strong> tu consentimiento (art. 6.1.a RGPD), que puedes retirar en cualquier momento sin que afecte a lo tratado antes: borrando esos datos de tu perfil, desactivando la alerta o cambiando tus <a href="cookies.html" style="color:var(--primary)">preferencias de cookies</a>.</li>
+          <li><strong style="color:var(--text-primary)">Seguridad, captcha e informes de errores:</strong> nuestro interés legítimo en proteger la plataforma y que funcione (art. 6.1.f RGPD).</li>
+        </ul>
+        <p style="margin-top:10px;">Las recomendaciones de becas se calculan automáticamente a partir de tu perfil, pero solo sirven para ordenarte la información: no se toma ninguna decisión que produzca efectos jurídicos sobre ti ni te afecte de forma significativa.</p>
+      </section>
+
+      <section>
+        <h2 class="font-heading" style="font-size:1.1rem;color:var(--text-primary);margin-bottom:10px;">Menores de edad</h2>
+        <p>Para crear una cuenta tienes que tener 14 años o más (art. 7 de la Ley Orgánica 3/2018). Si eres menor de 14, necesitas que tu padre, madre o tutor lo haga por ti o lo autorice. Si detectamos una cuenta de un menor de 14 sin esa autorización, la eliminaremos.</p>
       </section>
 
       <section>
@@ -80,7 +92,7 @@
         <ul style="padding-left:20px;display:flex;flex-direction:column;gap:8px;">
           <li><strong style="color:var(--text-primary)">Supabase:</strong> Utilizamos Supabase para la autenticación y el almacenamiento de datos (perfiles, favoritos, alertas, registro de accesos). Cumple con el RGPD.</li>
           <li><strong style="color:var(--text-primary)">Google (inicio de sesión):</strong> Si eliges "Continuar con Google", Google nos comunica tu nombre, tu email y tu foto de perfil para crear o identificar tu cuenta. No recibimos tu contraseña de Google ni accedemos a ningún otro dato de tu cuenta. Es opcional: puedes registrarte solo con tu email.</li>
-          <li><strong style="color:var(--text-primary)">Vercel:</strong> Nuestro proveedor de hosting, alojado en la UE.</li>
+          <li><strong style="color:var(--text-primary)">Vercel:</strong> Nuestro proveedor de hosting (Vercel Inc., Estados Unidos). Recibe los datos técnicos de cada visita (como tu IP) al servir la web.</li>
           <li><strong style="color:var(--text-primary)">hCaptcha:</strong> Usamos el captcha de hCaptcha en los formularios de acceso, registro y recuperación de contraseña para evitar registros automatizados y ataques. Procesa datos técnicos del dispositivo (no rastrea con fines publicitarios).</li>
           <li><strong style="color:var(--text-primary)">Resend:</strong> Utilizamos Resend para enviarte el correo de alertas de becas cuando activas una alerta. Recibe tu email y el contenido del mensaje únicamente para poder entregarlo.</li>
           <li><strong style="color:var(--text-primary)">Informes de errores (Vercel y Discord):</strong> Si la web falla en tu navegador, se envía un aviso técnico (mensaje de error, página y navegador, sin datos que te identifiquen) a un canal privado de Discord para poder arreglarlo. Los fallos del servidor se avisan igual.</li>
@@ -93,16 +105,16 @@
         <h2 class="font-heading" style="font-size:1.1rem;color:var(--text-primary);margin-bottom:10px;">6. Transferencias internacionales de datos</h2>
         <p>Algunos de los proveedores anteriores tratan datos fuera del Espacio Económico Europeo (EEE), principalmente en Estados Unidos:</p>
         <ul style="padding-left:20px;margin-top:10px;display:flex;flex-direction:column;gap:8px;">
-          <li><strong style="color:var(--text-primary)">Google (AdSense):</strong> transferencia amparada por el marco de adecuación UE-EE.UU. (EU-US Data Privacy Framework).</li>
+          <li><strong style="color:var(--text-primary)">Google (inicio de sesión y AdSense), Vercel y Discord:</strong> transferencia amparada por el marco de adecuación UE-EE. UU. (EU-US Data Privacy Framework).</li>
           <li><strong style="color:var(--text-primary)">Resend</strong> y <strong style="color:var(--text-primary)">hCaptcha</strong>: transferencia amparada por Cláusulas Contractuales Tipo (CCT) de la Comisión Europea, incluidas en sus condiciones de servicio.</li>
-          <li><strong style="color:var(--text-primary)">ipapi.co:</strong> el dato tratado es únicamente tu IP en el momento de la consulta, con el fin exclusivo de aproximar país/ciudad; no se comparte ningún otro dato personal con este proveedor.</li>
+          <li><strong style="color:var(--text-primary)">ipapi.co:</strong> el dato tratado es únicamente tu IP en el momento de la consulta, con el fin exclusivo de aproximar país/ciudad; no se comparte ningún otro dato personal con este proveedor. Solo ocurre si aceptas la categoría Análisis, y esa aceptación es la base de la transferencia (art. 49.1.a RGPD).</li>
         </ul>
-        <p style="margin-top:10px;">Supabase y Vercel, nuestros proveedores principales, operan con infraestructura en la UE.</p>
+        <p style="margin-top:10px;">Los datos de tu cuenta y tu perfil se guardan en Supabase, en servidores de la Unión Europea (Irlanda).</p>
       </section>
 
       <section>
         <h2 class="font-heading" style="font-size:1.1rem;color:var(--text-primary);margin-bottom:10px;">7. Tus derechos</h2>
-        <p>Conforme al RGPD, tienes derecho a acceder, rectificar, suprimir, portabilidad y oposición al tratamiento de tus datos. Para ejercer estos derechos, contacta con nosotros en <a href="mailto:javip200555@gmail.com" style="color:var(--primary)">javip200555@gmail.com</a>. También puedes reclamar ante la <a href="https://www.aepd.es" target="_blank" rel="noopener" style="color:var(--primary)">Agencia Española de Protección de Datos (AEPD)</a>.</p>
+        <p>Conforme al RGPD, tienes derecho a acceder a tus datos, rectificarlos, suprimirlos, limitar u oponerte a su tratamiento, a la portabilidad y a retirar en cualquier momento el consentimiento que hayas dado. Puedes borrar tu cuenta y todos sus datos directamente desde Configuración. Para ejercer estos derechos, contacta con nosotros en <a href="mailto:javip200555@gmail.com" style="color:var(--primary)">javip200555@gmail.com</a>. También puedes reclamar ante la <a href="https://www.aepd.es" target="_blank" rel="noopener" style="color:var(--primary)">Agencia Española de Protección de Datos (AEPD)</a>.</p>
       </section>
 
       <section>

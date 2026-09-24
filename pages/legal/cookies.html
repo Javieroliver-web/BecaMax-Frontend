@@ -18,7 +18,6 @@
   <link rel="icon" type="image/png" href="../../img/logo.png">
   <script src="/js/error-reporter.js"></script>
   <link rel="stylesheet" href="../../css/styles.css">
-  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 <script>if(localStorage.getItem('theme')==='light'){document.documentElement.classList.add('light-mode');document.body.classList.add('light-mode');}</script>
@@ -39,7 +38,7 @@
     <div style="margin-bottom:32px;">
       <span style="background:rgba(16,185,129,.1);color:var(--primary);font-size:.8rem;font-weight:700;padding:4px 12px;border-radius:50px;text-transform:uppercase;letter-spacing:1px;">Legal</span>
       <h1 class="font-heading" style="font-size:2rem;margin-top:16px;margin-bottom:8px;">Política de Cookies</h1>
-      <p style="color:var(--text-secondary);font-size:.9rem;">Última actualización: agosto de 2026</p>
+      <p style="color:var(--text-secondary);font-size:.9rem;">Última actualización: septiembre de 2026</p>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:28px;color:var(--text-secondary);line-height:1.8;">
@@ -91,6 +90,13 @@
                 <td style="padding:12px 16px;">Estadísticas de visitas y rendimiento del sitio</td>
                 <td style="padding:12px 16px;">Variable</td>
               </tr>
+              <tr style="border-bottom:1px solid var(--glass-border);">
+                <td style="padding:12px 16px;"><code style="color:var(--primary);font-size:.8rem;">becamax_analytics_id</code></td>
+                <td style="padding:12px 16px;">Almacenamiento local</td>
+                <td style="padding:12px 16px;">Análisis</td>
+                <td style="padding:12px 16px;">Identificador aleatorio para contar los pasos de uso (buscar, ver una beca, crear una alerta) sin saber quién eres</td>
+                <td style="padding:12px 16px;">Permanente, hasta que lo borres</td>
+              </tr>
               <tr>
                 <td style="padding:12px 16px;"><code style="color:var(--primary);font-size:.8rem;">IDE, DSID (Google AdSense)</code></td>
                 <td style="padding:12px 16px;">Cookie</td>
@@ -101,7 +107,8 @@
             </tbody>
           </table>
         </div>
-        <p style="margin-top:12px;font-size:.85rem;">Puedes cambiar tu elección de Análisis y Marketing en cualquier momento borrando <code>becamax_cookies_consent</code> del almacenamiento de tu navegador para volver a ver el panel de preferencias.</p>
+        <p style="margin-top:12px;font-size:.85rem;">Puedes cambiar o retirar tu consentimiento de Análisis y Marketing en cualquier momento, con la misma facilidad con que lo diste:</p>
+        <button type="button" class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="window.BecaMaxConsent &amp;&amp; window.BecaMaxConsent.reabrir()">Cambiar mis preferencias de cookies</button>
       </section>
 
       <section>
