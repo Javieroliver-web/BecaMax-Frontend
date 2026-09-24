@@ -750,12 +750,18 @@ SEGURIDAD DE BASE DE DATOS (revisado de paso al estar ya dentro):
       de "search path hijacking"): delete_my_account, is_admin,
       prevent_privilege_escalation, handle_new_user. Arreglado con
       ALTER FUNCTION ... SET search_path, sin cambiar su comportamiento.
-- [ ] Esas mismas 4 funciones son invocables directamente vía API
-      (/rest/v1/rpc/is_admin, etc.) por anon/authenticated. NO tocado:
-      is_admin() lo usan políticas RLS de otras tablas (system_logs
-      entre otras) -- revocar el EXECUTE sin auditar antes cada uso
-      podría romper el panel de admin entero. Pendiente de revisión
-      aparte, con más calma.
+- [x] Revisado el 2026-09-24 (solo lectura, sin tocar nada): NO es
+      explotable. handle_new_user y prevent_privilege_escalation son
+      triggers: nadie puede llamarlas por la API. delete_my_account solo
+      la ejecuta authenticated y solo borra auth.uid() (falla sin sesión).
+      is_admin() la ejecutan anon y authenticated, pero solo dice si EL
+      QUE LLAMA es admin (anon -> false). Y NO se puede revocar a anon:
+      la usan 5 políticas con rol {public} (noticias, perfiles,
+      filtros_guardados, system_logs, eventos_embudo), así que un anon
+      sin EXECUTE recibiría error de permisos al leer noticias. El aviso
+      del linter de Supabase (0028/0029) queda aceptado. Arreglo limpio si
+      algún día se quiere: mover is_admin a un esquema no expuesto
+      (private.is_admin) y cambiar esas 5 políticas.
 - [x] "Leaked Password Protection" (Supabase Auth, comprueba contra
       HaveIBeenPwned) -- DESCARTADA por decisión del usuario (2026-08-31).
       Interruptor en Authentication -> Attack Protection del dashboard, no
