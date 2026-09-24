@@ -120,6 +120,42 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   // ==========================================
+  // DESCARGAR MIS DATOS (arts. 15 y 20 RGPD)
+  // ==========================================
+  // El backend decide de quién son los datos a partir de la cookie de sesión
+  // (nunca de algo que mande esta página), así que aquí solo se pide y se
+  // guarda el archivo.
+  async function descargarMisDatos() {
+    const btn = document.getElementById('btnDescargarDatos');
+    const estado = document.getElementById('estadoDescargaDatos');
+    btn.disabled = true;
+    estado.textContent = 'Preparando tu archivo...';
+    try {
+      const res = await fetch(CONFIG.API_URL + '/auth/mis-datos', { credentials: 'include' });
+      if (res.status === 401) throw new Error('Tu sesión ha caducado. Vuelve a iniciar sesión.');
+      if (res.status === 429) throw new Error('Has pedido tus datos varias veces seguidas. Espera unos minutos.');
+      if (!res.ok) throw new Error('No se han podido preparar tus datos. Inténtalo de nuevo más tarde.');
+
+      const archivo = await res.blob();
+      const nombre = (res.headers.get('Content-Disposition') || '').match(/filename="([^"]+)"/)?.[1]
+        || 'becamax-mis-datos.json';
+      const enlace = document.createElement('a');
+      enlace.href = URL.createObjectURL(archivo);
+      enlace.download = nombre;
+      document.body.appendChild(enlace);
+      enlace.click();
+      enlace.remove();
+      setTimeout(() => URL.revokeObjectURL(enlace.href), 10000);
+      estado.textContent = `Descargado: ${nombre}`;
+    } catch (err) {
+      estado.textContent = err.message;
+      showToast(err.message, 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ==========================================
   // ELIMINAR CUENTA (ZONA DE PELIGRO)
   // ==========================================
   function procesoEliminarCuenta() {

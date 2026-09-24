@@ -114,6 +114,18 @@
     </form>
   </div>
 
+  <!-- Sección: Tus datos (derechos de acceso y portabilidad, arts. 15 y 20 RGPD) -->
+  <div class="auth-card" style="max-width:100%; margin-bottom: 24px;">
+    <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--text-primary);">Tus datos</h2>
+    <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">
+      Descarga en un archivo todo lo que BecaMax guarda sobre ti: tu cuenta, tu perfil, favoritos, alertas, notificaciones, incidencias y el registro de tus visitas.
+    </p>
+    <button type="button" class="btn btn-secondary btn-full" id="btnDescargarDatos" onclick="descargarMisDatos()">
+      Descargar mis datos
+    </button>
+    <p id="estadoDescargaDatos" role="status" style="font-size:0.85rem; color:var(--text-secondary); margin-top:10px;"></p>
+  </div>
+
   <!-- Sección: Peligro -->
   <div class="auth-card" style="max-width:100%; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.02);">
     <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: var(--danger);">Zona de Peligro</h2>

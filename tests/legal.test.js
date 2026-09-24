@@ -40,6 +40,17 @@ test('las páginas con huecos de anuncios incluyen el gestor de consentimiento',
   assert.deepStrictEqual(sinGestor, []);
 });
 
+test('se pueden descargar los datos propios desde Configuración (arts. 15 y 20 RGPD)', () => {
+  const pagina = fs.readFileSync(path.join(RAIZ, 'pages', 'configuracion.html'), 'utf8');
+  assert.match(pagina, /id="btnDescargarDatos"[^>]*onclick="descargarMisDatos\(\)"/);
+  const js = fs.readFileSync(path.join(RAIZ, 'js', 'configuracion.js'), 'utf8');
+  assert.match(js, /\/auth\/mis-datos/);
+  // La página no manda ningún identificador: el backend lo saca de la sesión.
+  assert.doesNotMatch(js.slice(js.indexOf('async function descargarMisDatos')), /user_?id|usuarioId/i);
+  const privacidad = fs.readFileSync(path.join(RAIZ, 'pages', 'legal', 'privacidad.html'), 'utf8');
+  assert.match(privacidad, /descargar en un archivo todo lo que guardamos sobre ti/);
+});
+
 // ── js/cookies.js en un navegador mínimo de mentira ─────────────────────────
 
 function cargarCookies(consentimientoGuardado) {
