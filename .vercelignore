@@ -1,0 +1,2 @@
+# Los tests no forman parte de la web: que Vercel no los publique.
+tests/
