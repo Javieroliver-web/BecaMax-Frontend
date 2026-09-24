@@ -172,6 +172,11 @@
     const ret = sanitizeReturnUrl(params.get('returnUrl') || '') || 'dashboard.html';
     const path = ret.startsWith('/') ? ret : '/pages/' + ret;
     btnGoogle.href = CONFIG.API_URL + '/auth/google?returnUrl=' + encodeURIComponent(path);
+    // La vuelta de Google llega "de fuera": sin este pase de un solo uso,
+    // js/navegacion.js la mandaría a la portada.
+    btnGoogle.addEventListener('click', () => {
+      try { sessionStorage.setItem('becamax_pase_navegacion', '1'); } catch (e) { /* ignorar */ }
+    });
   }
   const googleErrors = {
     google: 'No se pudo iniciar sesión con Google. Inténtalo de nuevo o usa tu correo.',
