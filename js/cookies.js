@@ -5,33 +5,63 @@
 window.BecaMaxConsent = {
   KEY: 'becamax_cookies_consent',
   DEFAULTS: { necesarias: true, analisis: false, marketing: false },
+  // Versión de la política de cookies (AAAA-MM). Al cambiarla, el banner
+  // vuelve a salir: un consentimiento solo vale para la política que se vio.
+  VERSION: '2026-09',
+  // La AEPD recomienda no dar por bueno un consentimiento de más de 24 meses.
+  MESES_VALIDEZ: 24,
 
-  // Lee el consentimiento guardado. Migra en el momento el formato antiguo
-  // (string simple 'essential'/'all', de antes de las 3 categorías) al
-  // objeto nuevo, y lo vuelve a guardar ya migrado para no tener que
-  // repetir esta conversión en cada lectura futura.
+  // El consentimiento guardado, o null si no hay, si es de otra versión de la
+  // política o si ha caducado: en esos casos hay que volver a preguntar. El
+  // formato antiguo (sin versión, o el string 'all'/'essential') también
+  // vuelve a preguntar: se dio con una política que ya no es la vigente.
   get() {
     const raw = localStorage.getItem(this.KEY);
     if (!raw) return null;
-    if (raw === 'all' || raw === 'essential') {
-      const migrado = raw === 'all'
-        ? { necesarias: true, analisis: true, marketing: true }
-        : { necesarias: true, analisis: false, marketing: false };
-      localStorage.setItem(this.KEY, JSON.stringify(migrado));
-      return migrado;
-    }
     try {
-      return { ...this.DEFAULTS, ...JSON.parse(raw), necesarias: true };
+      const guardado = JSON.parse(raw);
+      if (!guardado || guardado.version !== this.VERSION || !guardado.fecha) return null;
+      const caduca = new Date(guardado.fecha);
+      caduca.setMonth(caduca.getMonth() + this.MESES_VALIDEZ);
+      if (!(caduca > new Date())) return null;
+      return { ...this.DEFAULTS, ...guardado, necesarias: true };
     } catch {
       return null;
     }
   },
 
-  save(prefs) {
-    const full = { ...this.DEFAULTS, ...prefs, necesarias: true };
+  // `accion`: 'aceptar_todo', 'rechazar' o 'personalizar'. Cada elección se
+  // registra en el servidor (sin IP ni usuario) para poder demostrarla: RGPD
+  // art. 7.1. Ver registrar().
+  save(prefs, accion = 'personalizar') {
+    let id;
+    try { id = JSON.parse(localStorage.getItem(this.KEY) || '{}').id; } catch { /* nuevo */ }
+    const full = {
+      ...this.DEFAULTS, ...prefs, necesarias: true,
+      version: this.VERSION, fecha: new Date().toISOString(),
+      id: id || (crypto.randomUUID ? crypto.randomUUID() : null),
+    };
     localStorage.setItem(this.KEY, JSON.stringify(full));
     this.apply(full);
+    this.registrar(full, accion);
     return full;
+  },
+
+  // Mejor esfuerzo: si el backend no responde, la elección vale igual en el
+  // navegador. keepalive: que llegue aunque la página se recargue justo después.
+  registrar(full, accion) {
+    if (!full.id || typeof CONFIG === 'undefined' || !CONFIG.API_URL) return;
+    try {
+      fetch(CONFIG.API_URL + '/consentimiento', {
+        method: 'POST',
+        keepalive: true,
+        headers: { 'Content-Type': 'application/json', 'x-becamax-client': '1' },
+        body: JSON.stringify({
+          consent_id: full.id, analisis: !!full.analisis, marketing: !!full.marketing,
+          accion, version_politica: full.version,
+        }),
+      }).catch(() => {});
+    } catch { /* nunca debe romper el banner */ }
   },
 
   hasAdsConsent() { return this.get()?.marketing === true; },
@@ -81,7 +111,12 @@ window.BecaMaxConsent = {
   // ni anuncios y con el panel para elegir de nuevo. Lo usa el botón de la
   // política de cookies.
   reabrir() {
-    localStorage.removeItem(this.KEY);
+    // Se conserva solo el identificador: así, en el registro, la nueva
+    // elección queda como un cambio de opinión del mismo navegador.
+    let id;
+    try { id = JSON.parse(localStorage.getItem(this.KEY) || '{}').id; } catch { /* sin id */ }
+    if (id) localStorage.setItem(this.KEY, JSON.stringify({ id }));
+    else localStorage.removeItem(this.KEY);
     window.location.reload();
   }
 };
@@ -150,12 +185,12 @@ window.BecaMaxConsent = {
   requestAnimationFrame(() => banner.classList.add('visible'));
 
   document.getElementById('cookiesAcceptAll').addEventListener('click', () => {
-    window.BecaMaxConsent.save({ analisis: true, marketing: true });
+    window.BecaMaxConsent.save({ analisis: true, marketing: true }, 'aceptar_todo');
     _hideBanner(banner);
   });
 
   document.getElementById('cookiesAcceptEssential').addEventListener('click', () => {
-    window.BecaMaxConsent.save({ analisis: false, marketing: false });
+    window.BecaMaxConsent.save({ analisis: false, marketing: false }, 'rechazar');
     _hideBanner(banner);
   });
 
@@ -167,7 +202,7 @@ window.BecaMaxConsent = {
     window.BecaMaxConsent.save({
       analisis: document.getElementById('cookiesToggleAnalisis').checked,
       marketing: document.getElementById('cookiesToggleMarketing').checked
-    });
+    }, 'personalizar');
     _hideBanner(banner);
   });
 
