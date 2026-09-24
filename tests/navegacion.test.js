@@ -41,11 +41,12 @@ test('ninguna página HTML queda sin clasificar', () => {
   assert.deepStrictEqual(sinClasificar, [], 'decide si estas pantallas son privadas o públicas');
 });
 
-function ejecutar({ referrer, pase }) {
+function ejecutar({ referrer, pase, tipo = 'navigate' }) {
   const almacen = new Map(pase ? [['becamax_pase_navegacion', '1']] : []);
   const destino = [];
   const ctx = {
     URL,
+    performance: { getEntriesByType: () => [{ type: tipo }] },
     document: { referrer },
     sessionStorage: {
       getItem: (k) => (almacen.has(k) ? almacen.get(k) : null),
@@ -72,4 +73,15 @@ test('el pase de la vuelta de Google vale una sola vez', () => {
   const r = ejecutar({ referrer: 'https://accounts.google.com/', pase: true });
   assert.deepStrictEqual(r.destino, []);
   assert.strictEqual(r.paseRestante, false);
+});
+
+test('recargar o volver atrás a una pantalla en la que ya se estaba no echa (F5 tras el login con Google)', () => {
+  for (const tipo of ['reload', 'back_forward']) {
+    assert.deepStrictEqual(ejecutar({ referrer: 'https://accounts.google.com/', tipo }).destino, [], tipo);
+  }
+});
+
+test('escribir la dirección sigue echando', () => {
+  const r = ejecutar({ referrer: '', tipo: 'navigate' });
+  assert.deepStrictEqual(r.destino, ['/']);
 });

@@ -29,7 +29,18 @@
     sessionStorage.removeItem(PASE);
   } catch (e) { /* sin sessionStorage: solo cuenta el referrer */ }
 
-  if (!desdeLaWeb && !conPase) {
+  // Recargar o ir atrás/adelante a una pantalla en la que YA se estaba: al
+  // recargar, document.referrer sigue siendo el de la llegada, y tras el login
+  // con Google ese es accounts.google.com (el pase ya se gastó), así que F5 en
+  // el panel echaba a la portada. Quien escribe la dirección nunca llega a
+  // quedarse (se le reemplaza la entrada), así que no puede recargarla.
+  var yaEstaba = false;
+  try {
+    var nav = performance.getEntriesByType('navigation')[0];
+    yaEstaba = !!nav && (nav.type === 'reload' || nav.type === 'back_forward');
+  } catch (e) { /* navegador sin la API: solo cuentan referrer y pase */ }
+
+  if (!desdeLaWeb && !conPase && !yaEstaba) {
     window.location.replace('/');
   }
 })();
