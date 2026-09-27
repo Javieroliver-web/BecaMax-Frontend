@@ -12,9 +12,9 @@ const vm = require('node:vm');
 const PAGES = path.join(__dirname, '..', 'pages');
 const PRIVADAS = ['dashboard', 'perfil', 'configuracion', 'incidencias',
   'admin-dashboard', 'admin-incidencias', 'admin-monitorizacion'];
-// Deben poder abrirse directamente: enlaces de correos (auth), buscadores
+// Deben poder abrirse directamente: enlaces de correos (auth, boletin), buscadores
 // (guías, becas, faq) y la ley (legales, siempre accesibles).
-const PUBLICAS = ['auth', 'beca-detalle', 'faq', 'guias', 'guia-beca-mec', 'guia-fp-andalucia',
+const PUBLICAS = ['auth', 'beca-detalle', 'boletin', 'faq', 'guias', 'guia-beca-mec', 'guia-fp-andalucia',
   'legal/aviso-legal', 'legal/cookies', 'legal/privacidad'];
 
 const leer = (p) => fs.readFileSync(path.join(PAGES, p + '.html'), 'utf8');
