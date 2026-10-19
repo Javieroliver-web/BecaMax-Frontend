@@ -56,7 +56,7 @@ test('se pueden descargar los datos propios desde Configuración (arts. 15 y 20 
 // Un consentimiento vigente: versión actual de la política y fecha de hoy.
 const vigente = (prefs) => ({ ...prefs, version: '2026-09', fecha: new Date().toISOString(), id: 'id-del-navegador' });
 
-function cargarCookies(consentimientoGuardado) {
+function cargarCookies(consentimientoGuardado, { tokenCloudflare = '' } = {}) {
   const almacen = new Map(consentimientoGuardado ? [['becamax_cookies_consent', JSON.stringify(consentimientoGuardado)]] : []);
   const inyectados = [];
   const enviados = [];
@@ -84,7 +84,7 @@ function cargarCookies(consentimientoGuardado) {
       setItem: (k, v) => almacen.set(k, String(v)),
       removeItem: (k) => almacen.delete(k),
     },
-    location: { pathname: '/index.html', reload() { ventana.recargada = true; } },
+    location: { hostname: 'becamax.vercel.app', pathname: '/index.html', reload() { ventana.recargada = true; } },
     document: documento,
     setTimeout: () => 0,
     requestAnimationFrame: () => 0,
@@ -94,7 +94,9 @@ function cargarCookies(consentimientoGuardado) {
   };
   ventana.window = ventana;
   const contexto = vm.createContext(ventana);
-  vm.runInContext(fs.readFileSync(path.join(RAIZ, 'js', 'cookies.js'), 'utf8'), contexto);
+  const codigo = fs.readFileSync(path.join(RAIZ, 'js', 'cookies.js'), 'utf8')
+    .replace("CF_ANALYTICS_TOKEN: ''", `CF_ANALYTICS_TOKEN: '${tokenCloudflare}'`);
+  vm.runInContext(codigo, contexto);
   return { ventana, inyectados, almacen, enviados };
 }
 
@@ -108,12 +110,23 @@ test('rechazar lo opcional no carga ni analítica ni anuncios', () => {
   assert.deepStrictEqual(inyectados, []);
 });
 
-test('aceptar Análisis carga solo la analítica; Marketing, solo los anuncios', () => {
-  assert.deepStrictEqual(cargarCookies(vigente({ analisis: true, marketing: false })).inyectados,
-    ['/_vercel/insights/script.js']);
+test('aceptar Análisis no carga scripts de terceros; Marketing, solo los anuncios', () => {
+  // Análisis solo cubre ya los pasos de uso propios (AnalyticsAPI en supabase.js).
+  assert.deepStrictEqual(cargarCookies(vigente({ analisis: true, marketing: false })).inyectados, []);
   const conAnuncios = cargarCookies(vigente({ analisis: false, marketing: true })).inyectados;
   assert.strictEqual(conAnuncios.length, 1);
   assert.match(conAnuncios[0], /pagead2\.googlesyndication\.com/);
+});
+
+test('la analítica de Cloudflare, sin cookies, se carga siempre que haya token, con o sin consentimiento', () => {
+  for (const guardado of [null, vigente({ analisis: false, marketing: false })]) {
+    const { inyectados } = cargarCookies(guardado, { tokenCloudflare: 'abc123' });
+    assert.deepStrictEqual(inyectados, ['https://static.cloudflareinsights.com/beacon.min.js']);
+  }
+  const vercel = JSON.parse(fs.readFileSync(path.join(RAIZ, 'vercel.json'), 'utf8'));
+  const csp = vercel.headers[0].headers.find((h) => h.key === 'Content-Security-Policy').value;
+  assert.match(csp, /script-src[^;]*https:\/\/static\.cloudflareinsights\.com/);
+  assert.match(csp, /connect-src[^;]*https:\/\/cloudflareinsights\.com/);
 });
 
 test('un consentimiento de otra versión de la política o de hace más de 24 meses no vale', () => {

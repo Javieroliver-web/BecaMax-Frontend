@@ -40,7 +40,7 @@
     <div style="margin-bottom:32px;">
       <span style="background:rgba(16,185,129,.1);color:var(--primary);font-size:.8rem;font-weight:700;padding:4px 12px;border-radius:50px;text-transform:uppercase;letter-spacing:1px;">Legal</span>
       <h1 class="font-heading" style="font-size:2rem;margin-top:16px;margin-bottom:8px;">Política de Privacidad</h1>
-      <p style="color:var(--text-secondary);font-size:.9rem;">Última actualización: septiembre de 2026</p>
+      <p style="color:var(--text-secondary);font-size:.9rem;">Última actualización: octubre de 2026</p>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:28px;color:var(--text-secondary);line-height:1.8;">
@@ -61,7 +61,7 @@
           <li><strong style="color:var(--text-primary)">Pasos de uso (solo con consentimiento de Análisis):</strong> Registramos pasos como buscar, ver una beca o crear una alerta, con un identificador aleatorio guardado en tu navegador, para saber qué partes de la web funcionan. No se registra si rechazas la categoría Análisis.</li>
           <li><strong style="color:var(--text-primary)">Tu elección de cookies:</strong> Un identificador aleatorio de tu navegador, qué categorías aceptaste o rechazaste, la fecha, la versión de la política de cookies y el tipo de navegador, para poder demostrar tu consentimiento. Sin IP y sin relación con tu cuenta. Se borra a los 24 meses.</li>
           <li><strong style="color:var(--text-primary)">Datos técnicos:</strong> Dirección IP y tipo de navegador, recogidos automáticamente con fines de seguridad y análisis de rendimiento.</li>
-          <li><strong style="color:var(--text-primary)">Registro de accesos:</strong> Si aceptas todas las cookies, registramos tu IP, ciudad/país aproximados (mediante el servicio externo ipapi.co), tipo de dispositivo y navegador. Este registro se guarda internamente en nuestra base de datos (Supabase) y solo es visible para el administrador de BecaMax, con fines exclusivos de seguridad y monitorización de accesos. No se registra si eliges "Solo esenciales".</li>
+          <li><strong style="color:var(--text-primary)">Estadísticas de visitas:</strong> Contamos las visitas con Cloudflare Web Analytics, que no usa cookies ni guarda nada en tu navegador. Solo nos da cifras agregadas (páginas vistas, país, tipo de dispositivo y navegador, web de procedencia y tiempos de carga), sin identificarte ni seguirte entre webs.</li>
         </ul>
       </section>
 
@@ -100,7 +100,7 @@
           <li><strong style="color:var(--text-primary)">hCaptcha:</strong> Usamos el captcha de hCaptcha en los formularios de acceso, registro y recuperación de contraseña para evitar registros automatizados y ataques. Procesa datos técnicos del dispositivo (no rastrea con fines publicitarios).</li>
           <li><strong style="color:var(--text-primary)">Resend:</strong> Utilizamos Resend para enviarte el correo de alertas de becas cuando activas una alerta. Recibe tu email y el contenido del mensaje únicamente para poder entregarlo.</li>
           <li><strong style="color:var(--text-primary)">Informes de errores (Vercel y Discord):</strong> Si la web falla en tu navegador, se envía un aviso técnico (mensaje de error, página y navegador, sin datos que te identifiquen) a un canal privado de Discord para poder arreglarlo. Los fallos del servidor se avisan igual.</li>
-          <li><strong style="color:var(--text-primary)">ipapi.co:</strong> Servicio externo que consultamos para aproximar el país/ciudad a partir de tu IP, solo si aceptas todas las cookies (ver sección 2).</li>
+          <li><strong style="color:var(--text-primary)">Cloudflare:</strong> Cloudflare Web Analytics (Cloudflare Inc., Estados Unidos) recibe los datos técnicos de cada visita para darnos estadísticas agregadas, sin cookies y sin crear un perfil tuyo (ver sección 2).</li>
           <li><strong style="color:var(--text-primary)">Google AdSense:</strong> Mostramos anuncios de Google, que puede usar cookies para mostrar publicidad personalizada. Puedes configurar tus preferencias en <a href="https://adssettings.google.com" target="_blank" rel="noopener" style="color:var(--primary)">Google Ad Settings</a>.</li>
         </ul>
       </section>
@@ -109,10 +109,8 @@
         <h2 class="font-heading" style="font-size:1.1rem;color:var(--text-primary);margin-bottom:10px;">6. Transferencias internacionales de datos</h2>
         <p>Algunos de los proveedores anteriores tratan datos fuera del Espacio Económico Europeo (EEE), principalmente en Estados Unidos:</p>
         <ul style="padding-left:20px;margin-top:10px;display:flex;flex-direction:column;gap:8px;">
-          <li><strong style="color:var(--text-primary)">Google (inicio de sesión y AdSense), Vercel y Discord:</strong> transferencia amparada por el marco de adecuación UE-EE. UU. (EU-US Data Privacy Framework).</li>
-          <li><strong style="color:var(--text-primary)">Resend</strong> y <strong style="color:var(--text-primary)">hCaptcha</strong>: transferencia amparada por Cláusulas Contractuales Tipo (CCT) de la Comisión Europea, incluidas en sus condiciones de servicio.</li>
-          <li><strong style="color:var(--text-primary)">ipapi.co:</strong> el dato tratado es únicamente tu IP en el momento de la consulta, con el fin exclusivo de aproximar país/ciudad; no se comparte ningún otro dato personal con este proveedor. Solo ocurre si aceptas la categoría Análisis, y esa aceptación es la base de la transferencia (art. 49.1.a RGPD).</li>
-        </ul>
+          <li><strong style="color:var(--text-primary)">Google (inicio de sesión y AdSense), Vercel, Cloudflare y Discord:</strong> transferencia amparada por el marco de adecuación UE-EE. UU. (EU-US Data Privacy Framework).</li>
+          <li><strong style="color:var(--text-primary)">Resend</strong> y <strong style="color:var(--text-primary)">hCaptcha</strong>: transferencia amparada por Cláusulas Contractuales Tipo (CCT) de la Comisión Europea, incluidas en sus condiciones de servicio.</li>        </ul>
         <p style="margin-top:10px;">Los datos de tu cuenta y tu perfil se guardan en Supabase, en servidores de la Unión Europea (Irlanda).</p>
       </section>
 

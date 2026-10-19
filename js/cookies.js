@@ -69,7 +69,6 @@ window.BecaMaxConsent = {
 
   apply(prefs) {
     if (prefs.marketing) this.unlockAds();
-    if (prefs.analisis) this.unlockAnalytics();
   },
 
   unlockAds() {
@@ -93,16 +92,25 @@ window.BecaMaxConsent = {
     });
   },
 
-  // Vercel Web Analytics no se carga por defecto en las páginas que
-  // incluyen este fichero -- se inyecta solo si hay consentimiento de
-  // Análisis. OJO: el 24/09/2026 seguía la etiqueta <script> fija en 14
-  // páginas, que lo cargaba siempre; se quitaron. No volver a ponerla.
-  unlockAnalytics() {
-    if (!this.hasAnalyticsConsent() || document.getElementById('vercelInsightsScript')) return;
+  // Analítica de Cloudflare (Web Analytics): no usa cookies ni guarda nada en
+  // el navegador, así que se carga en todas las páginas SIN pedir permiso.
+  // Sustituye desde el 19/10/2026 al registro de visitas (logger.js, con IP
+  // y ciudad vía ipapi.co) y a Vercel Web Analytics, que iban detrás del
+  // consentimiento de Análisis y apenas contaban visitas.
+  // Para activarla: Cloudflare → Analytics & Logs → Web Analytics → Add a
+  // site con becamax.vercel.app y pegar aquí el token del fragmento que da.
+  // Vacío = desactivada. El token no es secreto: acaba en el HTML igualmente.
+  CF_ANALYTICS_TOKEN: '',
+
+  loadCloudflareAnalytics() {
+    const host = window.location.hostname;
+    if (!this.CF_ANALYTICS_TOKEN || host === 'localhost' || host === '127.0.0.1' || host === '') return;
+    if (document.getElementById('cfAnalyticsScript')) return;
     const s = document.createElement('script');
-    s.id = 'vercelInsightsScript';
+    s.id = 'cfAnalyticsScript';
     s.defer = true;
-    s.src = '/_vercel/insights/script.js';
+    s.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+    s.setAttribute('data-cf-beacon', JSON.stringify({ token: this.CF_ANALYTICS_TOKEN }));
     document.head.appendChild(s);
   },
 
@@ -122,6 +130,8 @@ window.BecaMaxConsent = {
 };
 
 (function () {
+  window.BecaMaxConsent.loadCloudflareAnalytics();
+
   const stored = window.BecaMaxConsent.get();
 
   // Si ya hay una preferencia guardada, aplicarla y no mostrar el banner.
